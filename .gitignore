@@ -1,0 +1,11 @@
+*.o
+*.aux
+*.log
+auto
+*.out
+...Rcheck
+.Rhistory
+*~
+#*#
+*.so
+*.dll
