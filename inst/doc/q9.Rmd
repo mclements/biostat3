@@ -1,0 +1,81 @@
+Biostat III exercises in R
+===========
+Laboratory exercise 9
+-----------
+
+### Suggested solutions by
+Author: Annika Tillander, Johan Zetterqvist  2014-03-03
+
+## Localised melanoma: modelling cause-specific mortality using Cox regression
+
+In exercise 7 we modelled the cause-specific mortality of patients diagnosed with localised melanoma using Poisson regression. We will now model cause-specific mortality using Cox regression and compare the results to those we obtained using the Poisson regression model.
+
+To fit a Cox proportional hazards model (for cause-specific survival) with calendar period as the only explanatory variable, the following commands can be used. Note that we are censoring all survival times at 120 months (10 years) in order to facilitate comparisons with the Poisson regression model in exercise 7.
+
+-----------
+
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('q9.R')
+opts_chunk$set(cache=FALSE)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependecies, message=FALSE}
+```
+
+```{r loadPreprocess, results='hide'}
+```
+
+**(a)** Interpret the estimated hazard ratio, including a comment on statistical significance. Write the linear predictor using pen and paper. Draw a graph showing the shape of the fitted hazard rates for the two calendar periods, also indicating the distance between the curves (HINT: draw on the log hazard scale if you find it easier). Compare this to how you drew the graph in exercise 7h.
+
+
+```{r 9.a}
+```
+
+**(b)** (This part is more theoretical and is not required in order to understand the remaining parts.)
+
+
+R reports a Wald test of the null hypothesis that survival is independent of calendar period. The test statistic (and associated P-value), is reported in the table of parameter estimates. Under the null hypothesis, the test statistic has a standard normal (Z) distribution, so the square of the test statistic will have a chi square distribution with one degree of freedom.
+
+R also reports a likelihood ratio test statistic of the null hypothesis that none of the parameters in the model are associated with survival. In general, this test statistic will have a chi-square distribution with degrees of freedom equal to the number of parameters in the model. For the current model, with only one parameter, the test statistic has a chi square distribution with one degree of freedom.
+
+Compare these two test statistics with each other and with the log rank test statistic (which also has a chi square distribution) calculated in question 3c (you should, however, recalculate the log rank test since we have restricted follow-up to the first 10 years in this exercise). Would you expect these test statistics to be similar? Consider the null and alternative hypotheses of each test and the assumptions involved with each test.
+
+
+```{r 9.b}
+```
+
+**(c)** Now include sex and age (in categories) in the model. Write the linear predictor using pen and paper.
+
+i. Interpret the estimated hazard ratio for the parameter labelled agegrp 2, including a comment on statistical significance.
+ii. Is the effect of calendar period strongly confounded by age and sex? That is, does the inclusion of sex and age in the model change the estimate for the effect of calendar period?
+iii. Perform a Wald test of the overall effect of age and interpret the results.
+
+
+```{r  9.c}
+```
+
+**(d)** Perform a likelihood ratio test of the overall effect of age and interpret the results.
+
+
+```{r 9.d, warning=FALSE}
+```
+
+Compare your findings to those obtained using the Wald test. Are the findings similar? Would you expect them to be similar?
+
+**(e)** The model estimated in question 9c is similar to the model estimated in question 7i.
+i. Both models adjust for sex, year8594, and i.agegrp but the Poisson regression model in question 7i appears to adjust for an additional variable (i.fu). Is the Poisson regression model adjusting for an additional factor? Explain.
+ii. Would you expect the parameter estimate for sex, period, and age to be similar for the two models? Are they similar?
+iii. Do both models assume proportional hazards? Explain.
+
+
+```{r 9.e}
+```
+
+**(f)** ADVANCED: By splitting at each failure time we can estimate a Poisson regression model that is identical to the Cox model.
+
+```{r 9.f}
+```

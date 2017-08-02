@@ -1,0 +1,90 @@
+Biostat III exercises in R
+===========
+Laboratory exercise 6
+-----------
+
+### Suggested solutions by
+Author: Annika Tillander, 2014-01-30 <br/>
+Edited: Andreas Karlsson, 2015-03-01
+
+## Diet data: tabulating incidence rates and modelling with Poisson regression
+
+-----------
+
+Load the diet data using time-on-study as the timescale.
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('q6.R')
+opts_chunk$set(cache=FALSE)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependecies, message=FALSE}
+```
+Load diet data and explore it.
+```{r loadPreprocess, results='hide'}
+```
+
+**(a)** Tabulate CHD incidence rates per 1000 person-years for each category of hieng. Calculate (by hand) the ratio of the two incidence rates.
+
+```{r 6a_ir,  message=FALSE}
+```
+
+**(b)** Fit a poisson model to find the incidence rate ratio for the high energy group compared to the low energy group and compare the estimate to the one you obtained in the previous question.
+
+```{r 6b_ir}
+```
+
+**(c)** Grouping the values of total energy into just two groups does not tell us much about how the CHD rate changes with total energy. It is a useful exploratory device, but to look more closely we need to group the total energy into perhaps 3 or 4 groups.
+
+In this example we shall use the cut points 1500, 2500, 3000, 4500. Compare with a normal distribution to check if these cutpoints seem reasonable.
+
+```{r 6c_energyDist,  message=FALSE}
+```
+
+**(d)** Create a new variable eng3 coded 1500 for values of energy in the range 1500–2499, 2500 for values in the range 2500–2999, and 3000 for values in the range 3000–4500.
+
+```{r 6d_engCat}
+```
+
+**(e)** Estimate the rates for different levels of eng3. Calculate (by hand) the ratio of rates in the second and third levels to the first level.
+
+
+```{r 6e_irEng}
+```
+
+**(f)** Create your own indicator variables for the three levels of eng3.
+
+
+```{r 6f_irEng}
+```
+
+**(g)** Check the indicator variables.
+
+```{r 6g_irEng}
+```
+
+**(h)** Use poisson to compare the second and third levels with the first.
+
+```{r 6h,  message=FALSE}
+```
+
+Compare your estimates with those you obtained in part 6e. Write the linear predictor using pen and paper.
+
+**(i)** Use a poisson model to compare the first and third levels with the second. Write the linear predictor using pen and paper.
+
+```{r 6i,  message=FALSE}
+```
+
+**(j)** Repeat the analysis comparing the second and third levels with the first but this time have R create the indicators automatically y using the categorical variable eng3.
+
+
+```{r 6j,  message=FALSE}
+```
+
+**(k)** Calculate the total number of events during follow-up, person-time at risk, and the crude incidence rate (per 1000 person-years)
+
+```{r 6k}
+```

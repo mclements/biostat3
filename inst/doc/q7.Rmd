@@ -1,0 +1,169 @@
+Biostat III exercises in R
+===========
+Laboratory exercise 7
+-----------
+
+### Suggested solutions by
+Author: Johan Zetterqvist, 2015-03-03
+
+
+## Model cause-specific mortality with poisson regression
+
+In this exercise we model, using Poisson regression, cause-specific mortality of patients diagnosed with localised (stage==1) melanoma.
+
+In exercise 9 we model cause-specific mortality using Cox regression and in exercise 28 we use flexible parametric models. The aim is to illustrate that these three methods are very similar.
+
+The aim of these exercises is to explore the similarities and differences to these three approaches to modelling. We will be comparing the results (and their interpretation) as we proceed through the exercises.
+
+-----------
+
+Load the diet data using time-on-study as the timescale.
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('q7.R')
+opts_chunk$set(cache=FALSE)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependecies, message=FALSE}
+```
+
+Load the melanoma data and explore it.
+
+```{r loadPreprocess, results='hide'}
+```
+
+Rates can be modelled on different timescales, e.g., attained age, time-since-entry, calendar time. Plot the CHD incidence rates both by attained age and by time-since-entry. Is there a difference? Do the same for CHD hazard by different energy intakes (hieng).
+
+**(a)**
+i. Plot Kaplan-Meier estimates of cause-specific survival as a function of calendar period of diagnosis.
+
+```{r 7.a.i,  message=FALSE}
+```
+
+ii. Now plot the estimated hazard function (cause-specific mortality rate) as a function of calendar period of diagnosis.
+
+```{r 7.a.ii,  message=FALSE}
+```
+During which calendar period (the early or the latter) is mortality the lowest?
+
+iii. Is the interpretation (with respect to how prognosis depends on period) based on the hazard consistent with the interpretation of the survival plot?
+
+```{r 7.a.iii,  message=FALSE}
+```
+
+**(b)** Estimate the cause-specific mortality rate for each calendar period.
+
+```{r 7.b,  message=FALSE}
+```
+
+During which calendar period (the early or the latter) is mortality the lowest? Is this consistent with what you found earlier? If not, why the inconsistency?
+
+**(c)** The reason for the inconsistency between parts 7a and 7b was confounding by time since diagnosis. The comparison in part 7a was adjusted for time since diagnosis (since we compare the differences between the curves at each point in time) whereas the comparison in part 7b was not. Understanding this concept is central to the remainder of the exercise so please ask for help if you don’t follow.
+
+Two approaches for controlling for confounding are ‘restriction’ and ‘statistical adjustment’. We will first use restriction to control for confounding. We will restrict the potential follow-up time to a maximum of 120 months. Individuals who survive more than 120 months are censored at 120 months.
+
+i. Estimate the cause-specific mortality rate for each calendar period.
+
+```{r 7.c.i,  message=FALSE}
+```
+
+During which calendar period (the early of the latter) is mortality the lowest? Is this consistent with what you found in part 7b?
+
+ii. Calculate by hand the ratio (85–94/75–84) of the two mortality rates (i.e., a mortality rate ratio) and interpret the estimate (i.e., during which period is mortality higher/lower and by how much).
+
+```{r 7.c.ii,  message=FALSE}
+```
+
+iii. Now use Poisson regression to estimate the same mortality rate ratio. Write the linear predictor using pen and paper and draw a graph of the fitted hazard rates.
+
+```{r 7.c.iii,  message=FALSE}
+```
+
+**(7d)** In order to adjust for time since diagnosis (i.e., adjust for the fact that we expect mortality to depend on time since diagnosis) we need to split the data by this timescale. We will restrict our analysis to mortality up to 10 years following diagnosis.
+
+```{r 7.d,  message=FALSE}
+```
+
+**(e)** Now tabulate (and produce a graph of) the rates by follow-up time.
+
+```{r 7.e,  message=FALSE}
+```
+
+Mortality appears to be quite low during the first year of follow-up. Does this seem reasonable considering the disease with which these patients have been diagnosed?
+
+**(f)** Compare the plot of the estimated rates to a plot of the hazard rate as a function of continuous time.
+
+```{r 7.f,  message=FALSE, warning=FALSE}
+```
+
+Is the interpretation similar? Do you think it is sufficient to classify follow-up time into annual intervals or might it be preferable to use, for example, narrower intervals?
+
+**(g)** Use Poisson regression to estimate incidence rate ratios as a function of follow-up time. Write the linear predictor using pen and paper.
+
+
+```{r 7.g,  message=FALSE}
+```
+Does the pattern of estimated incident rate ratios mirror the pattern you observed in
+the plots? Draw a graph of the fitted hazard rate using pen and paper.
+
+**(h)** Now estimate the effect of calendar period of diagnosis while adjusting for time since diagnosis. Before fitting this model, predict what you expect the estimated effect to be (i.e., will it be higher, lower, or similar to the value we obtained in part c). Write the linear predictor using pen and paper and draw a graph of the fitted hazard rates.
+
+
+```{r 7.h,  message=FALSE}
+```
+Is the estimated effect of calendar period of diagnosis consistent with what you expected? Add an interaction between follow-up and calendar period of diagnosis and interpret the results.
+
+**(i)** Now control for age, sex, and calendar period. Write the linear predictor using pen and paper.
+
+i. Interpret the estimated hazard ratio for the parameter labelled agegrp 2, including a comment on statistical significance.
+ii. Is the effect of calendar period strongly confounded by age and sex? That is, does the inclusion of sex and age in the model change the estimate for the effect of calendar period?
+iii. Perform a Wald test of the overall effect of age and interpret the results.
+
+```{r 7.i,  message=FALSE, warning=FALSE}
+```
+
+**(j)** Is the effect of sex modified by calendar period (whilst adjusting for age and follow-up)? Fit an appropriate interaction term to test this hypothesis. Write the linear predictor using pen and paper.
+
+```{r 7.j,  message=FALSE}
+```
+
+
+**(k)** Based on the interaction model you fitted in exercise 7j, estimate the hazard ratio for the effect of sex (with 95% confidence interval) for each calendar period.
+
+ADVANCED: Do this with each of the following methods and confirm that the results are the same:
+
+i. Using hand-calculation on the estimates from exercise 7j.
+
+```{r 7.k.i,  message=FALSE}
+```
+ii. Using the estimates from exercise 7j.
+
+
+```{r 7.k.ii,  message=FALSE}
+```
+
+iii. Creating appropriate dummy variables that represent the effects of sex for each calendar period.
+
+
+```{r 7.k.iii,  message=FALSE}
+```
+
+Write the linear predictor using pen and paper.
+
+
+iv. Using syntax available from Stata 11 and onwards to repeat the previous model.
+
+```{r 7.k.iv,  message=FALSE}
+```
+Using syntax available from Stata 11 and onwards to repeat the previous model.
+
+**(l)** Now fit a separate model for each calendar period in order to estimate the hazard ratio for the effect of sex (with 95% confidence interval) for each calendar period.
+
+Why do the estimates differ from those you obtained in the previous part?
+
+```{r 7.l,  message=FALSE}
+```
+Can you fit a single model that reproduces the estimates you obtained from the stratified models?

@@ -1,0 +1,53 @@
+Biostat III exercises in R
+===========
+Laboratory exercise 12
+-----------
+
+### Suggested solutions by
+Author: Andreas Karlsson, 2015-03-06 <br/>
+
+
+## Cox model for cause-specific mortality for melanoma (all stages)
+
+
+Use Cox regression to model the cause-specific survival of patients with skin melanoma (including all stages).
+
+-----------
+
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('q12.R')
+opts_chunk$set(cache=FALSE)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependecies, message=FALSE}
+```
+Load the melanoma data and explore it.
+
+```{r loadPreprocess, results='hide'}
+```
+
+**(a)** First fit the model with sex as the only explanatory variable. Does there appear to be a difference in survival between males and females?
+
+
+```{r 12.a, warning=FALSE, message=FALSE}
+```
+
+**(b)** Is the effect of sex confounded by other factors (e.g. age, stage, subsite, period)? After controlling for potential confounders, does there still appear to a difference in survival between males and females?
+
+```{r 12.b, warning=FALSE, message=FALSE}
+```
+
+**(c)** Consider the hypothesis that there exists a class of melanomas where female sex hormones play a large role in the etiology. These hormone related cancers are diagnosed primarily in women and are, on average, less aggressive (i.e., prognosis is good). If such a hypothesis were true we might expect the effect of sex to be modified by age at diagnosis (e.g., pre versus post menopausal). Test whether this is the case.
+
+```{r 12.c, warning=FALSE, message=FALSE}
+```
+
+**(d)** Decide on a ‘most appropriate’ model for these data. Be sure to evaluate the proportional hazards assumption.
+
+
+```{r 12.d, warning=FALSE, message=FALSE}
+```

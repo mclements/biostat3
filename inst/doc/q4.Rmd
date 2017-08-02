@@ -1,0 +1,56 @@
+Biostat III exercises in R
+===========
+Laboratory exercise 4
+-----------
+
+### Suggested solutions by
+Author: Annika Tillander, 2014-01-30 <br/>
+Edited: Andreas Karlsson, 2015-03-01, 2016-03-08
+
+## Localised melanoma: Comparing actuarial and Kaplan-Meier approaches with discrete time data
+
+-----------
+
+The aim of this exercise is to examine the effect of heavily grouped data (i.e., data with lots of ties) on estimates of survival made using the Kaplan-Meier method and the actuarial method.
+
+For the patients diagnosed with localised skin melanoma, estimate the 10-year cause-specific survival proportion. Use both the Kaplan-Meier method and the actuarial method. Do this both with survival time recorded in completed years and survival time recorded in completed months. That is, you should obtain 4 separate estimates of the 10-year cause-specific survival proportion to complete the cells of the following table. The purpose of this exercise is to illustrate small differences between the two methods when there are large numbers of ties.
+
+In order to reproduce the results in the printed solutions you’ll need to restrict to localised stage and estimate cause-specific survival ("Dead: cancer" indicates an event). Look at the code in the previous questions if you are unsure.
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('q4.R')
+opts_chunk$set(cache=FALSE)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependecies, message=FALSE}
+```
+
+**(a)** Of the two estimates (Kaplan-Meier and actuarial) made using time recorded in years, which do you think is the most appropriate and why? [HINT: Consider how each of the methods handle ties.]
+**(b)** Which of the two estimates (Kaplan-Meier or actuarial) changes most when using survival time in months rather than years? Why?
+
+
+```{r loadPreprocess}
+```
+
+Actuarial method, using survival time in completed years.
+
+```{r actuarialYears}
+```
+
+Actuarial method, using survival time in completed months. Only showing 20 months around the 10th year.
+
+```{r actuarialMonths}
+```
+
+Kaplan-Meier estimates, using survival time in completed  years.
+
+```{r kmYears}
+```
+
+Kaplan-Meier estimates, using survival time in completed months. Only showing 20 months around the 10th year.
+
+```{r kmMonths}
+```
