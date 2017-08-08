@@ -1,3 +1,4 @@
-exportPattern("^[[:alpha:]]+")
+exportPattern("^[[:alpha:]]+") # export names that start with a letter 
 
-export(lifetab2)
+importFrom(muhaz,muhaz,plot.muhaz,lines.muhaz)
+importFrom(KMsurv,lifetab)

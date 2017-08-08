@@ -6,7 +6,7 @@ Laboratory exercise 2
 ### Suggested solutions by
 
 Author: Annika Tillander, 2014-01-30 <br/>
-Edited: Andreas Karlsson, 2015-02-28, 2016-03-07
+Edited: Andreas Karlsson, 2015-02-28, 2016-03-07; Mark Clements, 2017-08-02
 
 Comparing survival, proportions and mortality rates by stage for cause-specific and
 all-cause survival.
@@ -24,7 +24,7 @@ You may have to install the required packages the first time you use them. You c
 ```{r loadDependecies, message=FALSE}
 ```
 
-We start by reading the data and listing the first few observations to get an idea about the data. We then define a 1/0 varible for the events that we are interested in.
+We start by listing the first few observations to get an idea about the data. We then define two 1/0 variables for the events that we are interested in.
 
 ```{r loadPreprocess}
 ```
@@ -35,7 +35,7 @@ We start by reading the data and listing the first few observations to get an id
 ```
 
 Survival depends heavily on stage. It is interesting to note that patients with an unknown stage
-appear to have a similar survival as patients with a localized stage. Tabulate events by stage Fit and plot survival and smoothed hazard.
+appear to have a similar survival to patients with a localized stage. Tabulate events by stage and plot survival and the smoothed hazards.
 
 ```{r a_plotSurv}
 ```

@@ -5,7 +5,7 @@ Laboratory exercise 4
 
 ### Suggested solutions by
 Author: Annika Tillander, 2014-01-30 <br/>
-Edited: Andreas Karlsson, 2015-03-01, 2016-03-08
+Edited: Andreas Karlsson, 2015-03-01, 2016-03-08; Mark Clements, 2017-08-07
 
 ## Localised melanoma: Comparing actuarial and Kaplan-Meier approaches with discrete time data
 

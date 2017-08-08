@@ -3,11 +3,11 @@ Type: Package
 Title: Course material for Biostatistics III in R
 Version: 0.1
 Date: 2017-08-01
-Author: Mark Clements
+Author: Annika Tillander, Andreas Karlsson, Johann Zetterqvist, Peter Str\"{o}m Mark Clements, 
 Maintainer: Mark Clements <mark.clements@ki.se>
-Description: More about what it does (maybe more than one line)
-Depends: survival, rstpm2
-Suggests: KMsurv
+Description: The package includes data and a small set of wrapper functions. It also includes extensive examples in HTML, including R sources.
+Depends: survival, rstpm2, stats
+Imports: MASS, muhaz, KMsurv
 License: GPL-2 or later
 LazyData: yes
 LazyLoad: yes

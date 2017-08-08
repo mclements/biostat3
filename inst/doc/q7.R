@@ -1,6 +1,7 @@
 ## Date: 2015-03-03
 ## Purpose: To do the solution for Biostat III exercises in R
 ## Author: Johan Zetterqvist
+## Modified: Mark Clements, 2017-08-07
 ###############################################################################
 
 ###############################################################################
@@ -13,33 +14,16 @@
 ## install.packages("car")
 
 ## @knitr loadDependecies
-require(survival) # for Surv and survfit
-require(dplyr)    # for data manipulation
-require(foreign)  # for reading data set from Stata
-
-
-###########################################
-### A help function to calculate ###
-### and print incidence (hazard) ratios
-### from a fitted poisson regression
-### from glm
-###########################################
-
-IRR <- function(fit){
-    summfit <- summary(fit )$coefficients
-    IRfit <- exp( cbind( summfit[, 1:2], summfit[, 1] - 1.96*summfit[, 2], summfit[, 1] +
-                        1.96*summfit[, 2] ) )
-    colnames(IRfit) <- c("IRR", "Std. err", "CI_lower", "CI_upper")
-    print(IRfit)
-}
+library(biostat3)
+library(dplyr)    # for data manipulation
+library(car)      # for linearHypothesis and deltaMethod
 
 
 ## @knitr loadPreprocess
 ## Read melanoma data
-melanoma <- tbl_df( read.dta("http://biostat3.net/download/melanoma.dta") )
 
 ## Create a new dataset with only localised cancer
-melanoma.l <- filter(melanoma, stage=="Localised")
+melanoma.l <- filter(biostat3::melanoma, stage=="Localised")
 head( melanoma.l )
 summary(melanoma.l)
 
@@ -80,31 +64,11 @@ legend("bottomleft",legend=levels(melanoma.l$year8594),col=c("blue","red"),lty=c
 
 ## @knitr 7.a.ii
 
-## To plot smoothed hazards, we need use the muhaz package
-require(muhaz)
+## To plot smoothed hazards, we use the muhaz package (using the muhaz2 wrapper)
 
-## The plot.muhaz cannot rescale so we create a new variable
-## Create a new variable base on the number of months
-## translated to years (more accurate than surv_yy)
-melanoma.l <- mutate( melanoma.l, surv_yy1 = surv_mm/12)
-
-## Since the muhaz interface does not support data frames
-## we do this the old school way
-hazfit7a.early <- with(melanoma.l,
-                       muhaz(times=surv_yy1,
-                             delta=status=="Dead: cancer",
-                             subset=year8594=="Diagnosed 75-84"))
-
-hazfit7a.late <- with(melanoma.l,
-                      muhaz(times=surv_yy1,
-                            delta=status=="Dead: cancer",
-                            subset=year8594=="Diagnosed 85-94",
-                            max.time=max(surv_yy1)))
-
-## With bells and whistles
-plot(hazfit7a.early,xlab="Years since diagnose",col="blue",lty="solid")
-lines(hazfit7a.late,col="red",lty="dashed")
-legend("topright",legend=levels(melanoma$year8594),col=c("blue","red"),lty=c("solid","dashed"))
+plot(muhaz2(Surv(surv_mm/12, status == "Dead: cancer") ~ year8594, data=melanoma.l),
+     xlab="Years since diagnosis", col=c("blue","red"), lty=1:2)
+legend("topright",legend=levels(melanoma.l$year8594), col=c("blue","red"), lty=1:2)
 
 ## @knitr 7.a.iii
 ## Compare with Kaplan-Meier plot
@@ -116,15 +80,15 @@ plot(sfit7a1,
      ## Time is measured in months,  but we want to see it in years
      xscale=12,
      ## Make the plot prettier
-     xlab="Years since diagnose",
+     xlab="Years since diagnosis",
      ylab="S(t)",
      col=c("blue","red"),
      lty=c("solid","dashed"))
 legend("bottomleft",legend=levels(melanoma.l$year8594),col=c("blue","red"),lty=c("solid","dashed"))
 
-plot(hazfit7a.early,xlab="Years since diagnose",col="blue",lty="solid")
-lines(hazfit7a.late,col="red",lty="dashed")
-legend("topright",legend=levels(melanoma$year8594),col=c("blue","red"),lty=c("solid","dashed"))
+plot(muhaz2(Surv(surv_mm/12, status == "Dead: cancer") ~ year8594, data=melanoma.l),
+     xlab="Years since diagnosis", col=c("blue","red"),lty=c("solid","dashed"))
+legend("topright",legend=levels(melanoma.l$year8594), col=c("blue","red"),lty=c("solid","dashed"))
 
 ## @knitr 7.b
 
@@ -143,13 +107,12 @@ rates_by_diag_yr <- melanoma.l %>%
         ## Calculate the total person time
         Y = sum(surv_mm)/12/1000,
         ## Calculate the rate
-        Rate = D/Y) %>%
+        Rate = D/Y,
+        ## Add confidence intervals for the rates
+        CI_low = poisson.ci(D,Y)[1],
+        CI_high = poisson.ci(D,Y)[2]) %>% print
+        
 
-    ## Add confidence intervals for the rates
-    mutate(CI_low = Rate + qnorm(0.025) * Rate / sqrt(D),
-           CI_high = Rate + qnorm(0.975) * Rate / sqrt(D))
-
-rates_by_diag_yr
 
 ## @knitr 7.c.i
 
@@ -176,15 +139,10 @@ rates_by_diag_yr2 <- melanoma.l2 %>%
         ## Calculate the total person time
         Y = sum(surv_mm)/12/1000,
         ## Calculate the rate
-        Rate = D/Y) %>%
-
-    ## Add confidence intervals for the rates
-    mutate(CI_low = Rate + qnorm(0.025) * Rate / sqrt(D),
-           CI_high = Rate + qnorm(0.975) * Rate / sqrt(D))
-
-rates_by_diag_yr2
-
-rates_by_diag_yr
+        Rate = D/Y,
+        ## Add confidence intervals for the rates
+        CI_low = poisson.ci(D,Y)[1],
+        CI_high = poisson.ci(D,Y)[2]) %>% print
 
 ## @knitr 7.c.ii
 
@@ -200,10 +158,7 @@ poisson7c <- glm( death_cancer ~ year8594 + offset( log( surv_mm/12/1000 ) ), fa
 summary( poisson7c )
 
 ## IRR
-IRR(poisson7c)
-
-## with confidence intervals (takes some time to compute)
-## exp(cbind(coef(poisson7c),confint(poisson7c)))
+eform(poisson7c)
 
 
 ## Note that the scaling of the offset term only has an impact on the intercept
@@ -242,13 +197,10 @@ yearly_rates <- melanoma.spl %>%
         ## Calculate the total person time measured in 1000
         Y = sum(pt)/1000,
         ## Calculate the rate
-        Rate = D/Y) %>%
+        Rate = D/Y,
+        CI_low = poisson.ci(D,Y)[1],
+        CI_high = poisson.ci(D,Y)[2]) %>% print
 
-    ## Add confidence intervals for the rates
-    mutate(CI_low = Rate + qnorm(0.025) * Rate / sqrt(D),
-           CI_high = Rate + qnorm(0.975) * Rate / sqrt(D))
-
-yearly_rates
 
 ## Plot by year
 with(yearly_rates, matplot(fu,
@@ -257,28 +209,27 @@ with(yearly_rates, matplot(fu,
                            lty=c("solid","dashed","dashed"),
                            col=c("black","gray","gray"),
                            type="l",
-                           main="Cancer deaths per 1000 person-year by years since diagnose",
-                           ylab="IR",
-                           xlab="Years since diagnose") )
+                           main="Cancer deaths by years since diagnosis",
+                           ylab="Incidence rate per 1000 person-years",
+                           xlab="Years since diagnosis") )
 
 ## @knitr 7.f
-hazfit7f <- with(melanoma.l2, muhaz(times=surv_yy1, delta=death_cancer, max.time=10.5) )
-
 # Plot smoothed hazards
-frame() # Open new graphics device (window)
-plot(hazfit7f,xlab="Years since diagnose",col="blue",lty="solid")
 
 par(mfrow=c(1,2))
-with(yearly_rates, matplot(fu,
+with(yearly_rates, matplot(as.numeric(as.character(fu))+0.5,
                            cbind(Rate, CI_low,
                              CI_high),
                            lty=c("solid","dashed","dashed"),
                            col=c("black","gray","gray"),
                            type="l",
-                           main="Cancer deaths per 1000 person-year by years since diagnose",
-                           ylab="IR",
-                           xlab="Years since diagnose") )
-plot(hazfit7f,xlab="Years since diagnose",col="blue",lty="solid")
+                           main="Cancer deaths by time since diagnosis",
+                           ylab="Mortality rate per 1000 person-years",
+                           xlab="Years since diagnosis") )
+
+hazfit7f <- muhaz2(Surv(surv_mm/12, status == "Dead: cancer") ~ 1, data = melanoma.l)
+## scale hazard by 1000
+plot(hazfit7f, xlab="Years since diagnosis",col="blue",lty="solid", haz.scale=1000)
 
 
 ## @knitr 7.g
@@ -287,42 +238,42 @@ summary(poisson7g <- glm( death_cancer ~ fu + offset( log(pt) ),
                          family = poisson,
                          data = melanoma.spl ))
 ## IRR
-IRR(poisson7g)
+eform(poisson7g, method="Wald")
 
 ## @knitr 7.h
 summary(poisson7h <- glm( death_cancer ~ fu + year8594 + offset( log(pt) ),
                          family = poisson,
                          data = melanoma.spl ))
 ## IRR
-IRR(poisson7h)
+eform(poisson7h, method="Wald")
 
 # Add interaction term
 summary(poisson7h2 <- glm( death_cancer ~ fu*year8594 + offset( log(pt) ), family=poisson, data=melanoma.spl ))
 ## IRR
-IRR(poisson7h2)
+eform(poisson7h2, method="Wald")
 
 ## @knitr 7.i
 
-summary(poisson7i <- glm( death_cancer ~ fu + agegrp + year8594 + sex + offset( log(pt) ), family=poisson, data=melanoma.spl ))
+summary(poisson7i <- glm( death_cancer ~ fu + year8594 + sex + agegrp + offset( log(pt) ), family=poisson, data=melanoma.spl ))
 
 ## IRR
-IRR(poisson7i)
+eform(poisson7i, method="Wald")
 
-## Test if the effect of age is significant
-## For this we use the car package
-require(car)
+## Test if the effect of age is significant using a likelihood ratio test
+drop1(poisson7i, ~agegrp, test="Chisq")
+## For this we can also use the car package and a Wald test
 linearHypothesis(poisson7i,c("agegrp45-59 = 0","agegrp60-74 = 0","agegrp75+ = 0"))
 ## ADVANCED:
-## Alternative by comparing deviances
-## poisson7i_2 <- update(poisson7i,. ~ . - agegrp)
-## anova(poisson7i_2,poisson7i,test="Chisq")
+## Alternative approach for the likelihood ratio test
+# poisson7i_2 <- update(poisson7i,. ~ . - agegrp)
+# anova(poisson7i_2,poisson7i,test="Chisq")
 
 ## @knitr 7.j
 
 summary(poisson7j <- glm( death_cancer ~ fu + agegrp + year8594*sex + offset( log(pt) ), family=poisson, data=melanoma.spl ))
 
 ## IRR
-IRR(poisson7j)
+eform(poisson7j, method="Wald")
 
 ## @knitr 7.k.i
 # hand calculations
@@ -331,19 +282,22 @@ hz7k["sexFemale"]
 hz7k["sexFemale"]*hz7k["year8594Diagnosed 85-94:sexFemale"]
 
 ## @knitr 7.k.ii
-linearHypothesis(poisson7j,c("sexFemale = 0","year8594Diagnosed 85-94:sexFemale = 0"))
+linearHypothesis(poisson7j,c("sexFemale + year8594Diagnosed 85-94:sexFemale = 0"))
+
+## calculate the confidence interval on the linear predictor scale and then transform
+exp(deltaMethod(poisson7j, "b14+b15", parameterNames = paste0("b",0:15)))[-2] # NB: drop SE
+## We can get the standard error (and drop the confidence interval)
+deltaMethod(poisson7j, "exp(b14+b15)", parameterNames = paste0("b",0:15))[-(3:4)]
 
 # ADVANCED:
 # hand calculations with confidence intervals
 # use estimates with covariance matrix from glm
 # to obtain estimates with ci's
-length(coef(poisson7j))
 linvec <- c(rep(0,14),c(1,1))
 coef.Female8594 <- crossprod(coef(poisson7j),linvec)
-var.Female8594 <- t(linvec)%*%vcov(poisson7j)%*%linvec
-ci.d <- 1.96*sqrt(var.Female8594)
-ci.lower <- coef.Female8594 - ci.d
-ci.upper <- coef.Female8594 + ci.d
+se.Female8594 <- sqrt(diag(t(linvec)%*%vcov(poisson7j)%*%linvec))
+ci.lower <- coef.Female8594 - 1.96*se.Female8594
+ci.upper <- coef.Female8594 + 1.96*se.Female8594
 exp(c(coef.Female8594,ci.lower,ci.upper))
 
 ## @knitr 7.k.iii
@@ -359,7 +313,7 @@ summary(poisson7k <- glm( death_cancer ~ fu + agegrp + year8594 + femaleEarly +
                          data=melanoma.spl ))
 
 ## IRR
-IRR(poisson7k)
+eform(poisson7k, method="Wald")
 
 ## @knitr 7.k.iv
 ## Add interaction term
@@ -368,37 +322,31 @@ summary(poisson7k2 <- glm( death_cancer ~ fu + agegrp + year8594 + year8594:sex 
                          data=melanoma.spl ))
 
 ## IRR
-IRR(poisson7k2)
+eform(poisson7k2, method="Wald")
 
 
 ## @knitr 7.l
 
-melanoma.spl %>%
-
-    group_by(year8594) %>%
-
-    summarize()
-
 summary( poisson7l.early <- glm( death_cancer ~ fu + agegrp + sex + offset( log(pt) ),
                        family = poisson, data = melanoma.spl,
-                       subset = which(year8594 == "Diagnosed 75-84" ) ) )
-IRR(poisson7l.early)
+                       subset = year8594 == "Diagnosed 75-84" ) )
+eform(poisson7l.early, method="Wald")
 
 summary( poisson7l.late <- glm( death_cancer ~ fu + agegrp + sex + offset( log(pt) ),
                        family = poisson, data = melanoma.spl,
-                       subset = which(year8594 == "Diagnosed 85-94" ) ) )
+                       subset = year8594 == "Diagnosed 85-94" ) )
 
-IRR(poisson7l.late)
+eform(poisson7l.late, method="Wald")
 
 # compare with results in i
-IRR(poisson7i)
+eform(poisson7i, method="Wald")
 
 # compare with results in j
-IRR(poisson7j)
+eform(poisson7j, method="Wald")
 
 
 # Poisson-regression with effects specific for diagnose period
 summary(poisson7l2 <- glm( death_cancer ~ fu + fu:year8594 + agegrp + agegrp:year8594
                           + sex*year8594 + offset( log(pt) ),
                           family=poisson, data=melanoma.spl ))
-IRR(poisson7l2)
+eform(poisson7l2, method="Wald")

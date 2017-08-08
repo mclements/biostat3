@@ -10,16 +10,19 @@ Calculate a life table using the actuarial method using a formula and a
 data-frame with optional breaks. 
 }
 \usage{
-lifetab2(surv, data = NULL, breaks = NULL)
+lifetab2(formula, data, subset, breaks = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{surv}{
-    formula for the \code{Surv} object, including a time and event indicator.
+  \item{formula}{
+    formula with the left-hand side being a \code{Surv} object, including a time and event indicator, and the right-hand side indicated stratification.
 }
   \item{data}{
     optional \code{data.frame} for the \code{Surv} object. If this is not provided, then the parent frame
     is used for the \code{Surv} object.
+}
+  \item{subset}{
+    optional \code{subset} statement
 }
   \item{breaks}{
     optional numeric vector of breaks. If this is not provided, then the
@@ -50,11 +53,11 @@ Mark Clements for the wrapper.
 %% %% ~~objects to See Also as \code{\link{help}}, ~~~
 %% }
 \examples{
-## we can use unique transformed times
-lifetab2(Surv(floor(surv_yy),status=="Dead: cancer"), colon_sample)
+## we can use unique transformed times (colon_sample)
+lifetab2(Surv(floor(surv_yy),status=="Dead: cancer")~1, colon_sample)
 
-## we can also use the breaks argument
-lifetab2(Surv(surv_yy,status=="Dead: cancer"), colon_sample, breaks=0:10)
+## we can also use the breaks argument (colon)
+lifetab2(Surv(surv_yy,status=="Dead: cancer")~1, colon, breaks=0:10)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

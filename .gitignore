@@ -6,6 +6,6 @@ auto
 ...Rcheck
 .Rhistory
 *~
-#*#
 *.so
 *.dll
+.Rproj.user
