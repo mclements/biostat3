@@ -130,18 +130,18 @@ $(document).ready(function () {
 <p>You may have to install the required packages the first time you use them. You can install a package by <code>install.packages(&quot;package_of_interest&quot;)</code> for each package you require.</p>
 <pre class="r"><code>library(biostat3)</code></pre>
 <p>Life tables are available using the <code>lifetab</code> function from the <code>KMsurv</code> package on CRAN. We have written a small wrapper <code>lifetab2</code> which allows for a <code>Surv</code> object and a dataset. Following are the life table estimates. Note that in the lectures, when we estimated all-cause survival, there were 8 deaths in the first interval. One of these died of a cause other than cancer so in the cause-specific survival analysis we see that there are 7 ‘deaths’ and 1 censoring (in <code>lifetab2</code> we used the term ‘nlost’ for number lost to follow-up) in the first interval.</p>
-<pre class="r"><code>print(lifetab2(Surv(floor(surv_yy), status == &quot;Dead: cancer&quot;)~1, colon, breaks=0:10), digits=2)</code></pre>
-<pre><code>##      nsubs nlost nrisk nevent surv    pdf hazard se.surv  se.pdf se.hazard
-## 0-1  15564   458 15335   5017 1.00 0.3272  0.391  0.0000 0.00379    0.0054
-## 1-2  10089   936  9621   1617 0.67 0.1131  0.183  0.0038 0.00264    0.0045
-## 2-3   7536   744  7164    678 0.56 0.0530  0.099  0.0041 0.00197    0.0038
-## 3-4   6114   690  5769    396 0.51 0.0348  0.071  0.0042 0.00171    0.0036
-## 4-5   5028   560  4748    258 0.47 0.0256  0.056  0.0042 0.00157    0.0035
-## 5-6   4210   553  3934    146 0.45 0.0166  0.038  0.0043 0.00135    0.0031
-## 6-7   3511   487  3268     85 0.43 0.0112  0.026  0.0043 0.00120    0.0029
-## 7-8   2939   423  2728     40 0.42 0.0061  0.015  0.0044 0.00097    0.0023
-## 8-9   2476   366  2293     25 0.41 0.0045  0.011  0.0044 0.00090    0.0022
-## 9-10  2085   592  1789     46 0.41     NA     NA  0.0045      NA        NA</code></pre>
+<pre class="r"><code>print(lifetab2(Surv(floor(surv_yy), status == &quot;Dead: cancer&quot;)~1, colon_sample, breaks=0:10), digits=2)</code></pre>
+<pre><code>##      nsubs nlost nrisk nevent surv   pdf hazard se.surv se.pdf se.hazard
+## 0-1     35     1  34.5      7 1.00 0.203   0.23   0.000  0.068     0.085
+## 1-2     27     3  25.5      1 0.80 0.031   0.04   0.068  0.031     0.040
+## 2-3     23     4  21.0      5 0.77 0.182   0.27   0.073  0.073     0.120
+## 3-4     14     1  13.5      2 0.58 0.086   0.16   0.090  0.058     0.113
+## 4-5     11     1  10.5      0 0.50 0.000   0.00   0.095    NaN       NaN
+## 5-6     10     0  10.0      0 0.50 0.000   0.00   0.095    NaN       NaN
+## 6-7     10     3   8.5      0 0.50 0.000   0.00   0.095    NaN       NaN
+## 7-8      7     1   6.5      0 0.50 0.000   0.00   0.095    NaN       NaN
+## 8-9      6     4   4.0      1 0.50 0.124   0.29   0.095  0.110     0.283
+## 9-10     1     1   0.5      0 0.37    NA     NA   0.129     NA        NA</code></pre>
 <p>Following is a table of Kaplan-Meier estimates. It is not clear from the table, if the person censored at time 2 was at risk when the other person dies at time 2. Following the table is a graph of the survival function.</p>
 <pre class="r"><code>mfit &lt;- survfit(Surv(surv_mm, status == &quot;Dead: cancer&quot;) ~ 1, data = colon_sample) # make Kaplan-Meier estimates
 summary(mfit)                                                  # print Kaplan-Meier table</code></pre>

@@ -14,27 +14,12 @@
 ###############################################################################
 ## @knitr loadDependecies
 
-require(survival) # for Surv and survfit
-require(dplyr)    # for data manipulation
-require(foreign)  # for reading data set from Stata
-
-###########################################
-### A help function to calculate ###
-### and print incidence (hazard) ratios
-### from a fitted poisson regression
-### from glm
-###########################################
-IRR <- function(fit){
-    summfit <- summary(fit )$coefficients
-    IRfit <- exp( cbind( summfit[, 1:2], summfit[, 1] - 1.96*summfit[, 2], summfit[, 1] +
-                        1.96*summfit[, 2] ) )
-    colnames(IRfit) <- c("IRR", "Std. err", "CI_lower", "CI_upper")
-    print(IRfit)
-}
+library(biostat3)
+library(dplyr)    # for data manipulation
 
 ## @knitr loadPreprocess
 ## Read melanoma data, select subcohorts and create a death indicator
-melanoma.l <- tbl_df( read.dta("http://biostat3.net/download/melanoma.dta") ) %>%
+melanoma.l <- biostat3::melanoma %>%
     filter(stage=="Localised") %>%
     mutate(death_cancer = as.numeric(status=="Dead: cancer"))
 
@@ -61,7 +46,7 @@ summary( coxfit9c <- coxph(Surv(surv_mm, death_cancer) ~ year8594 + sex + agegrp
 
 ## Test if the effect of age is significant
 ## Use a Wald test with the car package
-require(car)
+library(car)
 linearHypothesis(coxfit9c,c("agegrp45-59 = 0","agegrp60-74 = 0","agegrp75+ = 0"))
 
 ## @knitr 9.d
@@ -94,7 +79,7 @@ summary(poisson9e <- glm( death_cancer ~ fu + year8594 + sex + agegrp + offset( 
                          family = poisson,
                          data = melanoma.spl ))
 
-IRR(poisson9e)
+eform(poisson9e)
 summary(coxfit9e)
 
 ## @knitr 9.f
@@ -116,19 +101,21 @@ melanoma.spl2 <- mutate(melanoma.spl2,
                         pt = surv_mm - start,
                         fu = as.factor(start) )
 
-## Run Poisson regression
-poisson9f <- glm( death_cancer ~ fu + year8594 + sex + agegrp + offset( log(pt) ),
-                         family = poisson,
-                         data = melanoma.spl2 )
+## Run Poisson regression (slow)
+if (redo <- FALSE) {
+  poisson9f <- glm( death_cancer ~ fu + year8594 + sex + agegrp + offset( log(pt) ),
+                    family = poisson,
+                    data = melanoma.spl2 )
+  save(poisson9f,file="poisson9f.RData")
+} else {
+  load("poisson9f.RData")
+}
 
 ## IRR
-coef9f <- summary(poisson9f)$coefficients
+coef9f <- eform(poisson9f)
 ## We are not interested in nuisance parameters fu1, fu2, etc
-npar <- dim(coef9f)[1]
+npar <- nrow(coef9f)
 pars <- (npar-4):npar
-IRfit9f <- exp( cbind( coef9f[pars, 1:2], coef9f[pars, 1] - 1.96*coef9f[pars, 2], coef9f[pars, 1] +
-                        1.96*coef9f[pars, 2] ) )
-colnames(IRfit9f) <- c("IRR", "Std. err", "CI_lower", "CI_upper")
-IRfit9f
+coef9f[pars,]
 
 summary(coxfit9e)

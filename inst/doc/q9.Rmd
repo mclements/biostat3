@@ -4,7 +4,7 @@ Laboratory exercise 9
 -----------
 
 ### Suggested solutions by
-Author: Annika Tillander, Johan Zetterqvist  2014-03-03
+Author: Annika Tillander, Johan Zetterqvist  2014-03-03, Mark Clements 2017-09-03
 
 ## Localised melanoma: modelling cause-specific mortality using Cox regression
 

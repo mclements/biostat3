@@ -31,8 +31,8 @@ with(diet.ir6a, poisson.test(rev(Event),rev(Time)))
 ## @knitr 6b_ir
 poisson6b <- glm( chd ~ hieng + offset( log( y1k ) ), family=poisson, data=diet)
 summary(poisson6b)
-irr(poisson6b)
-irr(poisson6b, method="Wald")
+eform(poisson6b)
+eform(poisson6b, method="Profile")
 
 ## @knitr 6c_energyDist
 hist6c <- hist(diet$energy, breaks=25, probability=TRUE, xlab="Energy (units)")

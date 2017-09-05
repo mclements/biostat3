@@ -125,7 +125,7 @@ $(document).ready(function () {
 <h2>Laboratory exercise 7</h2>
 <div id="suggested-solutions-by" class="section level3">
 <h3>Suggested solutions by</h3>
-<p>Author: Johan Zetterqvist, 2015-03-03</p>
+<p>Author: Johan Zetterqvist, 2015-03-03 </br> Modified by: Mark Clements, 2017-08-08</p>
 </div>
 </div>
 <div id="model-cause-specific-mortality-with-poisson-regression" class="section level2">
@@ -331,9 +331,9 @@ summary( poisson7c )</code></pre>
 ## Number of Fisher Scoring iterations: 6</code></pre>
 <pre class="r"><code>## IRR
 eform(poisson7c)</code></pre>
-<pre><code>##                          exp(beta)      2.5 %    97.5 %
-## (Intercept)             31.4525600 28.8235885 34.236598
-## year8594Diagnosed 85-94  0.8831851  0.7776982  1.002542</code></pre>
+<pre><code>##                          exp(beta)     2.5 %    97.5 %
+## (Intercept)             31.4525600 28.859880 34.278158
+## year8594Diagnosed 85-94  0.8831851  0.777905  1.002714</code></pre>
 <pre class="r"><code>## Note that the scaling of the offset term only has an impact on the intercept
 summary( glm( death_cancer ~ year8594 + offset( log( surv_mm ) ),
              family=poisson, data=melanoma.l2 ) )</code></pre>
@@ -473,7 +473,7 @@ summary(poisson7g &lt;- glm( death_cancer ~ fu + offset( log(pt) ),
 ## 
 ## Number of Fisher Scoring iterations: 6</code></pre>
 <pre class="r"><code>## IRR
-eform(poisson7g, method=&quot;Wald&quot;)</code></pre>
+eform(poisson7g)</code></pre>
 <pre><code>##             exp(beta)      2.5 %     97.5 %
 ## (Intercept) 0.0135058 0.01070318 0.01704229
 ## fu1         3.4750768 2.66250895 4.53563117
@@ -523,7 +523,7 @@ eform(poisson7g, method=&quot;Wald&quot;)</code></pre>
 ## 
 ## Number of Fisher Scoring iterations: 6</code></pre>
 <pre class="r"><code>## IRR
-eform(poisson7h, method=&quot;Wald&quot;)</code></pre>
+eform(poisson7h)</code></pre>
 <pre><code>##                          exp(beta)      2.5 %     97.5 %
 ## (Intercept)             0.01551228 0.01217011 0.01977229
 ## fu1                     3.46780081 2.65693069 4.52614081
@@ -580,7 +580,7 @@ summary(poisson7h2 &lt;- glm( death_cancer ~ fu*year8594 + offset( log(pt) ), fa
 ## 
 ## Number of Fisher Scoring iterations: 7</code></pre>
 <pre class="r"><code>## IRR
-eform(poisson7h2, method=&quot;Wald&quot;)</code></pre>
+eform(poisson7h2)</code></pre>
 <pre><code>##                              exp(beta)      2.5 %    97.5 %
 ## (Intercept)                 0.01555564 0.01105892 0.0218808
 ## fu1                         3.59765631 2.44018328 5.3041634
@@ -647,7 +647,7 @@ eform(poisson7h2, method=&quot;Wald&quot;)</code></pre>
 ## 
 ## Number of Fisher Scoring iterations: 7</code></pre>
 <pre class="r"><code>## IRR
-eform(poisson7i, method=&quot;Wald&quot;)</code></pre>
+eform(poisson7i)</code></pre>
 <pre><code>##                          exp(beta)       2.5 %     97.5 %
 ## (Intercept)             0.01269168 0.009585413 0.01680457
 ## fu1                     3.55468470 2.723340923 4.63980959
@@ -736,7 +736,7 @@ linearHypothesis(poisson7i,c(&quot;agegrp45-59 = 0&quot;,&quot;agegrp60-74 = 0&q
 ## 
 ## Number of Fisher Scoring iterations: 7</code></pre>
 <pre class="r"><code>## IRR
-eform(poisson7j, method=&quot;Wald&quot;)</code></pre>
+eform(poisson7j)</code></pre>
 <pre><code>##                                    exp(beta)       2.5 %     97.5 %
 ## (Intercept)                       0.01253791 0.009418543 0.01669039
 ## fu1                               3.55479530 2.723425214 4.63995469
@@ -854,7 +854,7 @@ summary(poisson7k &lt;- glm( death_cancer ~ fu + agegrp + year8594 + femaleEarly
 ## 
 ## Number of Fisher Scoring iterations: 7</code></pre>
 <pre class="r"><code>## IRR
-eform(poisson7k, method=&quot;Wald&quot;)</code></pre>
+eform(poisson7k)</code></pre>
 <pre><code>##                          exp(beta)       2.5 %     97.5 %
 ## (Intercept)             0.01253791 0.009418543 0.01669039
 ## fu1                     3.55479530 2.723425214 4.63995469
@@ -918,7 +918,7 @@ summary(poisson7k2 &lt;- glm( death_cancer ~ fu + agegrp + year8594 + year8594:s
 ## 
 ## Number of Fisher Scoring iterations: 7</code></pre>
 <pre class="r"><code>## IRR
-eform(poisson7k2, method=&quot;Wald&quot;)</code></pre>
+eform(poisson7k2)</code></pre>
 <pre><code>##                                    exp(beta)       2.5 %     97.5 %
 ## (Intercept)                       0.01253791 0.009418543 0.01669039
 ## fu1                               3.55479530 2.723425214 4.63995469
@@ -978,7 +978,7 @@ eform(poisson7k2, method=&quot;Wald&quot;)</code></pre>
 ## AIC: 5496.6
 ## 
 ## Number of Fisher Scoring iterations: 6</code></pre>
-<pre class="r"><code>eform(poisson7l.early, method=&quot;Wald&quot;)</code></pre>
+<pre class="r"><code>eform(poisson7l.early)</code></pre>
 <pre><code>##              exp(beta)       2.5 %     97.5 %
 ## (Intercept) 0.01290368 0.008762127 0.01900279
 ## fu1         3.65871653 2.481590140 5.39420529
@@ -1033,7 +1033,7 @@ eform(poisson7k2, method=&quot;Wald&quot;)</code></pre>
 ## AIC: 4690.7
 ## 
 ## Number of Fisher Scoring iterations: 7</code></pre>
-<pre class="r"><code>eform(poisson7l.late, method=&quot;Wald&quot;)</code></pre>
+<pre class="r"><code>eform(poisson7l.late)</code></pre>
 <pre><code>##               exp(beta)       2.5 %     97.5 %
 ## (Intercept) 0.008948632 0.006060435 0.01321324
 ## fu1         3.465448196 2.402316723 4.99906240
@@ -1050,7 +1050,7 @@ eform(poisson7k2, method=&quot;Wald&quot;)</code></pre>
 ## agegrp75+   3.991981639 2.982359282 5.34339290
 ## sexFemale   0.554973666 0.458369470 0.67193779</code></pre>
 <pre class="r"><code># compare with results in i
-eform(poisson7i, method=&quot;Wald&quot;)</code></pre>
+eform(poisson7i)</code></pre>
 <pre><code>##                          exp(beta)       2.5 %     97.5 %
 ## (Intercept)             0.01269168 0.009585413 0.01680457
 ## fu1                     3.55468470 2.723340923 4.63980959
@@ -1068,7 +1068,7 @@ eform(poisson7i, method=&quot;Wald&quot;)</code></pre>
 ## agegrp60-74             1.86237635 1.558526802 2.22546423
 ## agegrp75+               3.40028687 2.770846371 4.17271449</code></pre>
 <pre class="r"><code># compare with results in j
-eform(poisson7j, method=&quot;Wald&quot;)</code></pre>
+eform(poisson7j)</code></pre>
 <pre><code>##                                    exp(beta)       2.5 %     97.5 %
 ## (Intercept)                       0.01253791 0.009418543 0.01669039
 ## fu1                               3.55479530 2.723425214 4.63995469
@@ -1168,7 +1168,7 @@ summary(poisson7l2 &lt;- glm( death_cancer ~ fu + fu:year8594 + agegrp + agegrp:
 ## AIC: 10187
 ## 
 ## Number of Fisher Scoring iterations: 7</code></pre>
-<pre class="r"><code>eform(poisson7l2, method=&quot;Wald&quot;)</code></pre>
+<pre class="r"><code>eform(poisson7l2)</code></pre>
 <pre><code>##                                      exp(beta)       2.5 %     97.5 %
 ## (Intercept)                         0.01290368 0.008761852 0.01900338
 ## fu1                                 3.65871657 2.481529705 5.39433679

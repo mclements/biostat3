@@ -10,7 +10,7 @@ Calculate the exponential form for coefficients and their confidence intervals u
 \code{irr} and \code{or} use eform with a different name for the estimator.
 }
 \usage{
-eform(object, parm, level = 0.95, method = c("Profile", "Wald"), name = "exp(beta)")
+eform(object, parm, level = 0.95, method = c("Delta","Profile"), name = "exp(beta)")
 irr(..., name = "IRR")
 or(..., name = "OR")
 }
@@ -26,7 +26,7 @@ a specification of which parameters are to be given confidence intervals, either
 the confidence level required
 }
   \item{method}{
-string to determine method to use profile likelihood-based confidence intervals (\code{MASS:::confint.gllm}) or Wald-based confidence intervals (\code{stats::confint.default}), respectively.
+string to determine method to use the delta method (\code{stats::confint.default}), which assumes that the parameters are asymptotically normal, or profile likelihood-based confidence intervals (\code{MASS:::confint.gllm}), respectively.
 }
   \item{name}{
 name of the estimator.

@@ -12,7 +12,7 @@
 library(biostat3)
 
 ## @knitr lifeTable
-print(lifetab2(Surv(floor(surv_yy), status == "Dead: cancer")~1, colon, breaks=0:10), digits=2)
+print(lifetab2(Surv(floor(surv_yy), status == "Dead: cancer")~1, colon_sample, breaks=0:10), digits=2)
 
 ## @knitr KaplanMeier
 mfit <- survfit(Surv(surv_mm, status == "Dead: cancer") ~ 1, data = colon_sample) # make Kaplan-Meier estimates

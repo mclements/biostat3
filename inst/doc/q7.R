@@ -238,26 +238,26 @@ summary(poisson7g <- glm( death_cancer ~ fu + offset( log(pt) ),
                          family = poisson,
                          data = melanoma.spl ))
 ## IRR
-eform(poisson7g, method="Wald")
+eform(poisson7g)
 
 ## @knitr 7.h
 summary(poisson7h <- glm( death_cancer ~ fu + year8594 + offset( log(pt) ),
                          family = poisson,
                          data = melanoma.spl ))
 ## IRR
-eform(poisson7h, method="Wald")
+eform(poisson7h)
 
 # Add interaction term
 summary(poisson7h2 <- glm( death_cancer ~ fu*year8594 + offset( log(pt) ), family=poisson, data=melanoma.spl ))
 ## IRR
-eform(poisson7h2, method="Wald")
+eform(poisson7h2)
 
 ## @knitr 7.i
 
 summary(poisson7i <- glm( death_cancer ~ fu + year8594 + sex + agegrp + offset( log(pt) ), family=poisson, data=melanoma.spl ))
 
 ## IRR
-eform(poisson7i, method="Wald")
+eform(poisson7i)
 
 ## Test if the effect of age is significant using a likelihood ratio test
 drop1(poisson7i, ~agegrp, test="Chisq")
@@ -273,7 +273,7 @@ linearHypothesis(poisson7i,c("agegrp45-59 = 0","agegrp60-74 = 0","agegrp75+ = 0"
 summary(poisson7j <- glm( death_cancer ~ fu + agegrp + year8594*sex + offset( log(pt) ), family=poisson, data=melanoma.spl ))
 
 ## IRR
-eform(poisson7j, method="Wald")
+eform(poisson7j)
 
 ## @knitr 7.k.i
 # hand calculations
@@ -313,7 +313,7 @@ summary(poisson7k <- glm( death_cancer ~ fu + agegrp + year8594 + femaleEarly +
                          data=melanoma.spl ))
 
 ## IRR
-eform(poisson7k, method="Wald")
+eform(poisson7k)
 
 ## @knitr 7.k.iv
 ## Add interaction term
@@ -322,7 +322,7 @@ summary(poisson7k2 <- glm( death_cancer ~ fu + agegrp + year8594 + year8594:sex 
                          data=melanoma.spl ))
 
 ## IRR
-eform(poisson7k2, method="Wald")
+eform(poisson7k2)
 
 
 ## @knitr 7.l
@@ -330,23 +330,23 @@ eform(poisson7k2, method="Wald")
 summary( poisson7l.early <- glm( death_cancer ~ fu + agegrp + sex + offset( log(pt) ),
                        family = poisson, data = melanoma.spl,
                        subset = year8594 == "Diagnosed 75-84" ) )
-eform(poisson7l.early, method="Wald")
+eform(poisson7l.early)
 
 summary( poisson7l.late <- glm( death_cancer ~ fu + agegrp + sex + offset( log(pt) ),
                        family = poisson, data = melanoma.spl,
                        subset = year8594 == "Diagnosed 85-94" ) )
 
-eform(poisson7l.late, method="Wald")
+eform(poisson7l.late)
 
 # compare with results in i
-eform(poisson7i, method="Wald")
+eform(poisson7i)
 
 # compare with results in j
-eform(poisson7j, method="Wald")
+eform(poisson7j)
 
 
 # Poisson-regression with effects specific for diagnose period
 summary(poisson7l2 <- glm( death_cancer ~ fu + fu:year8594 + agegrp + agegrp:year8594
                           + sex*year8594 + offset( log(pt) ),
                           family=poisson, data=melanoma.spl ))
-eform(poisson7l2, method="Wald")
+eform(poisson7l2)
