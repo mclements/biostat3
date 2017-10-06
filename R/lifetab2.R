@@ -1,3 +1,28 @@
+## copied from KMsurv
+lifetab <- 
+function (tis, ninit, nlost, nevent) 
+{
+    Ypj <- c(ninit, ninit - cumsum(nlost + nevent)[-length(nevent)])
+    Yj <- Ypj - nlost/2
+    Sj <- cumprod(1 - nevent/Yj)
+    qj <- nevent/Yj
+    pj <- 1 - qj
+    n <- length(Yj)
+    Sj <- c(1, Sj[-n])
+    fmj <- c(diff(-1 * Sj), NA)/diff(tis)
+    hmj <- nevent/diff(tis)/(Yj - nevent/2)
+    hmj[n] <- NA
+    Sj.se <- c(0, Sj[-1] * sqrt(cumsum(nevent/Yj/(Yj - nevent))[-length(Sj)]))
+    fmj.se <- Sj * qj/diff(tis) * sqrt(c(0, cumsum(qj/Yj/pj)[-n]) + 
+        (pj/Yj/qj))
+    fmj.se[n] <- NA
+    hmj.se <- sqrt(1 - (hmj * diff(tis)/2)^2) * sqrt(hmj^2/Yj/qj)
+    hmj.se[n] <- NA
+    data.frame(nsubs = Ypj, nlost = nlost, nrisk = Yj, nevent = nevent, 
+        surv = Sj, pdf = fmj, hazard = hmj, se.surv = Sj.se, 
+        se.pdf = fmj.se, se.hazard = hmj.se, row.names = paste(tis[-n - 
+            1], tis[-1], sep = "-"))
+}
 lifetab2 <-
   function (formula, data, subset, breaks=NULL, ...) 
   {
@@ -39,7 +64,7 @@ lifetab2 <-
                        event <- Y[index,2,drop=FALSE]
                        nevent <- NA2zero(tapply(event,cut_time,sum))
                        nlost <- NA2zero(tapply(event,cut_time,length)) - nevent
-                       KMsurv::lifetab(tis = breaks, # should be one element longer for the intervals
+                       lifetab(tis = breaks, # should be one element longer for the intervals
                                        ninit = nrow(data),           # number of individuals at the start
                                        nlost = nlost,                 # number lost for each interval
                                        nevent = nevent)

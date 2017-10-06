@@ -33,6 +33,9 @@ lifetab2(formula, data, subset, breaks = NULL)
 \details{
 See \code{lifetab} for details. This wrapper is meant to make
 life easier.
+
+A copy of the \code{lifetab} function has been included in
+the \code{biostat3} package to reduce dependencies.
 }
 \value{
   A \code{data.frame} as per \code{\link{lifetab}}.
