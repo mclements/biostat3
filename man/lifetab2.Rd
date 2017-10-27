@@ -3,7 +3,7 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Formula wrapper for \code{\link{lifetab}} from the
-\code{\link{KMsurv}} package.
+\code{KMsurv} package.
 }
 \description{
 Calculate a life table using the actuarial method using a formula and a
@@ -40,9 +40,9 @@ the \code{biostat3} package to reduce dependencies.
 \value{
   A \code{data.frame} as per \code{\link{lifetab}}.
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+%% \references{
+%% %% ~put references to the literature/web site here ~
+%% }
 \author{
 Mark Clements for the wrapper.
 }

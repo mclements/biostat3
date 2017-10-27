@@ -4,9 +4,9 @@
 \title{
 popmort dataset, with population-based mortality rates
 }
-%% \description{
-%% %%  ~~ A concise (1-5 lines) description of the dataset. ~~
-%% }
+\description{
+popmort dataset, with population-based mortality rates
+}
 \usage{data("popmort")}
 \format{
   A data frame with 10600 observations on the following 5 variables.

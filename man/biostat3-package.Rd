@@ -31,5 +31,5 @@ Maintainer: \packageMaintainer{biostat3}
 %% ~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
 %% }
 \examples{
-~~ simple examples of the most important functions ~~
+  plot(muhaz2(Surv(surv_mm, status == "Dead: cancer")~1, melanoma))
 }

@@ -2,7 +2,7 @@ eform <- function(object, parm, level = 0.95, method=c("Delta","Profile"), name=
   method <- match.arg(method)
   if (missing(parm))
     parm <- TRUE
-  estfun <- switch(method, Profile = MASS:::confint.glm, Delta = stats::confint.default)
+  estfun <- switch(method, Profile = confint.glm, Delta = stats::confint.default)
   val <- exp(cbind(coef = coef(object), estfun(object, level = level)))
   colnames(val) <- c(name,colnames(val)[-1])
   val[parm, ]

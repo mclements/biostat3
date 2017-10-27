@@ -23,8 +23,9 @@ function (tis, ninit, nlost, nevent)
         se.pdf = fmj.se, se.hazard = hmj.se, row.names = paste(tis[-n - 
             1], tis[-1], sep = "-"))
 }
+
 lifetab2 <-
-  function (formula, data, subset, breaks=NULL, ...) 
+  function (formula, data, subset, breaks=NULL) 
   {
     Call <- match.call()
     Call[[1]] <- as.name("lifetab2")
@@ -53,15 +54,17 @@ lifetab2 <-
       stop("y must be a Surv object")
     ## newY <- aeqSurv(Y)
     if (is.null(breaks))
-      breaks <- c(sort(unique(Y[,1,drop=FALSE])), Inf)
-    if (attr(Y, "type") == "right" || attr(Y, "type") == 
-        "counting")  {
+        breaks <- c(sort(unique(Y[,1,drop=FALSE])), Inf)
+    if (breaks[1] != 0) breaks <- c(0,breaks)
+    if (breaks[length(breaks)] != Inf) breaks <- c(breaks,Inf)
+    if (attr(Y, "type") == "right" || (attr(Y, "type") == "counting" && all(Y[1,]==0)))  {
       NA2zero <- function(x) {if (any(is.na(x))) x[is.na(x)] <- 0; x}
       temp <- tapply(1:nrow(Y), X, 
                      function(index) {
-                       time <- Y[index,1,drop=FALSE]
+                       counting <- if(attr(Y, "type") == "counting") 1 else 0
+                       time <- Y[index,1+counting,drop=FALSE]
+                       event <- Y[index,2+counting,drop=FALSE]
                        cut_time <- cut(time,breaks,include.lowest=TRUE,right=FALSE)
-                       event <- Y[index,2,drop=FALSE]
                        nevent <- NA2zero(tapply(event,cut_time,sum))
                        nlost <- NA2zero(tapply(event,cut_time,length)) - nevent
                        lifetab(tis = breaks, # should be one element longer for the intervals
@@ -78,3 +81,32 @@ lifetab2 <-
     }
     structure(temp, call=Call)
   }
+
+.survset <- function(.surv, data, scale=1, origin=0, enter=NULL, exit=NULL, start="tstart", end="tstop", event="event", zero = 0, valid="tvalid") {
+    Y <- eval(substitute(.surv), data, parent.frame())
+    enter <- eval(substitute(enter), data, parent.frame())
+    exit <- eval(substitute(exit), data, parent.frame())
+    origin <- eval(substitute(origin), data, parent.frame())
+    stopifnot(attr(Y, "type") %in% c("right", "counting"))
+    if (ncol(Y) == 2)
+        Y <- cbind(zero,Y)
+    .tstart <- Y[,1] - origin
+    .tstop <- Y[,2] - origin
+    .event <- Y[,3]
+    if (!is.null(enter)) 
+        .tstart <- pmax(.tstart, enter)
+    if (!is.null(exit)) {
+        old.tstop <- .tstop
+        .tstop <- pmin(.tstop, exit)
+        .event <- ifelse(.tstop == old.tstop, .event, 0)
+    }
+    ## TODO: check for invalid values?
+    .valid <- .tstart < .tstop
+    .tstart <- .tstart/scale
+    .tstop <- .tstop/scale
+    data[[start]] <- .tstart
+    data[[end]] <- .tstop
+    data[[event]] <- .event
+    data[[valid]] <- .valid
+    data
+}

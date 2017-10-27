@@ -4,9 +4,9 @@
 \title{
 Sample from the \code{\link{colon}} dataset used for teaching. 
 }
-%% \description{
-%% %%  ~~ A concise (1-5 lines) description of the dataset. ~~
-%% }
+\description{
+Sample from the \code{\link{colon}} dataset used for teaching. 
+}
 \usage{data("colon_sample")}
 \format{
   A data frame with 35 observations on the following 9 variables.

@@ -61,8 +61,8 @@ A matrix (or vector) with columns giving lower and upper confidence limits for e
 counts <- c(18,17,15,20,10,20,25,13,12)
 outcome <- gl(3, 1, 9); treatment <- gl(3, 3)
 glm.D93 <- glm(counts ~ outcome + treatment, family = poisson())
-eform(glm.D93) # needs MASS to be installed
-eform(glm.D93, method="Wald")  # based on asymptotic normality
+eform(glm.D93) 
+eform(glm.D93, method="Profile") 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

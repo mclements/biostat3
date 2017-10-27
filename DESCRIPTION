@@ -1,13 +1,15 @@
 Package: biostat3
 Type: Package
 Title: Course material for Biostatistics III in R
-Version: 0.1
-Date: 2017-08-01
-Author: Annika Tillander, Andreas Karlsson, Johann Zetterqvist, Peter Str\"{o}m Mark Clements, 
+Version: 0.1.2
+Date: 2017-10-27
+Author: Annika Tillander, Andreas Karlsson, Johan Zetterqvist, Peter Str\"{o}m, Mark Clements, 
 Maintainer: Mark Clements <mark.clements@ki.se>
-Description: The package includes data and a small set of wrapper functions. It also includes extensive examples in HTML, including R sources.
-Depends: survival, rstpm2, stats
-Imports: MASS, muhaz
-License: GPL-2 or later
+Description: The package includes datasets, a small set of wrapper functions, and extensive examples in HTML and R scripts.
+Depends: survival, R (>= 2.10)
+Imports: muhaz, car, graphics, stats
+Suggests: bshazard, rstpm2
+## Copies: MASS:::confint.glm; MASS:::confint.profile.glm; KMsurv::lifetab
+License: GPL (>=2)
 LazyData: yes
 LazyLoad: yes

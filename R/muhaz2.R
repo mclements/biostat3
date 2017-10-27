@@ -57,22 +57,26 @@ muhaz2 <-
     else class(temp) <- "muhazList"
     structure(temp, call=Call)
   }
-plot.muhaz2 <- function(x, ..., haz.scale = 1) {
-  x$haz.est <- x$haz.est * haz.scale
-  muhaz::plot.muhaz(x, ...)
+plot.muhaz2 <- function(x, haz.scale = 1, ylim=NULL, log="", ...) {
+    x$haz.est <- x$haz.est * haz.scale
+    if (is.null(ylim)) {
+        ylim <- if (log %in% c("y","xy"))
+                    c(min(x$haz.est), max(x$haz.est)) else c(0, max(x$haz.est))
+        }
+    muhaz::plot.muhaz(x, ylim=ylim, log=log, ...)
 }
 lines.muhaz2 <- function(x, ..., haz.scale = 1) {
-  x$haz.est <- x$haz.est * haz.scale
-  muhaz::lines.muhaz(x, ...)
+    x$haz.est <- x$haz.est * haz.scale
+    muhaz::lines.muhaz(x, ...)
 }
-plot.muhazList <- function(x, lty=1, col=1:length(x), ...) {
+plot.muhazList <- function(x, lty=1, col=1:length(x), log="", ...) {
   lty <- rep(lty, length=length(x))
   col <- rep(col, length=length(x))
   est.grid <- unlist(lapply(x, "[[", "est.grid"))
   haz.est <- unlist(lapply(x, "[[", "haz.est"))
-  plot.muhaz2(list(est.grid=est.grid,haz.est=haz.est), type="n", ...)
+  plot.muhaz2(list(est.grid=est.grid,haz.est=haz.est), type="n", log=log, ...)
   for(i in 1:length(x)) {
-    lines(x[[i]], lty=lty[i], col=col[i], type="l", ...)
+    lines.muhaz2(x[[i]], lty=lty[i], col=col[i], type="l", ...)
   }
 }
 lines.muhazList <- function(x, lty=1, col=1:length(x), ...) {
@@ -84,14 +88,42 @@ lines.muhazList <- function(x, lty=1, col=1:length(x), ...) {
 }
 summary.muhazList <- function(object, ...)
   lapply(object, muhaz::summary.muhaz)
-as.data.frame.muhaz <- function(x) {
+as.data.frame.muhaz <- function(x, row.names, optional, ...) {
   est.grid <- unlist(lapply(x, "[[", "est.grid"))
   haz.est <- unlist(lapply(x, "[[", "haz.est"))
   data.frame(est.grid,haz.est)
 }
-as.data.frame.muhazList <- function(x) {
+as.data.frame.muhazList <- function(x, row.names, optional, ...) {
   est.grid <- unlist(lapply(x, "[[", "est.grid"))
   haz.est <- unlist(lapply(x, "[[", "haz.est"))
   strata <- unlist(lapply(1:length(x), function(i) rep(names(x)[i],length(x[[i]]$est.grid))))
   data.frame(est.grid, haz.est, strata, row.names=1:length(strata))
+}
+
+plot.bshazard <-
+function (x, conf.int = T, overall = T, col = 1, lwd = 1, xlab = "Time", 
+    ylab = "Hazard rate", ...) 
+{
+    if (overall == T) {
+        plot(x$time, x$hazard, xlab = xlab, type = "l", ylab = ylab, 
+            lwd = lwd, lty = 1, col = col, ...)
+        if (conf.int == T) {
+            lines(x$time, x$low, lty = 2, col = col, lwd = lwd)
+            lines(x$time, x$up, lty = 2, col = col, lwd = lwd)
+        }
+    }
+    if (overall == F & !is.null(x$cov.value)) {
+        covs <- unique(x$raw.data[, attr(x$cov.value, "names")])
+        lin <- (covs - matrix(as.numeric(x$cov.value), nrow(covs), 
+            ncol(covs), byrow = T)) * matrix(x$coefficients, 
+            nrow(covs), ncol(covs), byrow = T)
+        HR <- exp(rowSums(lin))
+        plot(x$time, x$hazard, xlab = xlab, type = "n", ylab = ylab, 
+            lwd = lwd, lty = 1, col = col, ...)
+        for (i in 1:nrow(covs)) {
+            h <- x$hazard * HR[i]
+            lines(x$time, h, xlab = xlab, type = "l", ylab = ylab, 
+                lwd = lwd, lty = 1, col = col)
+        }
+    }
 }

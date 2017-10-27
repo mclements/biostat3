@@ -4,9 +4,9 @@
 \title{
   Bereavement dataset
 }
-%% \description{
-%% %%  ~~ A concise (1-5 lines) description of the dataset. ~~
-%% }
+\description{
+Bereavement dataset
+}
 \usage{data("brv")}
 \format{
   A data frame with 399 observations on the following 11 variables.

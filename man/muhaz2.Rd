@@ -1,19 +1,30 @@
 \name{muhaz2}
 \alias{muhaz2}
+\alias{plot.muhaz2}
+\alias{plot.muhazList}
+\alias{lines.muhazList}
+\alias{lines.muhaz2}
+\alias{summary.muhazList}
+\alias{as.data.frame.muhaz}
+\alias{as.data.frame.muhazList}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Formula wrapper for the \code{\link{muhaz}} function from the
-\code{muhaz} package.}
+\code{muhaz} package.
+}
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+Formula wrapper for the \code{\link{muhaz}} function from the
+\code{muhaz} package.
 }
 \usage{
-muhaz2(formula, data, subset, ...)
-plot.muhazList(x, lty=1:length(x), col=1:length(x), ...)
-lines.muhazList(x, lty=1:length(x), col=1:length(x), ...)
-summary.muhazList(object)
-as.data.frame.muhazList(x)
-as.data.frame.muhaz(x)
+muhaz2(formula, data, subset, max.time, ...)
+\method{plot}{muhaz2}(x, haz.scale=1, ylim=NULL, log="", ...)
+\method{plot}{muhazList}(x, lty=1, col=1:length(x), log="", ...)
+\method{lines}{muhaz2}(x, ..., haz.scale = 1)
+\method{lines}{muhazList}(x, lty=1, col=1:length(x), ...)
+\method{summary}{muhazList}(object, ...)
+\method{as.data.frame}{muhazList}(x, row.names, optional, ...)
+\method{as.data.frame}{muhaz}(x, row.names, optional, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -25,12 +36,45 @@ as.data.frame.muhaz(x)
     is used for the \code{Surv} object.
 }
   \item{subset}{
-    optional \code{subset} statement
+    subset predictate for the dataset
+}
+  \item{max.time}{
+    maximum follow-up time for the hazards
+}
+  \item{lty}{
+    graphics argument for line type
+}
+  \item{col}{
+    graphics argument for line colour
+}
+  \item{haz.scale}{
+    scale for the hazard in the plot
+}
+  \item{row.names}{
+    not currently used
+}
+  \item{object}{
+    muhazList object
+}
+  \item{ylim}{
+    graphics argument for the limits of the y axis
+}
+  \item{log}{
+    graphics argument for a log transformation of the x or y axes
+}
+  \item{x}{
+    muhazList or muhaz object
+}
+  \item{optional}{
+    not currently used
+}
+  \item{...}{
+    other arguments
 }
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+%% \details{
+%% %%  ~~ If necessary, more details than the description above ~~
+%% }
 \value{
 For a single strata, this is a \code{\link{muhaz}} object. For multiple strata, this is a \code{muhazList} object, which includes methods for 
 }
