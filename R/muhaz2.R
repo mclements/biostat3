@@ -89,9 +89,13 @@ lines.muhazList <- function(x, lty=1, col=1:length(x), ...) {
 summary.muhazList <- function(object, ...)
   lapply(object, muhaz::summary.muhaz)
 as.data.frame.muhaz <- function(x, row.names, optional, ...) {
-  est.grid <- unlist(lapply(x, "[[", "est.grid"))
-  haz.est <- unlist(lapply(x, "[[", "haz.est"))
-  data.frame(est.grid,haz.est)
+    if ("est.grid" %in% names(x)) {
+        data.frame(est.grid=x$est.grid, haz.est=x$haz.est)
+        } else {
+            est.grid <- unlist(lapply(x, "[[", "est.grid"))
+            haz.est <- unlist(lapply(x, "[[", "haz.est"))
+            data.frame(est.grid,haz.est)
+        }
 }
 as.data.frame.muhazList <- function(x, row.names, optional, ...) {
   est.grid <- unlist(lapply(x, "[[", "est.grid"))
