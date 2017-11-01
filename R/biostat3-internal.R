@@ -149,3 +149,9 @@ year <- function(date, trunc=FALSE, year.length=365.24) {
 ##       ci
 ##   }
 
+updateList <- function(object, ...) {
+    revised <- list(...)
+    for (name in setdiff(names(object),names(revised)))
+        revised[[name]] <- object[[name]]
+    revised
+}

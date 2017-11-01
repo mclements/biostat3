@@ -1,4 +1,4 @@
-survrate <- function (formula, data, subset, addvars = FALSE, ...) 
+survRate <- function (formula, data, subset, addvars = FALSE, ...) 
   {
     Call <- match.call()
     Call[[1]] <- as.name("strate")
@@ -27,21 +27,19 @@ survrate <- function (formula, data, subset, addvars = FALSE, ...)
       stop("y must be a Surv object")
     if (attr(Y, "type") == "right" || attr(Y, "type") == 
         "counting")  {
+        if (attr(Y, "type") == "right") Y <- cbind(rep(0,nrow(Y)), Y)
       NA2zero <- function(x) {if (any(is.na(x))) x[is.na(x)] <- 0; x}
       temp <- tapply(1:nrow(Y), X, 
                      function(index) {
-                         if(attr(Y, "type") ==  "counting") {
-                             T <- sum(Y[index,2]-Y[index,1], na.rm=TRUE)
-                             x <- sum(Y[index,3], na.rm=TRUE)
-                         } else {
-                             T <- sum(Y[index,1], na.rm=TRUE)
-                             x <- sum(Y[index,2], na.rm=TRUE)
-                         }
+                         T <- sum(Y[index,2]-Y[index,1], na.rm=TRUE)
+                         x <- sum(Y[index,3], na.rm=TRUE)
                          test <- stats::poisson.test(NA2zero(x), NA2zero(T), ...)
-                         out <- data.frame(x=x, T=T, rate=test$estimate, lower=test$conf.int[1], upper=test$conf.int[2])
+                         out <- data.frame(tstop=T, event=x, rate=test$estimate, lower=test$conf.int[1], upper=test$conf.int[2])
                          category <- lapply(m[ll][index,,drop=FALSE], unique)
-                         if (length(category)>0 && addvars)
+                         if (length(category)>0 && addvars) {
                              out <- cbind(category,out)
+                             rownames(out) <- 1:nrow(out)
+                         }
                          out
 },
                      simplify=FALSE)

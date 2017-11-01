@@ -16,7 +16,7 @@ to, ...)
 \method{print}{coxphHaz}(x, digits=NULL, ...)
 \method{plot}{coxphHaz}(x, xlab="Time", ylab="Hazard", type="l", ...)
 \method{plot}{coxphHazList}(x, xlab="Time", ylab="Hazard", type="l", ...)
-\method{lines}{coxphHazList}(x, type="l", ...)
+\method{lines}{coxphHazList}(x, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -40,6 +40,9 @@ argument for \code{density}. Defaults to the maximum time.
 }
   \item{x}{
 object
+}
+  \item{digits}{
+argument passed to \code{print.density}
 }
   \item{xlab}{
 graphics argument

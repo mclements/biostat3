@@ -1,5 +1,5 @@
-\name{survrate}
-\alias{survrate}
+\name{survRate}
+\alias{survRate}
 \title{
 Describe rates
 }
@@ -7,7 +7,7 @@ Describe rates
 Describe rates using the \code{\link{Surv}} function.
 }
 \usage{
-survrate(formula, data, subset, addvars = FALSE, ...)
+survRate(formula, data, subset, addvars = FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -33,7 +33,11 @@ calculation of the confidence intervals.
 %% \details{
 %% }
 \value{
-data-frame.
+data-frame with columns \code{tstop}, \code{event}, \code{rate},
+\code{lower} and \code{upper}. Covariates are appended if
+\code{addvar=TRUE}.
+
+Confidence intervals use \code{stats::poisson.test}.
 }
 %% \references{
 %% %% ~put references to the literature/web site here ~
@@ -52,7 +56,7 @@ data-frame.
 %% }
 \examples{
 ## incidence rates for CHD for low- or high-energy diets
-survrate(Surv(y,chd) ~ hieng, data=diet)
+survRate(Surv(y,chd) ~ hieng, data=diet)
 }
 \keyword{ survival }
 
