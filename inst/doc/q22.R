@@ -1,5 +1,6 @@
 ## Purpose: To do the solution for Biostat III exercises in R
 ## Author: Andreas Karlsson, 2015-03-02
+## Revised: Mark Clements, 2017-11-03
 ###############################################################################
 
 ## Install needed packages only need to be done once
@@ -11,66 +12,42 @@
 ###############################################################################
 ## Exercise 22
 ###############################################################################
-## @knitr loadDependecies
-require(foreign)  # for reading data set from Stata
-require(survival) # for Surv and survfit
-require(dplyr)    # for data manipulation
-
-###########################################
-### A help function to calculate ###
-### and print incidence (hazard) ratios
-### from a fitted poisson regression
-### from glm
-###########################################
-
-IRR <- function(fit){
-    summfit <- summary(fit )$coefficients
-    IRfit <- exp( cbind( summfit[, 1:2], summfit[, 1] - 1.96*summfit[, 2], summfit[, 1] +
-                        1.96*summfit[, 2] ) )
-    colnames(IRfit) <- c("IRR", "Std. err", "CI_lower", "CI_upper")
-    print(IRfit)
-}
+## @knitr loadDependencies
+library(biostat3) # for Surv and survfit
+library(dplyr)    # for data manipulation
 
 
 ## @knitr loadPreprocess
-brv_raw <- read.dta("http://biostat3.net/download/brv.dta")
 
 
 ## @knitr 22.a
-head(brv_raw)
+head(brv)
 
 ##Look at the five first couples
-brv_raw %>% select(couple, id, sex, doe, dosp, dox, fail) %>% filter(couple<=5) %>% arrange(couple, id)
+brv %>% select(couple, id, sex, doe, dosp, dox, fail) %>% filter(couple<=5) %>% arrange(couple, id)
 
 
 ## @knitr 22.b
-brv <- brv_raw %>%
-    mutate(age_entry = as.numeric(doe - dob) / 365.24, # Calc age at entry
+brv <- mutate(brv, age_entry = as.numeric(doe - dob) / 365.24, # Calc age at entry
            att_age = as.numeric(dox - dob) / 365.24,   # Calc attained age
            t_at_risk = att_age - age_entry)            # Calc time at risk
 
 ## crude rates
-brv %>%
-    select(fail, t_at_risk, sex) %>%
-    group_by(sex) %>%
-    summarise(D = sum(fail), Y = sum(t_at_risk)/1000, Rate = D/Y) %>%
-    mutate(CI_low = Rate + qnorm(0.025) * Rate / sqrt(D),
-           CI_high = Rate + qnorm(0.975) * Rate / sqrt(D))
-
+survRate(Surv(age_entry, att_age, fail) ~ sex, data=brv)
 
 poisson22b <- glm( fail ~ sex + offset( log( t_at_risk) ), family=poisson, data=brv)
 summary( poisson22b )
-IRR(poisson22b)
+eform(poisson22b)
 
-brv %>%
-    select(sex, age_entry) %>%
+select(brv, sex, age_entry) %>%
     group_by(sex) %>%
     summarise(meanAgeAtEntry = mean(age_entry))
 
 ## @knitr 22.c
 
 ## Creating times relativ to spouse death (year=0)
-brv2 <- mutate(brv_raw,
+brv2 <- mutate(brv,
+               id=NULL,
                y_before_sp_dth =  as.numeric(doe -dosp) / 365.24,
                y_after_sp_dth = as.numeric(dox - dosp) / 365.24)
 
@@ -88,18 +65,18 @@ brvSplit %>% select(couple, id, sex, doe, dosp, dox, fail, y_before_sp_dth, y_af
 ## @knitr 22.d
 poisson22d <- glm( fail ~ brv + offset( log(t_sp_at_risk) ), family=poisson, data=brvSplit)
 summary(poisson22d)
-IRR(poisson22d)
+eform(poisson22d)
 
 ## @knitr 22.e
 ## Poisson regression for sex==1
 poisson22e1 <- glm( fail ~ brv + offset( log(t_sp_at_risk) ), family=poisson, data=filter(brvSplit, sex==1))
 summary(poisson22e1)
-IRR(poisson22e1)
+eform(poisson22e1)
 
 ## Poisson regression for sex==2
 poisson22e2 <- glm( fail ~ brv + offset( log(t_sp_at_risk) ), family=poisson, data=filter(brvSplit, sex==2))
 summary(poisson22e2)
-IRR(poisson22e2)
+eform(poisson22e2)
 
 ## Poisson regression, interaction with sex
 brvSplit2 <- mutate(brvSplit,
@@ -107,7 +84,7 @@ brvSplit2 <- mutate(brvSplit,
                     brv = as.factor(brv))
 poisson22e3 <- glm( fail ~ sex + brv:sex + offset( log(t_sp_at_risk) ), family=poisson, data=brvSplit2)
 summary(poisson22e3)
-IRR(poisson22e3)
+eform(poisson22e3)
 
 ## @knitr 22.f
 ## Translate time scale from years from spouse death to ages
@@ -124,34 +101,29 @@ brvSplit4 <- mutate(brvSplit4,
                     age = cut(age_end, age_cat))   # Creating age band category
 
 ## Calculate crude rates
-brvSplit4 %>%
-    select(fail, age, t_at_risk) %>%
-    group_by(age) %>%
-    summarise(D = sum(fail), Y = sum(t_at_risk), Rate = D/Y) %>%
-    mutate(CI_low = Rate + qnorm(0.025) * Rate / sqrt(D),
-           CI_high = Rate + qnorm(0.975) * Rate / sqrt(D))
+survRate(Surv(t_at_risk, fail) ~ age, data=brvSplit4)
 
 poisson22f1 <- glm( fail ~ brv + age + offset( log(t_at_risk) ), family=poisson, data=brvSplit4)
 summary(poisson22f1)
-IRR(poisson22f1)
+eform(poisson22f1)
 
 poisson22f2 <- glm( fail ~ brv +age + sex + offset( log(t_at_risk) ), family=poisson, data=brvSplit4)
 summary(poisson22f2)
-IRR(poisson22f2)
+eform(poisson22f2)
 
 ## @knitr 22.g
 poisson22g <- glm( fail ~ age + sex + brv:sex + offset( log(t_at_risk) ), family=poisson, data=brvSplit4)
 summary(poisson22g)
-IRR(poisson22g)
+eform(poisson22g)
 
 ## @knitr 22.i
 summary(coxph(Surv(age_start, age_end, fail) ~ brv,
-              method=c("breslow"), data = brvSplit4))
+              data = brvSplit4))
 
 
 summary(coxph(Surv(age_start, age_end, fail) ~ brv + sex,
-              method=c("breslow"), data = brvSplit4))
+              data = brvSplit4))
 
 ## @knitr 22.j
 summary(coxph(Surv(age_start, age_end, fail) ~ sex + sex:brv,
-              method=c("breslow"), data = brvSplit4))
+              data = brvSplit4))

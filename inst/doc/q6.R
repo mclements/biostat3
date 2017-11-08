@@ -7,7 +7,7 @@
 ###############################################################################
 ## Exercise 6
 ###############################################################################
-## @knitr loadDependecies
+## @knitr loadDependencies
 library(biostat3)
 library(dplyr)    # for data manipulation
 
@@ -16,17 +16,20 @@ head(diet)
 summary(diet)
 
 ## @knitr 6a_ir
+diet <- biostat3::diet
 diet$y1k <- diet$y/1000
 
-diet.ir6a <- diet %>%
+diet.ir6a <- survRate(Surv(y/1000,chd) ~ hieng, data=diet)
+## or
+diet %>%
     group_by(hieng) %>%
     summarise(Event = sum(chd), Time = sum(y1k), Rate = Event/Time,      # group sums
-              CI_low = poisson.ci(Event,Time)[1],
-              CI_high = poisson.ci(Event,Time)[2]) 
+              CI_low = poisson.test(Event,Time)$conf.int[1],
+              CI_high = poisson.test(Event,Time)$conf.int[2]) 
 
 ## IRR
-with(diet.ir6a, poisson.test(Event,Time)) 
-with(diet.ir6a, poisson.test(rev(Event),rev(Time)))
+with(diet.ir6a, poisson.test(event,tstop)) 
+with(diet.ir6a, poisson.test(rev(event),rev(tstop)))
 
 ## @knitr 6b_ir
 poisson6b <- glm( chd ~ hieng + offset( log( y1k ) ), family=poisson, data=diet)
@@ -43,27 +46,23 @@ quantile(diet$energy, probs=c(0.01,0.05,0.1,0.25,0.5,0.75,0.90,0.95,0.99))
 ## @knitr 6d_engCat
 diet$eng3 <- cut(diet$energy, breaks=c(1500,2500,3000,4500),labels=c("low","medium","high"), 
                  right = FALSE)
-table(diet$eng3)
-diet %>% group_by(eng3) %>%
-    summarise(Freq = n(), Percent = n()/dim(diet)[1]) %>%
-    mutate(Cum = cumsum(Percent))
+cbind(Freq=table(diet$eng3),
+      Prop=table(diet$eng3)/nrow(diet))
+
 
 ## @knitr 6e_irEng
 ## rates and IRRs
-diet.ir6e <- diet %>%
-    group_by(eng3) %>%
-    summarise(Event = sum(chd), Time = sum(y1k),  Rate=Event/Time,    # group sums
-              CI_low = poisson.ci(Event,Time)[1],
-              CI_high = poisson.ci(Event,Time)[2]) %>% print
+diet.ir6e <- survRate(Surv(y/1000,chd) ~ eng3, data=diet)
+print(diet.ir6e)
 
 # calculate IRR and confidence intervals
-with(diet.ir6e, Rate[eng3=="medium"] / Rate[eng3=="low"])
+with(diet.ir6e, rate[eng3=="medium"] / rate[eng3=="low"])
 with(diet.ir6e[c(2,1),], { # compare second row with first row
-  poisson.test(Event, Time)
+  poisson.test(event, tstop)
 })
-with(diet.ir6e, Rate[eng3=="high"] / Rate[eng3=="low"])
+with(diet.ir6e, rate[eng3=="high"] / rate[eng3=="low"])
 with(diet.ir6e[c(3,1),], { # compare third row with first row
-  poisson.test(Event, Time)
+  poisson.test(event, tstop)
 })
 
 
@@ -74,7 +73,7 @@ diet <- mutate(diet,
                X3 = as.numeric(eng3 == "high"))
 # or
 diet <- biostat3::addIndicators(diet, ~eng3+0) %>%
-  mutate(X1 = eng3low, X2 = eng3medium, X3 = eng3high)
+    mutate(X1 = eng3low, X2 = eng3medium, X3 = eng3high)
 colSums(diet[c("X1","X2","X3")])
 
 ## @knitr 6g_irEng
@@ -101,4 +100,4 @@ summary( poisson6j )
 eform( poisson6j )
 
 ## @knitr 6k
-summarise(diet, Rate = sum(chd) / sum(y))
+summarise(diet, rate = sum(chd) / sum(y))

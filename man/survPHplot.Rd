@@ -14,8 +14,8 @@ survPHplot(formula, data, subset, contrasts, weights, col = 1:5, lty = 1:5, pch 
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{formula}{
-formula with a \code{Surv} object on the left-hand-side and
-stratification covariates on the right-hand-side. 
+either (i) formula with a \code{Surv} object on the left-hand-side and
+stratification covariates on the right-hand-side, or (ii) a \code{survfit} object
 }
   \item{data}{
 data argument passed to \code{survfit}

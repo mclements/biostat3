@@ -9,33 +9,27 @@
 ###############################################################################
 
 ## @knitr loadDependecies
-require(rstpm2)  # for the flexible parametric model
-require(foreign) # needed to read data set from Stata
-require(dplyr)   # for data manipulation
+library(rstpm2)  # for the flexible parametric model
+library(dplyr)   # for data manipulation
 
 ## @knitr loadPreprocess
-melanoma <- read.dta("http://biostat3.net/download/melanoma.dta")
+data(melanoma)
 
 ## Extract subset and create 0/1 outcome variables
 melanoma0 <- melanoma %>% filter(stage=="Localised") %>%
              mutate(event = ifelse(status=="Dead: cancer" & surv_mm<120, 1, 0),
                     time = pmin(120, surv_mm)/12,
-                    agegrp1 = ifelse(agegrp=="0-44", 1, 0),  # used by time-dependent effect
-                    agegrp2 = ifelse(agegrp=="45-59", 1, 0), # used by time-dependent effect
-                    agegrp3 = ifelse(agegrp=="60-74", 1, 0), # used by time-dependent effect
-                    agegrp4 = ifelse(agegrp=="75+", 1, 0))   # used by time-dependent effect
+                    agegrp1 = (agegrp=="0-44")+0,  # used by time-dependent effect
+                    agegrp2 = (agegrp=="45-59")+0, # used by time-dependent effect
+                    agegrp3 = (agegrp=="60-74")+0, # used by time-dependent effect
+                    agegrp4 = (agegrp=="75+")+0)   # used by time-dependent effect
 
 ## @knitr a_flex
 ## (a) Flexible parametric model with df=4
-fpma <- stpm2(Surv(time,event) ~ year8594, data=melanoma0, df=4)
-beta <- as.numeric(coef(fpma)[2])
-se <- as.numeric(sqrt(fpma@vcov[2,2]))      # standard error of beta
-confin <- c(beta - 1.96*se, beta + 1.96*se) # 95% confidence interval of log(HR)
-p_value <- 1-pchisq((beta/se)^2, 1)         # Wald-type test of beta
 
-## Summaries of Beta and HR
-cbind(beta = beta, se = se, z = beta/se, p_value = p_value)
-cbind(HR = exp(beta), lower.95 = exp(confin)[1], upper.95 =  exp(confin)[2])
+fpma <- stpm2(Surv(time,event) ~ year8594, data=melanoma0, df=4)
+eform(fpma)
+summary(fpma)
 
 ## @knitr a_cox
 cox <- coxph(Surv(time, event) ~ year8594,
@@ -45,19 +39,18 @@ summary(cox)
 ## @knitr b_surv
 ## (b) Prediction and plots of survival and hazard by calendar period
 years <- levels(melanoma0$year8594)
-alegend <- function() legend("topright", legend=years, col=1:2, lty=1)
+alegend <- function() legend("topright", legend=years, col=1:2, lty=1, bty="n")
 
 plot(fpma,newdata=data.frame(year8594=years[1]),
      xlab="Time since diagnosis (years)")
-plot(fpma,newdata=data.frame(year8594=years[2]), add=TRUE, ci=TRUE,
-     line.col=2)
+lines(fpma,newdata=data.frame(year8594=years[2]), ci=TRUE, col=2)
+lines(fpma,newdata=data.frame(year8594=years[1]), ci=FALSE) # repeated
 alegend()
 
 ## @knitr b_haz
 plot(fpma,newdata=data.frame(year8594=years[1]), type="haz",
      xlab="Time since diagnosis (years)", ylab="Hazard")
-plot(fpma,newdata=data.frame(year8594=years[2]), type="haz", add=TRUE,
-     line.col=2)
+lines(fpma,newdata=data.frame(year8594=years[2]), type="haz", col=2)
 alegend()
 
 ## @knitr c_haz_log
@@ -65,9 +58,7 @@ alegend()
 plot(fpma,newdata=data.frame(year8594=years[1]), type="haz",
      xlab="Time since diagnosis (years)", log="y", ci=FALSE,
      ylab="Hazard (log scale)")
-
-plot(fpma,newdata=data.frame(year8594=years[2]), type="haz",
-     add=TRUE, line.col=2)
+lines(fpma,newdata=data.frame(year8594=years[2]), type="haz", col=2)
 alegend()
 
 ## @knitr d_AIC_BIC

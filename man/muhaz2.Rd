@@ -18,8 +18,8 @@ Formula wrapper for the \code{\link{muhaz}} function from the
 }
 \usage{
 muhaz2(formula, data, subset, max.time, ...)
-\method{plot}{muhaz2}(x, haz.scale=1, ylim=NULL, log="", ...)
-\method{plot}{muhazList}(x, lty=1, col=1:length(x), log="", ...)
+\method{plot}{muhaz2}(x, haz.scale=1, ylab="Hazard", ylim=NULL, log="", ...)
+\method{plot}{muhazList}(x, lty=1:5, col=1:length(x), log="", legend.args=list(), ...)
 \method{lines}{muhaz2}(x, ..., haz.scale = 1)
 \method{lines}{muhazList}(x, lty=1, col=1:length(x), ...)
 \method{summary}{muhazList}(object, ...)
@@ -41,11 +41,17 @@ muhaz2(formula, data, subset, max.time, ...)
   \item{max.time}{
     maximum follow-up time for the hazards
 }
+  \item{ylab}{
+    graphics argument for ylab (y-axis label)
+}
   \item{lty}{
     graphics argument for line type
 }
   \item{col}{
     graphics argument for line colour
+}
+  \item{legend.args}{
+    a list of options that are passed to the legend call. Defaults are \code{list(x="topright",legend=names(x),col=col,lty=lty)}.
 }
   \item{haz.scale}{
     scale for the hazard in the plot

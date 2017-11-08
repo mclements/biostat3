@@ -1,4 +1,6 @@
-survRate <- function (formula, data, subset, addvars = FALSE, ...) 
+## TODO: speed this up.
+
+survRate <- function (formula, data, subset, addvars = TRUE, ci=TRUE, ...) 
   {
     Call <- match.call()
     Call[[1]] <- as.name("strate")
@@ -27,14 +29,20 @@ survRate <- function (formula, data, subset, addvars = FALSE, ...)
       stop("y must be a Surv object")
     if (attr(Y, "type") == "right" || attr(Y, "type") == 
         "counting")  {
-        if (attr(Y, "type") == "right") Y <- cbind(rep(0,nrow(Y)), Y)
+      if (attr(Y, "type") == "right") Y <- cbind(rep(0,nrow(Y)), Y)
       NA2zero <- function(x) {if (any(is.na(x))) x[is.na(x)] <- 0; x}
+      Times <- NA2zero(Y[,2]-Y[,1])
+      Events <- NA2zero(Y[,3])
       temp <- tapply(1:nrow(Y), X, 
                      function(index) {
                          T <- sum(Y[index,2]-Y[index,1], na.rm=TRUE)
                          x <- sum(Y[index,3], na.rm=TRUE)
-                         test <- stats::poisson.test(NA2zero(x), NA2zero(T), ...)
-                         out <- data.frame(tstop=T, event=x, rate=test$estimate, lower=test$conf.int[1], upper=test$conf.int[2])
+                         if (ci) {
+                             test <- stats::poisson.test(NA2zero(x), NA2zero(T), ...)
+                             out <- data.frame(tstop=T, event=x, rate=test$estimate, lower=test$conf.int[1], upper=test$conf.int[2])
+                         } else {
+                             out <- data.frame(tstop=T, event=x, rate=x/T)
+                         }
                          category <- lapply(m[ll][index,,drop=FALSE], unique)
                          if (length(category)>0 && addvars) {
                              out <- cbind(category,out)

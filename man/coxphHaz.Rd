@@ -15,7 +15,7 @@ coxphHaz(object, newdata, n.grid = 300, kernel = "epanechnikov", from,
 to, ...)
 \method{print}{coxphHaz}(x, digits=NULL, ...)
 \method{plot}{coxphHaz}(x, xlab="Time", ylab="Hazard", type="l", ...)
-\method{plot}{coxphHazList}(x, xlab="Time", ylab="Hazard", type="l", ...)
+\method{plot}{coxphHazList}(x, xlab="Time", ylab="Hazard", type="l", col=1:length(x), lty=1, legend.args=list(), ...)
 \method{lines}{coxphHazList}(x, ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -44,6 +44,12 @@ object
   \item{digits}{
 argument passed to \code{print.density}
 }
+  \item{col}{
+graphics argument
+}
+  \item{lty}{
+graphics argument
+}
   \item{xlab}{
 graphics argument
 }
@@ -52,6 +58,10 @@ graphics argument
 }
   \item{type}{
 graphics argument
+}
+  \item{legend.args}{
+    a list of options that are passed to the legend call. Defaults are
+    \code{list(x="topright",legend=strata(attr(x,"newdata")),col=col,lty=lty)}.
 }
   \item{\dots}{
 other arguments. For \code{coxphHaz}, these arguments are passed to

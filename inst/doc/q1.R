@@ -11,6 +11,9 @@
 ## @knitr loadDependecies
 library(biostat3)
 
+## @knitr printData
+print(biostat3::colon_sample)
+
 ## @knitr lifeTable
 print(lifetab2(Surv(floor(surv_yy), status == "Dead: cancer")~1, colon_sample, breaks=0:10), digits=2)
 

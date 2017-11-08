@@ -13,10 +13,10 @@
 ## install.packages("muhaz")
 ## install.packages("car")
 
-## @knitr loadDependecies
+## @knitr loadDependencies
 library(biostat3)
 library(dplyr)    # for data manipulation
-library(car)      # for linearHypothesis and deltaMethod
+library(car)      # for linearHypothesis
 
 
 ## @knitr loadPreprocess
@@ -49,7 +49,7 @@ plot(sfit7a1,
      ## Time is measured in months,  but we want to see it in years
      xscale=12,
      ## Make the plot prettier
-     xlab="Years since diagnose",
+     xlab="Years since diagnosis",
      ylab="S(t)",
      col=c("blue","red"),
      lty=c("solid","dashed"))
@@ -68,7 +68,7 @@ legend("bottomleft",legend=levels(melanoma.l$year8594),col=c("blue","red"),lty=c
 
 plot(muhaz2(Surv(surv_mm/12, status == "Dead: cancer") ~ year8594, data=melanoma.l),
      xlab="Years since diagnosis", col=c("blue","red"), lty=1:2)
-legend("topright",legend=levels(melanoma.l$year8594), col=c("blue","red"), lty=1:2)
+
 
 ## @knitr 7.a.iii
 ## Compare with Kaplan-Meier plot
@@ -84,34 +84,13 @@ plot(sfit7a1,
      ylab="S(t)",
      col=c("blue","red"),
      lty=c("solid","dashed"))
-legend("bottomleft",legend=levels(melanoma.l$year8594),col=c("blue","red"),lty=c("solid","dashed"))
 
 plot(muhaz2(Surv(surv_mm/12, status == "Dead: cancer") ~ year8594, data=melanoma.l),
      xlab="Years since diagnosis", col=c("blue","red"),lty=c("solid","dashed"))
-legend("topright",legend=levels(melanoma.l$year8594), col=c("blue","red"),lty=c("solid","dashed"))
 
 ## @knitr 7.b
 
-## Calculate the incidence rate by time of diagnosis
-rates_by_diag_yr <- melanoma.l %>%
-
-    ## Stratify on year of diagnosis
-    group_by(year8594) %>%
-
-    ## We only need the deaths and the persontime
-    select(death_cancer, surv_mm) %>%
-
-    summarise(
-        ## Calculate the number of deaths
-        D = sum(death_cancer),
-        ## Calculate the total person time
-        Y = sum(surv_mm)/12/1000,
-        ## Calculate the rate
-        Rate = D/Y,
-        ## Add confidence intervals for the rates
-        CI_low = poisson.ci(D,Y)[1],
-        CI_high = poisson.ci(D,Y)[2]) %>% print
-        
+survRate(Surv(surv_mm, death_cancer) ~ year8594, data=melanoma.l)
 
 
 ## @knitr 7.c.i
@@ -125,37 +104,24 @@ melanoma.l2 <- mutate(melanoma.l,
                        surv_mm = pmin(surv_mm, 120) )
 
 ## Calculate the rates on the truncated data
-rates_by_diag_yr2 <- melanoma.l2 %>%
-
-    ## Stratify on year of diagnosis
-    group_by(year8594) %>%
-
-    ## We only need the deaths and the persontime
-    select(death_cancer, surv_mm) %>%
-
-    summarise(
-        ## Calculate the number of deaths
-        D = sum(death_cancer),
-        ## Calculate the total person time
-        Y = sum(surv_mm)/12/1000,
-        ## Calculate the rate
-        Rate = D/Y,
-        ## Add confidence intervals for the rates
-        CI_low = poisson.ci(D,Y)[1],
-        CI_high = poisson.ci(D,Y)[2]) %>% print
+rates_by_diag_yr2 <- survRate(Surv(surv_mm, death_cancer) ~ year8594, data=melanoma.l2)
+rates_by_diag_yr2
 
 ## @knitr 7.c.ii
 
 ## MRR full data
-rates_by_diag_yr2[2, "Rate"] / rates_by_diag_yr2[1, "Rate"]
-## ## MRR truncated data
-## rates_by_diag_yr2[2, "Rate"] / rates_by_diag_yr2[1, "Rate"]
+rates_by_diag_yr2[2, "rate"] / rates_by_diag_yr2[1, "rate"]
+with(rates_by_diag_yr2[2:1,], poisson.test(event, tstop))
 
 ## @knitr 7.c.iii
 ## Use glm to estimate the rate ratios
-## we scale the offset term to personyears
+## we scale the offset term to 1000 person-years
 poisson7c <- glm( death_cancer ~ year8594 + offset( log( surv_mm/12/1000 ) ), family=poisson, data=melanoma.l2 )
 summary( poisson7c )
+
+## also for collapsed data
+summary(glm( event ~ year8594 + offset( log( tstop/12/1000 ) ), family=poisson, data=rates_by_diag_yr2))
+
 
 ## IRR
 eform(poisson7c)
@@ -183,29 +149,12 @@ melanoma.spl <- mutate(melanoma.spl,
 ## @knitr 7.e
 
 ## Calculate the incidence rate by observation year
-yearly_rates <- melanoma.spl %>%
-
-    ## Stratify on follow-up year
-    group_by(fu) %>%
-
-    ## We only need the deaths and the persontime
-    select(death_cancer, pt) %>%
-
-    summarise(
-        ## Calculate the number of deaths
-        D = sum(death_cancer),
-        ## Calculate the total person time measured in 1000
-        Y = sum(pt)/1000,
-        ## Calculate the rate
-        Rate = D/Y,
-        CI_low = poisson.ci(D,Y)[1],
-        CI_high = poisson.ci(D,Y)[2]) %>% print
-
+yearly_rates <- survRate(Surv(pt/1000,death_cancer)~fu, data=melanoma.spl)
 
 ## Plot by year
 with(yearly_rates, matplot(fu,
-                           cbind(Rate, CI_low,
-                             CI_high),
+                           cbind(rate, lower,
+                             upper),
                            lty=c("solid","dashed","dashed"),
                            col=c("black","gray","gray"),
                            type="l",
@@ -218,8 +167,9 @@ with(yearly_rates, matplot(fu,
 
 par(mfrow=c(1,2))
 with(yearly_rates, matplot(as.numeric(as.character(fu))+0.5,
-                           cbind(Rate, CI_low,
-                             CI_high),
+                           cbind(rate, lower,
+                                 upper),
+                           ylim=c(0,max(upper)),
                            lty=c("solid","dashed","dashed"),
                            col=c("black","gray","gray"),
                            type="l",
@@ -229,7 +179,7 @@ with(yearly_rates, matplot(as.numeric(as.character(fu))+0.5,
 
 hazfit7f <- muhaz2(Surv(surv_mm/12, status == "Dead: cancer") ~ 1, data = melanoma.l)
 ## scale hazard by 1000
-plot(hazfit7f, xlab="Years since diagnosis",col="blue",lty="solid", haz.scale=1000)
+plot(hazfit7f, xlab="Years since diagnosis",col="blue",lty="solid", haz.scale=1000, xlim=c(0,10))
 
 
 ## @knitr 7.g
@@ -282,28 +232,12 @@ hz7k["sexFemale"]
 hz7k["sexFemale"]*hz7k["year8594Diagnosed 85-94:sexFemale"]
 
 ## @knitr 7.k.ii
-linearHypothesis(poisson7j,c("sexFemale + year8594Diagnosed 85-94:sexFemale = 0"))
+biostat3::lincom(poisson7j,c("sexFemale + year8594Diagnosed 85-94:sexFemale"),eform=TRUE)
 
-## calculate the confidence interval on the linear predictor scale and then transform
-exp(deltaMethod(poisson7j, "b14+b15", parameterNames = paste0("b",0:15)))[-2] # NB: drop SE
-## We can get the standard error (and drop the confidence interval)
-deltaMethod(poisson7j, "exp(b14+b15)", parameterNames = paste0("b",0:15))[-(3:4)]
-
-# ADVANCED:
-# hand calculations with confidence intervals
-# use estimates with covariance matrix from glm
-# to obtain estimates with ci's
-linvec <- c(rep(0,14),c(1,1))
-coef.Female8594 <- crossprod(coef(poisson7j),linvec)
-se.Female8594 <- sqrt(diag(t(linvec)%*%vcov(poisson7j)%*%linvec))
-ci.lower <- coef.Female8594 - 1.96*se.Female8594
-ci.upper <- coef.Female8594 + 1.96*se.Female8594
-exp(c(coef.Female8594,ci.lower,ci.upper))
 
 ## @knitr 7.k.iii
 ## Create dummies and Poisson regression
 melanoma.spl <- melanoma.spl %>%
-
     ## Add confidence intervals for the rates
     mutate(femaleEarly = sex=="Female" & year8594=="Diagnosed 75-84",
            femaleLate = sex=="Female" & year8594=="Diagnosed 85-94")
@@ -320,8 +254,6 @@ eform(poisson7k)
 summary(poisson7k2 <- glm( death_cancer ~ fu + agegrp + year8594 + year8594:sex +
                          offset( log(pt) ), family=poisson,
                          data=melanoma.spl ))
-
-## IRR
 eform(poisson7k2)
 
 
@@ -335,7 +267,6 @@ eform(poisson7l.early)
 summary( poisson7l.late <- glm( death_cancer ~ fu + agegrp + sex + offset( log(pt) ),
                        family = poisson, data = melanoma.spl,
                        subset = year8594 == "Diagnosed 85-94" ) )
-
 eform(poisson7l.late)
 
 # compare with results in i

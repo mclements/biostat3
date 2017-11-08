@@ -7,7 +7,7 @@ Describe rates
 Describe rates using the \code{\link{Surv}} function.
 }
 \usage{
-survRate(formula, data, subset, addvars = FALSE, ...)
+survRate(formula, data, subset, addvars = TRUE, ci=TRUE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -23,7 +23,10 @@ subset conditions for the source dataset
 }
   \item{addvars}{
 logical for whether to add the stratification variables to the output
-(default=FALSE). This is useful for subsequent analysis.
+(default=TRUE). This is useful for subsequent analysis.
+}
+  \item{ci}{
+logical for whether to calculate the confidence interval (default=TRUE). 
 }
   \item{\dots}{
 other arguments to the \code{\link{poisson.test}} function for

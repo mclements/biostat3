@@ -12,10 +12,11 @@
 ###############################################################################
 ## Exercise 9
 ###############################################################################
-## @knitr loadDependecies
+## @knitr loadDependencies
 
 library(biostat3)
 library(dplyr)    # for data manipulation
+library(splines)   # ns (recommended package)
 
 ## @knitr loadPreprocess
 ## Read melanoma data, select subcohorts and create a death indicator
@@ -101,15 +102,16 @@ melanoma.spl2 <- mutate(melanoma.spl2,
                         pt = surv_mm - start,
                         fu = as.factor(start) )
 
-## Run Poisson regression (slow)
-if (redo <- FALSE) {
-  poisson9f <- glm( death_cancer ~ fu + year8594 + sex + agegrp + offset( log(pt) ),
-                    family = poisson,
-                    data = melanoma.spl2 )
-  save(poisson9f,file="poisson9f.RData")
-} else {
-  load("poisson9f.RData")
-}
+## Collapse
+melanoma.spl3 <- melanoma.spl2 %>%
+    group_by(fu,year8594,sex,agegrp) %>%
+    summarise(pt=sum(pt), death_cancer=sum(death_cancer)) %>%
+    data.frame
+
+## Run Poisson regression
+poisson9f <- glm( death_cancer ~ fu + year8594 + sex + agegrp + offset( log(pt) ),
+                 family = poisson,
+                 data = melanoma.spl3 )
 
 ## IRR
 coef9f <- eform(poisson9f)
@@ -119,3 +121,60 @@ pars <- (npar-4):npar
 coef9f[pars,]
 
 summary(coxfit9e)
+
+
+## @knitr 9.g
+## split and collapse
+cuts.splines <- seq(0,max(sfit9f$time),by=3)
+mid.splines <- cuts.splines + 1.5
+melanoma.spl4 <-
+    survSplit(Surv(surv_mm,death_cancer)~., data=melanoma.l2, cut=cuts.splines,
+              start="tstart", end="tstop") %>%
+    mutate(cut=cut(tstop,cuts.splines),
+           mid=mid.splines[unclass(cut)]+1.5) %>%
+    group_by(mid,year8594,sex,agegrp) %>%
+    summarise(pt=sum(tstop-tstart), death_cancer=sum(death_cancer))
+
+poisson9g <- glm( death_cancer ~ ns(mid,df=3) + year8594 + sex + agegrp + offset( log(pt) ),
+                 family = poisson,
+                 data = melanoma.spl4 )
+summary(poisson9g)
+eform(poisson9g)
+
+## quick approach: use the effects package
+library(effects)
+plot(Effect("mid", poisson9g))
+
+## utility function to draw a confidence interval
+polygon.ci <- function(time, interval, col="lightgrey") 
+    polygon(c(time,rev(time)), c(interval[,1],rev(interval[,2])), col=col, border=col)
+
+## define exposures
+times <- seq(0,max(cuts.splines),length=1000)
+delta <- diff(times)[1]
+newdata <- data.frame(mid=times+delta/2, year8594="Diagnosed 85-94",
+                      sex="Male", agegrp="45-59",
+                      pt=1)
+## predict rates and 95% CI
+pred <- predict(poisson9g, newdata=newdata, se.fit=TRUE)
+predrate <- exp(pred$fit)
+ci <- with(pred, exp(cbind(fit-1.96*se.fit, fit+1.96*se.fit)))
+## plot
+matplot(newdata$mid, ci, type="n", xlab="Time since diagnosis (months)",
+        ylab="Rate", main="Males aged 45-59 years diagnosed 1985-94")
+polygon.ci(newdata$mid, ci) 
+lines(newdata$mid, predrate)
+
+## predict survival and 95% CI
+library(rstpm2)
+logcumhaz <- rstpm2::predictnl(poisson9g,
+          fun=function(fit,newdata) log(cumsum(delta*predict(fit, newdata, type="response"))),
+          newdata=newdata)
+surv <- exp(-exp(logcumhaz$Estimate))
+ci <- with(logcumhaz, exp(-exp(cbind(Estimate-1.96*SE, Estimate+1.96*SE))))
+
+## plot
+matplot(newdata$mid, ci, type="n", xlab="Time since diagnosis (months)",
+        ylab="Survival", main="Males aged 45-59 years diagnosed 1985-94")
+polygon.ci(newdata$mid, ci) 
+lines(newdata$mid, surv)

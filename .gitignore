@@ -3,9 +3,13 @@
 *.log
 auto
 *.out
-...Rcheck
+...Rcheck/
+..Rcheck/
+biostat3.Rcheck/
 .Rhistory
 *~
 *.so
 *.dll
 .Rproj.user
+biostat3*.tar.gz
+poisson9f.RData

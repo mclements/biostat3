@@ -54,30 +54,43 @@ muhaz2 <-
     if (length(temp)==1) {
       temp <- temp[[1]]
     }
-    else class(temp) <- "muhazList"
+    else {
+        class(temp) <- "muhazList"
+        names(temp) <- levels(strata(m[ll]))
+        attr(temp,"vars") <- lapply(m[ll], levels)
+    }
     structure(temp, call=Call)
   }
-plot.muhaz2 <- function(x, haz.scale = 1, ylim=NULL, log="", ...) {
+plot.muhaz2 <- function(x, haz.scale = 1, ylab="Hazard", ylim=NULL, log="", ...) {
     x$haz.est <- x$haz.est * haz.scale
+    if (log %in% c("y","xy","yx")) x$haz.est <- ifelse(x$haz.est==0,NA,x$haz.est)
     if (is.null(ylim)) {
-        ylim <- if (log %in% c("y","xy"))
-                    c(min(x$haz.est), max(x$haz.est)) else c(0, max(x$haz.est))
+        ylim <- if (log %in% c("y","xy","yx"))
+                    c(min(x$haz.est,na.rm=TRUE), max(x$haz.est,na.rm=TRUE)) else c(0, max(x$haz.est,na.rm=TRUE))
         }
-    muhaz::plot.muhaz(x, ylim=ylim, log=log, ...)
+    muhaz::plot.muhaz(x, ylab=ylab, ylim=ylim, log=log, ...)
 }
 lines.muhaz2 <- function(x, ..., haz.scale = 1) {
     x$haz.est <- x$haz.est * haz.scale
     muhaz::lines.muhaz(x, ...)
 }
-plot.muhazList <- function(x, lty=1, col=1:length(x), log="", ...) {
+plot.muhazList <- function(x, lty=1:5, col=1:length(x), log="", legend.args=list(), ...) {
   lty <- rep(lty, length=length(x))
   col <- rep(col, length=length(x))
   est.grid <- unlist(lapply(x, "[[", "est.grid"))
   haz.est <- unlist(lapply(x, "[[", "haz.est"))
-  plot.muhaz2(list(est.grid=est.grid,haz.est=haz.est), type="n", log=log, ...)
+  if (log %in% c("y","xy","yx")) haz.est <- ifelse(haz.est==0,NA,haz.est)
+  plot <- plot.muhaz2(list(est.grid=est.grid,haz.est=haz.est), type="n", log=log, ...)
   for(i in 1:length(x)) {
     lines.muhaz2(x[[i]], lty=lty[i], col=col[i], type="l", ...)
   }
+  if (!is.logical(legend.args) || legend.args) {
+      if (is.logical(legend.args)) legend.args <- list()
+      base.legend.args <- list(x="topright",legend=names(x),col=col,lty=lty)
+      legend.args <- do.call("updateList",c(list(base.legend.args), legend.args))
+      do.call("legend", legend.args)
+  }
+  invisible(plot)
 }
 lines.muhazList <- function(x, lty=1, col=1:length(x), ...) {
   lty <- rep(lty, length=length(x))
@@ -90,18 +103,23 @@ summary.muhazList <- function(object, ...)
   lapply(object, muhaz::summary.muhaz)
 as.data.frame.muhaz <- function(x, row.names, optional, ...) {
     if ("est.grid" %in% names(x)) {
-        data.frame(est.grid=x$est.grid, haz.est=x$haz.est)
+        data.frame(x=x$est.grid, y=x$haz.est)
         } else {
             est.grid <- unlist(lapply(x, "[[", "est.grid"))
             haz.est <- unlist(lapply(x, "[[", "haz.est"))
-            data.frame(est.grid,haz.est)
+            data.frame(x=est.grid,y=haz.est)
         }
 }
 as.data.frame.muhazList <- function(x, row.names, optional, ...) {
   est.grid <- unlist(lapply(x, "[[", "est.grid"))
   haz.est <- unlist(lapply(x, "[[", "haz.est"))
   strata <- unlist(lapply(1:length(x), function(i) rep(names(x)[i],length(x[[i]]$est.grid))))
-  data.frame(est.grid, haz.est, strata, row.names=1:length(strata))
+  out <- data.frame(x=est.grid, y=haz.est, strata, row.names=1:length(strata))
+  values <- do.call("expand.grid",rev(attr(x,"vars")))
+  newdata <- values[rep(1:length(x), sapply(x, function(xi) length(xi$est.grid))),,drop=FALSE]
+  rownames(newdata) <- 1:nrow(newdata)
+  out <- cbind(out,newdata)
+  out
 }
 
 plot.bshazard <-

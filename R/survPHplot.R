@@ -5,13 +5,17 @@ survPHplot <- function(formula, data, subset, contrasts, weights,
                        log="x",
                        legend.args=list(),
                        ...) {
-    Call <- match.call()
-    mf <- match.call(expand.dots = FALSE)
-    m <- match(c("formula", "data", "subset", "contrasts", "weights"), 
-        names(mf), 0L)
-    mf <- mf[c(1L, m)]
-    mf[[1]] <- as.name("survfit")
-    fit <- eval(mf, parent.frame())
+    if (class(formula)=="survfit") {
+        fit <- formula
+    } else {
+        Call <- match.call()
+        mf <- match.call(expand.dots = FALSE)
+        m <- match(c("formula", "data", "subset", "contrasts", "weights"), 
+                   names(mf), 0L)
+        mf <- mf[c(1L, m)]
+        mf[[1]] <- as.name("survfit")
+        fit <- eval(mf, parent.frame())
+    }
     n <- length(fit$strata)
     index <- rep(names(fit$strata), fit$strata)
     time <- fit$time

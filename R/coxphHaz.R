@@ -6,6 +6,7 @@ coxphHaz <-
         if(nrow(newdata)>1)
             return(structure(lapply(1:nrow(newdata),
                                     function(i) coxphHaz(object, newdata[i,,drop=FALSE], n.grid, kernel, from, to, ...)),
+                             newdata=newdata,
                              class="coxphHazList"))
         x <- survival::survfit(object, conf.type = "none")
         index <- x$n.risk > 0
@@ -27,9 +28,14 @@ print.coxphHaz <- function(x, digits=NULL, ...) {
 plot.coxphHaz <- function(x, xlab="Time", ylab="Hazard", type="l", ...) {
     plot.default(x, xlab=xlab, ylab=ylab, type=type, ...)
 }
-plot.coxphHazList <- function(x, xlab="Time", ylab="Hazard", type="l", ...)
-    matplot(x[[1]]$x, do.call("cbind", lapply(x, function(item) item$y)),
-            xlab=xlab, ylab=ylab, type=type, ...)
+plot.coxphHazList <- function(x, xlab="Time", ylab="Hazard", type="l", col=1:length(x), lty=1, legend.args=list(), ...) {
+    plot <- matplot(x[[1]]$x, do.call("cbind", lapply(x, function(item) item$y)),
+                    xlab=xlab, ylab=ylab, type=type, col=col, lty=lty, ...)
+    base.legend.args <- list(x="topright",legend=strata(attr(x,"newdata")),col=col,lty=lty)
+    legend.args <- do.call("updateList",c(list(base.legend.args), legend.args))
+    do.call("legend", legend.args)
+    invisible(plot)
+}
 lines.coxphHazList <- function(x, ...)
     matlines(x[[1]]$x, do.call("cbind", lapply(x, function(item) item$y)), 
              ...)

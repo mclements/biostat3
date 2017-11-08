@@ -29,15 +29,15 @@ legend("bottomleft", levels(melanoma$year8594), col=1:2, lty = 1)
 
 ## @knitr b_hazDiaDate
 plot(muhaz2(Surv(surv_mm,death_cancer)~year8594, data=melanoma))
-legend("topright", levels(melanoma$year8594), col=1:2, lty = 1)
 
 ## @knitr c_testDiaDate
 ## Log-rank test for equality of survivor functions
-survdiff(Surv(surv_mm, death_cancer==1) ~ year8594, data=melanoma)
+survdiff(Surv(surv_mm, death_cancer) ~ year8594, data=melanoma)
 ## Equivalent to the Peto & Peto modfication of the Gehan-Wilcoxon test
-survdiff(Surv(surv_mm, death_cancer==1) ~ year8594, data=melanoma, rho=1)
+survdiff(Surv(surv_mm, death_cancer) ~ year8594, data=melanoma, rho=1)
 
 ## @knitr d_crudeRates1000_agegrp
+survRate(Surv(surv_mm,death_cancer)~year8594, data=melanoma)
 melanoma %>%
     select(death_cancer, surv_mm, agegrp) %>%
     group_by(agegrp) %>%
@@ -45,40 +45,33 @@ melanoma %>%
               CI_low = stats::poisson.test(D,Y)$conf.int[1],
               CI_high = stats::poisson.test(D,Y)$conf.int[2]) 
 
-mfit_agegrp <- survfit(Surv(surv_mm, death_cancer==1) ~ agegrp, data = melanoma)
+mfit_agegrp <- survfit(Surv(surv_mm, death_cancer) ~ agegrp, data = melanoma)
 plot(mfit_agegrp, col = 1:4,
      xlab = "Months since diagnosis",
      ylab = "Survival",
      main = "Kaplan-Meier survival estimates")
-legend("bottomleft", c("0-44", "45-59", "60-74", "75+"), col=1:4, lty = 1)
+legend("bottomleft", levels(melanoma$agegrp), col=1:4, lty = 1)
 
 ## @knitr e_crudeRates1000_agegrp
-mfit_agegrp_year <- survfit(Surv(surv_mm/12, death_cancer==1) ~ agegrp, data = melanoma)
+mfit_agegrp_year <- survfit(Surv(surv_mm/12, death_cancer) ~ agegrp, data = melanoma)
 plot(mfit_agegrp_year, col = 1:4,
      xlab = "Years since diagnosis",
      ylab = "Survival",
      main = "Kaplan-Meier survival estimates")
 legend("bottomleft", levels(melanoma$agegrp), col=1:4, lty = 1)
 
-melanoma %>%
-    select(death_cancer, surv_mm, agegrp) %>%
-    group_by(agegrp) %>%
-    summarise(D = sum(death_cancer), Y = sum(surv_mm)/12/1000, Rate = D/Y,
-              CI_low = stats::poisson.test(D,Y)$conf.int[1],
-              CI_high = stats::poisson.test(D,Y)$conf.int[2]) 
+
+survRate(Surv(surv_mm/12/1000,death_cancer)~year8594, data=melanoma)
 
 ## @knitr f_sexDiff
 par(mfrow=c(1, 2))
 mfit_sex <- survfit(Surv(surv_mm, death_cancer) ~ sex, data = melanoma)
-
 plot(mfit_sex, col = 1:2,
      xlab = "Follow-up Time",
      ylab = "Survival",
      main = "Kaplan-Meier survival estimates")
-legend("topright", levels(melanoma$sex), col=1:2, lty = 1)
-
 plot(muhaz2(Surv(surv_mm,death_cancer)~sex, data=melanoma))
-legend("topright", levels(melanoma$sex), col=1:2, lty = 1)
 
 ## Log-rank test for equality of survivor functions
 survdiff(Surv(surv_mm, death_cancer==1) ~ sex, data=melanoma)
+
