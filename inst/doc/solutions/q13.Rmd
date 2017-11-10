@@ -1,0 +1,51 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Johan Zetterqvist and Mark Clements
+---
+
+
+# Exercise 13. Modelling the diet data using Cox regression #
+
+-----------
+
+Now fit a model to the localised melanoma data where the outcome is observed survival (i.e. all deaths are considered to be events).
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q13.R')
+opts_chunk$set(cache=FALSE)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependencies, message=FALSE}
+```
+Load the melanoma data and explore it.
+
+```{r loadPreprocess, results='hide'}
+```
+
+## (a) ## 
+
+```{r 13.a, warning=FALSE, message=FALSE}
+```
+
+These two models are conceptually different since the Cox model
+        adjusts for ‘time’ even though this is not explicit in the
+        `coxph` function. In this example, ‘time’ refers to ‘time on
+        study’ (time since entry) which we do not expect to be a
+        strong confounder. That is, we would expect the estimates of the
+        effect of high energy to be similar for the two models, which
+        they are.
+
+## (b) ## 
+
+If we use a different timescale then this amounts to adjusting
+        for a different factor. As such, we would not expect the
+        estimates to be identical. Attained age, unlike time since
+        entry, is expected to be a confounder but we see that it is not
+        a strong confounder.
+		
+```{r 13.b, warning=FALSE, message=FALSE}
+```

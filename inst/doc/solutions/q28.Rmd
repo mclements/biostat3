@@ -1,0 +1,155 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Xing-Rong Liu and Mark Clements
+---
+
+## Exercise 28. Flexible parametric survival models in R ##
+
+
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q28.R')
+opts_chunk$set(cache=FALSE, fig.width=10, fig.height=6)
+```
+
+
+```{r loadDependencies, message=FALSE}
+```
+
+
+```{r loadPreprocess}
+```
+
+##(a)## 
+
+The `stpm2` output can be seen below.
+
+```{r a_flex}
+```
+
+The hazard ratio, 95% confidence interval and statistical
+        significance are very similar to the Cox model.
+		
+```{r a_cox}
+```
+
+##(b)## 
+
+The predicted survival and hazard functions are shown below.
+
+```{r b_surv}
+```
+
+```{r b_haz}
+```
+
+##(c)## 
+
+There is a constant difference as the predictions are from a
+        proportional hazards model and a multiplicative effect becomes
+        additive on the log scale.
+		
+```{r c_haz_log}
+```
+
+##(d)## 
+
+The log hazard ratios (and hence the hazard ratios) from 2 df
+        and up are similar and for 3 df they are very similar. The main
+        difference is for 1 df, which is equivalent to a Weibull model.
+        The Weibull model enforces a monotonic hazard function and as
+        the hazard function in the melanoma data has a turning point it
+        is clearly inappropriate.\
+        The lowest AIC is for the model with 5 df and for the BIC it is
+        the model with 2 df. The penalty term in the AIC is twice the
+        number of parameters ($2 \times k$) whereas in the BIC it is
+        $\ln(D) \times k$ where $D$ is the number of events. Since
+        $\ln(D) > k$ the BIC penalizes extra parameters much more
+        strongly than AIC. Since we have a large data set and there are
+        no disadvantages to including extra parameters we would use 5df
+        for the baseline hazard.
+		
+```{r d_AIC_BIC}
+```
+
+##(e)## 
+
+```{r e_base_surv}
+```
+
+With the exception of 1 df (the Weibull model), the survival and
+        hazard functions show similar shapes, so as long we have enough
+        knots our conclusions would be very similar.
+		
+##(f)## 
+
+```{r f_sex_age}
+```
+
+The estimates are similar to those obtained from the Cox model.
+        The Wald test yields a very highly significant result, which is
+        similar to that obtained from the comparable test for the
+        Cox model.
+
+##(g)## 
+
+The estimates are so similar because very similar models are
+        being fitted with exactly the same covariates. The two models
+        differ only in the manner in which they account for the
+        baseline hazard. In the Cox model it is assumed arbitrary and
+        not directly estimated. In the flexible parametric model the
+        baseline hazard is modelled using splines. The 5 df spline
+        allows sufficient flexibility to make the model estimates
+        virtually identical.
+
+##(h)## 
+
+```{r h_time_varying}
+```
+
+There is strong evidence of a non-proportional effect of age.
+
+##(i)## 
+
+The baseline hazard is shown below. This baseline
+        is for the youngest age group who are male and diagnosed in
+        1975–1984, i.e, when all the covariates are equal to zero.
+		
+```{r i_plot_base_haz}
+```
+
+##(j)## 
+
+```{r j_age_HR}
+```
+
+```{r j_oldest}
+```
+
+        The hazard ratios decrease as a function of follow-up time. The
+        hazard ratio is so high during the early years of follow-up
+        because the hazard in the reference group is close to
+        zero. The hazard ratio for the oldest age
+        group with 95% confidence intervals is also shown.
+##(k)## 
+
+
+```{r k_haz_diff}
+```
+
+The hazard difference is small early on, despite the hazard
+        ratio being large, because the underlying hazard is so low.
+		
+##(l)## 
+
+
+```{r l_surv_diff}
+```
+
+##(m)## 
+
+
+```{r m_time_dep_eff}
+```

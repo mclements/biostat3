@@ -1,0 +1,84 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Bénédicte Delcoigne and Mark Clements
+---
+
+# Exercise 25. Localised melanoma : generating and analysing a nested case-control (NCC) study #
+
+-----------
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q25.R')
+opts_chunk$set(cache=FALSE)
+```
+
+
+```{r loadDependencies, message=FALSE}
+```
+
+```{r loadPreprocess, results='hide'}
+```
+
+```{r ex_25_coxph,  message=FALSE, warning=FALSE}
+```
+
+## (a) ## 
+
+There are 5318 individuals in the study that we would need to
+        collect data for if we were to use the complete cohort
+        of patients.
+		
+```{r  n_ind,  message=FALSE, warning=FALSE}
+```
+
+## (b) ## 
+960 cancer patients die from melanoma during the first 10 years
+        of follow-up.
+
+```{r  n_event,  message=FALSE, warning=FALSE}
+```
+
+## (c1) ## 
+
+```{r gen_ncc,  message=FALSE, warning=FALSE}
+```
+
+## (c2) ## 
+
+```{r clogit,  message=FALSE, warning=FALSE}
+```
+
+## (d) ## 
+
+```{r n_unique_ncc,  message=FALSE, warning=FALSE}
+```
+
+## (e) ## 
+Note that, since every nested case-control study is different,
+        the parameter estimates you obtain will not be identical to
+        those above. However, the hazard ratios from the two models
+        should be very similar. The standard errors are slightly larger
+        for the nested case-control study since the estimates are based
+        on a sample from the full cohort. Loss of precision is the
+        trade-off we have to make when designing a nested
+        case-control study. The precision can be improved by adding more
+        controls to each case.
+
+```{r compare_coh_ncc,  message=FALSE, warning=FALSE}
+```
+
+## (f) ## 
+We see that there is sampling variation in
+        the parameter estimates from the five nested case-control
+        studies but they are centered on the full cohort estimate. We
+        see that the standard errors of the estimates from the nested
+        case-control studies are larger than for the full cohort but
+        there is some sampling variation.
+		
+```{r loop_ncc,  message=FALSE, warning=FALSE, results='hide'}
+```
+
+```{r output,  message=FALSE, warning=FALSE}
+```

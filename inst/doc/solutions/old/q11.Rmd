@@ -1,0 +1,40 @@
+Biostat III exercises in R
+===========
+Laboratory exercise 11
+-----------
+
+### Suggested solutions by
+Author: Johan Zetterqvist, 2015-03-04 <br/>
+
+
+## Cox regression with all-cause mortality as the outcome
+
+-----------
+
+Now fit a model to the localised melanoma data where the outcome is observed survival (i.e. all deaths are considered to be events).
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('q11.R')
+opts_chunk$set(cache=FALSE)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependecies, message=FALSE}
+```
+Load the melanoma data and explore it.
+
+```{r loadPreprocess, results='hide'}
+```
+
+**(a)** Interpret the estimated hazard ratio for the parameter labelled 2.agegrp, including a comment on statistical significance.
+
+
+```{r 11.a, warning=FALSE}
+```
+
+**(b)** On comparing the estimates between the observed and cause-specific survival models it appears that only the parameters for age have changed substantially. Can you explain why the estimates for the effect of age would be expected to change more than the estimates of the effect of sex and period?
+
+```{r 11.b, warning=FALSE}
+```

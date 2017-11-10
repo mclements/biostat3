@@ -1,0 +1,102 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Annika Tillander, Andreas Karlsson and Mark Clements
+---
+
+
+# Exercise 10. Examining the proportional hazards hypothesis (localised melanoma) #
+
+-----------
+
+Load the diet data using time-on-study as the timescale with a maximum of 10 years follow-up.
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q10.R')
+opts_chunk$set(cache=FALSE)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependencies, message=FALSE}
+```
+Load melanoma data and explore it.
+
+```{r loadPreprocess, results='hide'}
+```
+
+## (a) ## 
+For the localised melanoma data with 10 years follow-up, plot the instantaneous cause-specific hazard for each calendar period.
+
+
+```{r 10.a, message=FALSE, results='hide', fig.show='hide'}
+```
+
+## (b) ## 
+Now plot the instantaneous cause-specific hazard for each calendar period using a log scale for the y axis (use the option yscale(log)). What would you expect to see if a proportional hazards assumption was appropriate? Do you see it?
+
+```{r 10.b, message=FALSE, results='hide', fig.show='hide'}
+```
+
+## (c) ## 
+Another graphical way of checking the proportional hazards assumption is to plot the log cumulative cause specific hazard function for each calendar period. These plots were not given extensive coverage in the lectures, so attempt this if you like or continue to part (d).
+
+```{r 10.c, message=FALSE, results='hide', fig.show='hide'}
+```
+
+## (d) ## 
+Compare your estimated hazard ratio from part (a) with the one from a fitted Cox model with calendar period as the only explanatory variable. Are they similar?
+
+```{r 10.d, results='hide', fig.show='hide'}
+```
+
+## (e) ## 
+Now fit a more complex model and use graphical methods to explore the assumption of proportional hazards by calendar period.
+
+```{r 10.e, results='hide', fig.show='hide'}
+```
+
+What do you conclude?
+
+## (f) ## 
+Do part (a)–(e) but now for the variable agegrp. What are your conclusions regarding the assumption of proportional hazards? No written solutions for this part. No written solutions for this part.
+
+## (g) ## 
+Now formally test the assumption of proportional hazards.
+
+```{r 10.g, results='hide', fig.show='hide'}
+```
+
+Are your conclusions from the test coherent with your conclusions from the graphical assessments?
+
+## (h) ## 
+Estimate separate age effects for the first two years of follow-up (and separate estimates for the remainder of the follow-up) while controlling for sex and period. Do the estimates for the effect of age differ between the two periods of follow-up?
+
+```{r 10.h, results='hide', fig.show='hide'}
+```
+
+We see effects of age (i.e., the hazard ratios) for the period 0–2 years subsequent to diagnosis along with the interaction effects. An advantage of the default parameterisation is that one can easily test the statistical significance of the interaction effects. Before going further, test whether the age*follow-up interaction is statistically significant (using a Wald and/or LR test).
+
+## (i) ## 
+Often we wish to see the effects of exposure (age) for each level of the modifier (time since diagnosis). That is, we would like to complete the table below with relevant hazard ratios. To get the effects of age for the period 2+ years after diagnosis, using the default parametrization, we must multiply the hazard ratios for 0–2 years by the appropriate interaction effect. Now let’s reparameterise the model to directly estimate the effects of age for each level of time since diagnosis.
+
+              0–2 years   2+ years
+------------- ----------- ----------
+  Agegrp0-44     1.00        1.00
+  Agegrp45-59    --          --
+  Agegrp60-74    --          -- 
+  Agegrp75+      --          --
+
+
+```{r 10.i, results='hide', fig.show='hide'}
+```
+
+
+## (j) ## 
+
+ADVANCED: Fit an analogous Poisson regression model. Are the parameter estimates similar? HINT: You will need to split the data by time since diagnosis. Calculate and plot the rates.
+
+```{r 10.j, results='hide', fig.show='hide'}
+```
+

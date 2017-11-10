@@ -1,0 +1,117 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Annika Tillander, Andreas Karlsson and Mark Clements
+---
+
+# Exercise 1: Life tables and Kaplan-Meier estimates of survival #
+
+## (a) Hand calculation: Life table and Kaplan-Meier estimates of survival ##
+
+Using hand calculation (i.e., using a spreadsheet program or pen,
+    paper, and a calculator) estimate the cause-specific survivor
+    function for the sample of 35 patients diagnosed with colon
+    carcinoma (see the table below) using both the Kaplan-Meier method
+    (up to at least 30 months) and the actuarial method (at least the
+    first 5 annual intervals).
+
+In the lectures we estimated the observed survivor function
+    (i.e. all deaths were considered to be events) using the
+    Kaplan-Meier and actuarial methods; your task is to estimate the
+    cause-specific survivor function (only deaths due to colon carcinoma
+    are considered events) using the same data. The next page includes
+    some hints to help you get started.
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q1.R')
+opts_chunk$set(cache=FALSE, fig.width=7, fig.height=6)
+options(width=90)
+```
+
+```{r loadDependecies, message=FALSE}
+```
+
+```{r printData, message=FALSE}
+```
+
+### Actuarial approach ###
+
+We suggest you start with the actuarial approach. Your task is to
+	construct a life table with the following structure.
+
+
+    -----  ---  ---  ---  ----  ---  ------
+    time   $l$  $d$  $w$  $l'$  $p$  $S(t)$
+    -----  ---  ---  ---  ----  ---  ------
+    [0-1)   35
+	
+    [1-2)
+	
+    [2-3)
+	
+    [3-4)
+	
+    [4-5)
+	
+    [5-6)
+    -----  ---  ---  ---  ----  ---  ------
+
+We have already entered $l_1$ (number of people alive at the start
+    of interval 1). The next step is to add the number who experienced
+    the event ($d$) and the number censored ($w$) during the first year.
+    From $l$, $d$, and $w$ you will then be able to calculate $l'$
+    (effective number at risk), followed by $p$ (conditional probability
+    of surviving the interval) and finally $S(t)$, the cumulative
+    probability of surviving from time zero until the end of
+    the interval.
+
+    
+### Kaplan-Meier approach ###
+
+To estimate survival using the Kaplan-Meier approach you will find
+    it easiest to add a line to the table at each and every time there
+    is an event or censoring. We should use time in months. The first
+    time at which there is an event or censoring is time equal to
+    2 months. The trick is what to do when there are both events and
+    censorings at the same time.
+
+    ----   ---------  ---  ---  ---  ------
+    time   # at risk  $d$  $w$  $p$  $S(t)$
+    ----   ---------  ---  ---  ---  ------
+	2         35
+	
+    ----   ---------  ---  ---  ---  ------
+
+
+    ----   ---------  ---  ---  ---  ------
+
+
+    ----   ---------  ---  ---  ---  ------
+
+
+
+## (b) Using R to validate the hand calculations done in part 1 (a) ##
+
+We will now use R to reproduce the same analyses
+    done by hand calculation in section 1.1 although you can do this part
+    without having done the hand calculations, since this question also
+    serves as an introduction to survival analysis using R. Our aim
+    is to estimate the cause-specific survivor function for the sample
+    of 35 patients diagnosed with colon carcinoma using both the
+    Kaplan-Meier method and the actuarial method. In the lectures we
+    estimated the all-cause survivor function (i.e. all deaths were
+    considered to be events) using the Kaplan-Meier and actuarial
+    methods whereas we will now estimate the cause-specific survivor
+    function (only deaths due to colon carcinoma are considered events).
+
+
+Life tables are available using the `lifetab` function from the `KMsurv` package on CRAN. We have written a small wrapper `lifetab2` which allows for a `Surv` object and a dataset. The following command will give the actuarial estimates:
+	
+```{r lifeTable, message=FALSE, results="hide"}
+```
+
+A listing of the Kaplan-Meier estimates and a graph are obtained as follows
+
+```{r KaplanMeier, message=FALSE, results="hide", fig.show="hide"}
+```

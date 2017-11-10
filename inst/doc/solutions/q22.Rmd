@@ -1,0 +1,93 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Andreas Karlsson and Mark Clements
+---
+
+# Exercise 22. Estimating the effect of a time-varying exposure – the bereavement data #
+
+
+These data were used to study a possible effect of marital bereavement (loss of husband or wife) on all–cause mortality in the elderly. The dataset was extracted from a larger follow-up study of an elderly population and concerns subjects whose husbands or wives were alive at entry to the study. Thus all subjects enter as not bereaved but may become bereaved at some point during follow–up. The variable dosp records the date of death of each subject’s spouse and takes the value 1/1/2000 where this has not yet happened.
+
+
+-----------
+
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q22.R')
+opts_chunk$set(cache=FALSE,dpi=20)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependencies, message=FALSE}
+```
+
+## (a) ## 
+
+
+```{r loadPreprocess, results='hide'}
+```
+
+```{r 22.a, warning=FALSE, message=FALSE}
+```
+
+## (b) ## 
+
+  i. The timescale is attained age, which would seem to be a
+            reasonable choice.
+  ii. Males have the higher mortality which is to be expected.
+  iii. Age could potentially be a confounder. Males are slightly older at diagnosis (although we haven't studied pairwise differences).
+
+```{r 22.b, warning=FALSE, message=FALSE}
+```
+
+## (c) Breaking records into pre and post bereavement. ## 
+
+```{r 22.c, warning=FALSE, message=FALSE}
+```
+
+## (d) ## 
+Now find the (crude) effect of bereavement.
+
+
+```{r 22.d, warning=FALSE, message=FALSE}
+```
+
+## (e) ## 
+
+```{r 22.e, warning=FALSE, message=FALSE}
+```
+
+## (f) Controlling for age.## 
+
+```{r 22.f, warning=FALSE, message=FALSE}
+```
+
+## (g) ## 
+
+```{r 22.g, warning=FALSE, message=FALSE}
+```
+
+## (h) ## 
+
+We could split the post bereavement period into multiple
+        categories (e.g., within one year and subsequent to one year
+        following bereavement) and compare the risks between
+        these categories.
+
+## (i) Analysis using Cox regression.## 
+
+Cox regression: effect of `brv` controlled for attained age:
+
+```{r 22.i, warning=FALSE, message=FALSE}
+```
+
+## (j) ## 
+Cox regression estimating the effect of `brv` for each sex, 
+                    controlling for age:
+
+
+```{r 22.j, warning=FALSE, message=FALSE}
+```

@@ -1,0 +1,134 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Annika Tillander, Andreas Karlsson and Mark Clements
+---
+
+
+# Exercise 10. Examining the proportional hazards hypothesis (localised melanoma) #
+
+-----------
+
+Load the diet data using time-on-study as the timescale with a maximum of 10 years follow-up.
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q10.R')
+opts_chunk$set(cache=FALSE)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependencies, message=FALSE}
+```
+Load melanoma data and explore it.
+
+```{r loadPreprocess, results='hide'}
+```
+
+## (a) ## 
+
+If we look at the hazard curves, at their peak the ratio is
+        approximately $0.038/0.048\approx0.79$. The ratio is similar at
+        other follow-up times.
+
+```{r 10.a, message=FALSE}
+```
+
+## (b) ## 
+There is no strong evidence against an assumption of
+        proportional hazards since we see (close to) parallel curves
+        when plotting the instantaneous cause-specific hazard on the
+        log scale.
+
+```{r 10.b, message=FALSE}
+```
+
+## (c) ## 
+
+If the proportional hazards assumption is appropriate then we
+        should see parallel lines. This looks
+        okay; we shouldn’t put too much weight on the fact that the
+        curves cross early in the follow-up since there are so few
+        deaths there. The difference between the two log-cumulative
+        hazard curves is similar during the part of the follow-up where
+        we have the most information (most deaths). Note that these
+        curves are not based on the estimated Cox model (i.e., they
+        are unadjusted).
+		
+
+```{r 10.c, message=FALSE}
+```
+
+## (d) ## 
+The estimated hazard ratio from the Cox model is $0.78$ which is
+        similar (as it should be) to the estimate made by looking at the
+        hazard function plot.
+
+```{r 10.d}
+```
+
+## (e) ## 
+The plot of the scaled
+        Schoenfeld residuals for the effect of period. Under
+        proportional hazards, the smoother will be a horizontal line.
+        The line is not, however, perfectly horizontal; it appears that
+        the effect of period is greater earlier in the follow-up.
+
+```{r 10.e}
+```
+
+
+## (f) ## 
+No solution written for this part.
+
+## (g) ## 
+It seems that there is evidence of non-proportional hazards by
+        age (particularly for the comparison of the oldest to youngest)
+        but not for calendar period. The plot of Schoenfeld residuals
+        suggested non-proportionality for period but this was not
+        statistically significant.
+
+```{r 10.g}
+```
+
+## (h) ## 
+
+The hazard ratios for age in the top panel are for the first two
+        years subsequent to diagnosis. To obtain the hazard ratios for
+        the period two years or more following diagnosis we multiply the
+        hazard ratios in the top and bottom panel. That is, during the
+        first two years following diagnosis patients aged 75 years or
+        more at diagnosis have 5.4 times higher cancer-specific
+        mortality than patients aged 0–44 at diagnosis. During the
+        period two years or more following diagnosis the corresponding
+        hazard ratio is $5.4 \times 0.49=2.66$.\
+        Using `survSplit` to split on time will give you the same results
+        as above. We see that the age:follow up interaction is
+        statistically significant.
+
+
+```{r 10.h}
+```
+
+
+## (i) ## 
+
+              0–2 years   2+ years
+------------- ----------- ----------
+  Agegrp0-44     1.00        1.00
+  Agegrp45-59    1.70        1.23
+  Agegrp60-74    2.46        1.70 
+  Agegrp75+      5.42        2.67
+
+
+```{r 10.i}
+```
+
+Note that the `tt` functionality only works for a single variable (in our case, `agegrp75+`). We have used the `lincom` function to estimate the hazard ratio for `agegrp75+`. We will later describe a more flexible approach to modelling time-dependent effects using `stpm2`.
+
+## (j) ## 
+
+```{r 10.j}
+```
+

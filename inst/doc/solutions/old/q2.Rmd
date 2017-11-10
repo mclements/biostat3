@@ -1,0 +1,84 @@
+Biostat III exercises in R
+===========
+Laboratory exercise 2
+-----------
+
+### Suggested solutions by
+
+Author: Annika Tillander, 2014-01-30 <br/>
+Edited: Andreas Karlsson, 2015-02-28, 2016-03-07; Mark Clements, 2017-08-02
+
+Comparing survival, proportions and mortality rates by stage for cause-specific and
+all-cause survival.
+
+-----------
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('q2.R')
+opts_chunk$set(cache=FALSE, fig.width=10, fig.height=6)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependecies, message=FALSE}
+```
+
+We start by listing the first few observations to get an idea about the data. We then define two 1/0 variables for the events that we are interested in.
+
+```{r loadPreprocess}
+```
+
+**(a)** We now tabulate the distribution of stages.
+
+```{r a_tabulate}
+```
+
+Survival depends heavily on stage. It is interesting to note that patients with an unknown stage
+appear to have a similar survival to patients with a localized stage. Tabulate events by stage and plot survival and the smoothed hazards.
+
+```{r a_plotSurv}
+```
+
+**(b)** The time unit that we used was months (since we specified `surv_mm` as the
+analysis time). Therefore, the units of the rates shown above are events/person-month. We
+could multiply these rates by 12 to obtain estimates with units events/person-year or we can
+change the default time unit by specifying the time scale. As an example we here tabulate crude rates, first by month and then by year.
+
+```{r b_crudeRates}
+```
+
+**(c)** Here we tabulate crude rates per 1000 person years.
+
+```{r c_crudeRates1000}
+```
+
+**(d)** Below we see that the crude mortality rate is higher for males than for females.
+
+```{r d_crudeRates1000_sex}
+```
+
+A difference which is also reflected in the survival and hazard curves below.
+
+```{r d_plotSurv_sex}
+```
+
+**(e)** The majority of patients are alive at end of study. The cause of death is highly depending of age, as young people die less from other causes. To observe this we tabulate the events by age group.
+
+```{r e_tabByAge}
+```
+
+**(f)** The survival is worse for all-cause survival than for cause-specific, since you now can die from other causes, and these deaths are incorporated in the Kaplan-Meier estimates. The ”other cause” mortality is particularly present in patients with localised and unknown stage.
+
+```{r f_survStage}
+```
+
+**(g)** By comparing Kaplan-Meier estimates for cancer deaths with all-cause mortality conditioned on age over 75. We see that the “other” cause mortality is particularly influential in patients with localised and unknown stage. Patients with localised disease, have a better prognosis (i.e. the cancer does not kill them), and are thus more likely to experience death from another cause. For regional and distant stage, the cancer is more aggressive and is the cause of death for most of these patients (i.e. it is the cancer that kills these patients before they have “the chance” to die from something else).
+
+```{r g_allCa75p}
+```
+
+**(h)** Compare Kaplan-Meier estimates for cancer deaths with all-cause mortality by age group.
+
+```{r h_allCaAgeGrp}
+```

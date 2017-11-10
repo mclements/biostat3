@@ -1,0 +1,247 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Johan Zetterqvist and Mark Clements
+---
+
+
+# Exercise 7. Model cause-specific mortality with Poisson regression #
+
+In this exercise we model, using Poisson regression, cause-specific mortality of patients diagnosed with localised (stage==1) melanoma.
+
+In exercise 9 we model cause-specific mortality using Cox regression and in exercise 28 we use flexible parametric models. The aim is to illustrate that these three methods are very similar.
+
+The aim of these exercises is to explore the similarities and differences to these three approaches to modelling. We will be comparing the results (and their interpretation) as we proceed through the exercises.
+
+-----------
+
+Load the diet data using time-on-study as the timescale.
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q7.R')
+opts_chunk$set(cache=FALSE)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependencies, message=FALSE}
+```
+
+Load the melanoma data and explore it.
+
+```{r loadPreprocess, results='hide'}
+```
+
+Rates can be modelled on different timescales, e.g., attained age, time-since-entry, calendar time. Plot the CHD incidence rates both by attained age and by time-since-entry. Is there a difference? Do the same for CHD hazard by different energy intakes (hieng).
+
+## (a) ## 
+### i. ###  
+
+```{r 7.a.i,  message=FALSE}
+```
+
+Survival is better during the latter period.
+
+### ii. ###  
+
+```{r 7.a.ii,  message=FALSE}
+```
+
+Mortality is lower during the latter period.
+
+### iii. ###
+
+```{r 7.a.iii,  message=FALSE}
+```
+
+The two graphs both show that prognosis is better during the
+            latter period. Patients diagnosed during the latter period
+            have lower mortality and higher survival.
+			
+## (b) ##
+
+```{r 7.b,  message=FALSE}
+```
+
+The estimated mortality rate is lower for patients diagnosed
+        during the early period. This is not consistent with what we saw
+        in previous analyses. The inconsistency is due to the fact that
+        we have not controlled for time since diagnosis. look at the
+        graph of the estimated hazards (on the previous page) and try
+        and estimate the overall average value for each group. We see
+        that the average hazard for patients diagnosed in the early
+        period is drawn down by the low mortality experienced by
+        patients 10 years subsequent to diagnosis.
+
+## (c) ##
+
+### i. ###  
+
+```{r 7.c.i,  message=FALSE}
+```
+
+Now that we have restricted follow-up to a maximum of 10
+            years we see that the average mortality rate for patients
+            diagnosed in the early period is higher than for the
+            latter period. This is consistent with the graphs we
+            examined in part (a).
+
+### ii. ###  
+
+```{r 7.c.ii,  message=FALSE}
+```
+
+### iii. ###  
+
+```{r 7.c.iii,  message=FALSE}
+```
+
+We see that Poisson regression is estimating the mortality
+            rate ratio which, in this simple example, is the ratio of
+            the two mortality rates.
+
+## (d) ##
+In order to adjust for time since diagnosis (i.e., adjust for the fact that we expect mortality to depend on time since diagnosis) we need to split the data by this timescale. We will restrict our analysis to mortality up to 10 years following diagnosis.
+
+```{r 7.d,  message=FALSE}
+```
+
+## (e) ##  
+
+```{r 7.e,  message=FALSE}
+```
+
+It seems reasonable (at least to me) that melanoma-specific
+        mortality is lower during the first year. These patients were
+        classified as having localised skin melanoma at the time
+        of diagnosis. That is, there was no evidence of metastases at
+        the time of diagnosis although many of the patients who died
+        would have had undetectable metastases or micrometastases at the
+        time of diagnosis. It appears that it takes at least one year
+        for these initially undetectable metastases to progress and
+        cause the death of the patient.
+
+## (f) ##  
+
+```{r 7.f,  message=FALSE, warning=FALSE}
+```
+
+The pattern is similar. The plot of the mortality
+        rates could be considered an
+        approximation to the ‘true’ functional form depicted
+        in the hazard plot. By estimating the rates for each year
+        of follow-up we are essentially approximating the hazard using a step function. It would probably
+        be more informative to use narrower intervals (e.g.,
+        6-month intervals) for the first 6 months of follow-up.
+		
+## (g) ##  
+
+```{r 7.g,  message=FALSE}
+```
+
+The pattern of the estimated mortality rate ratios mirrors the
+        pattern we saw in the plot of the rates. Note that the first
+        year of follow-up is the reference so the estimated rate ratio
+        labelled `1` for `fu` is the rate ratio for the second year
+        compared to the first year.
+
+## (h) ##  
+
+```{r 7.h,  message=FALSE}
+```
+The estimated mortality rate ratio is $0.7791$ compared to
+        $0.8832$ (part c) and a value greater than 1 in part (b). The
+        estimate we obtained in part (b) was subject to confounding
+        by time-since-diagnosis. In part (c) we restricted to the first
+        10 years of follow-up subsequent to diagnosis. This did not,
+        however, completely remove the confounding effect of time
+        since diagnosis. There was still some confounding within the
+        first 10 years of follow-up (if this is not clear to you then
+        look in the data to see if there are associations between the
+        confounder and the exposure and the confounder and the outcome)
+        so the estimate was subject to residual confounding. Now, when
+        we adjust for time since diagnosis we see that the estimate
+        changes further.
+
+
+## (i) ##  
+Now control for age, sex, and calendar period. Write the linear predictor using pen and paper.
+
+### i. ###  
+For patients of the same sex diagnosed in the same calendar
+            period, those aged 60–74 at diagnosis have an estimated 86%
+            higher risk of death due to skin melanoma than those aged
+            0–44 at diagnosis. The difference is
+            statistically significant.
+
+### ii. ###  
+The parameter estimate for period changes from 0.78 to 0.72
+            when age and sex are added to the model. Whether this is
+            ‘strong confounding’, or even ‘confounding’ is a matter
+            of judgement. I would consider this confounding but not
+            strong confounding but there is no correct answer.
+
+### iii. ###
+
+```{r 7.i,  message=FALSE, warning=FALSE}
+```
+
+Age (modelled as a categorical variable with 4 levels) is
+            highly significant in the model.
+
+## (j) ##
+
+```{r 7.j,  message=FALSE}
+```
+
+The interaction term is not statistically significant indicating
+        that there is no evidence that the effect of sex is modified
+        by period.
+
+## (k) ##
+Based on the interaction model you fitted in exercise 7j, estimate the hazard ratio for the effect of sex (with 95% confidence interval) for each calendar period.
+
+ADVANCED: Do this with each of the following methods and confirm that the results are the same:
+
+### i. ###
+
+```{r 7.k.i,  message=FALSE}
+```
+The effect of sex for patients diagnosed 1975–84 is
+            $0.6031338$ and the effect of sex for patients diagnosed
+            1985–94 is $0.6031338 \times 0.9437245=0.56919214$.
+
+### ii. ###  
+We can use `lincom` to get the estimated effect for patients
+            diagnosed 1985–94.
+
+
+```{r 7.k.ii,  message=FALSE}
+```
+
+The advantage of `lincom` is that we also get a confidence
+            interval (not easy to calculate by hand since the SE is a
+            function of variances and covariances).
+			
+### iii. ###
+
+```{r 7.k.iii,  message=FALSE}
+```
+
+
+### iv. ### 
+
+```{r 7.k.iv,  message=FALSE}
+```
+
+## (l) ##
+If we fit stratified models we get slightly different estimates
+        ($0.6165815$ and $0.5549737$) since the models stratified by
+        calendar period imply that all estimates are modified by
+        calendar period. That is, we are actually estimating the
+        following model:
+
+```{r 7.l,  message=FALSE}
+```
+

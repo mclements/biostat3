@@ -1,0 +1,45 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Annika Tillander, Andreas Karlsson and Mark Clements
+---
+
+## Exercise 4. Localised melanoma: Comparing actuarial and Kaplan-Meier approaches with discrete time data ##
+
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q4.R')
+opts_chunk$set(cache=FALSE)
+```
+
+```{r loadDependecies, message=FALSE}
+```
+
+```{r loadPreprocess}
+```
+
+```{r actuarialYears}
+```
+
+```{r actuarialMonths}
+```
+
+```{r kmYears}
+```
+
+```{r kmMonths}
+```
+
+## (a) ##
+The actuarial method is most appropriate because it deals with
+        ties (events and censorings at the same time) in a more
+        appropriate manner. The fact that there are a reasonably large
+        number of ties in these data means that there is a difference
+        between the estimates.
+
+## (b) ##
+The K-M estimate changes more. Because the actuarial method
+        deals with ties in an appropriate manner it is not biased when
+        data are heavily tied so is not heavily affected when we reduce
+        the number of ties.

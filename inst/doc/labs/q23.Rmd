@@ -1,0 +1,127 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Mark Clements
+---
+
+# Exercise 23. Calculating SMRs/SIRs #
+
+-----------
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q23.R')
+opts_chunk$set(cache=FALSE)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependencies, message=FALSE}
+```
+Load the melanoma data. Restrict the data to the localised status of the melanoma and to the 10 firts years of follow-up. Use the time-on-study as the timescale. define the event as death from cancer.
+
+```{r loadPreprocess, results='hide'}
+```
+
+
+The standardized mortality ratio (SMR) is the ratio of the observed
+    number of deaths in the study population to the number that would be
+    expected if the study population experienced the same mortality as
+    the standard population. It is an indirectly standardized rate. When
+    studying disease incidence the corresponding quantity is called a
+    standardized incidence ratio (SIR). These measures are typically
+    used when the entire study population is considered ‘exposed’.
+    Rather than following-up both the exposed study population and an
+    unexposed control population and comparing the two estimated rates
+    we instead only estimate the rate (or number of events) in the study
+    population and compare this to the expected rate (expected number
+    of events) for the standard population. For example, we might study
+    disease incidence or mortality among individuals with a certain
+    occupation (farmers, painters, airline cabin crew) or cancer
+    incidence in a cohort exposed to ionising radiation.
+
+In the analysis of cancer patient survival we typically estimate
+    _excess mortality_ (observed - expected deaths). The
+    SMR (observed/expected deaths) is a measure of _relative
+    mortality_. The estimation of observed and expected numbers
+    of deaths are performed in an identical manner for each measure but
+    with the SMR we assume that the effect of exposure is multiplicative
+    to the baseline rate whereas with excess mortality we assume it
+    is additive. Which measure, relative mortality or excess mortality,
+    do you think is more homogeneous across age?
+
+    The following example illustrates the approach to estimating
+    SMRs/SIRs using R. Specifically, we will estimate SMRs for the
+    melanoma data using the general population mortality rates
+    stratified by age and calendar period (derived from
+    `popmort`) to estimate the expected number of deaths.
+    The expected mortality rates depend on current age and current year
+    so the approach is as follows
+
+    -   Split follow-up into 1-year age bands
+
+    -   Split the resulting data into 1-year calendar period bands
+
+    -   For each age-period band, merge with <span>popmort.dta</span> to
+        obtain the expected mortality rates
+
+    -   Sum the observed and expected numbers of deaths and calculate
+        the SMR (observed/expected) and a 95% CI
+
+## (a) ##
+
+Start by splitting the follow-up into 1 year age bands. We do not have
+        a date of birth available, so we can make a mid-point
+        approximation for the age at diagnosis.
+
+```{r 23.a, results='hide'}
+```
+
+## (b) ##
+
+Now split these new records into 1 year calendar period bands. 
+
+```{r 23.b, results='hide'}
+```
+
+## (c) ##
+
+Each subject’s follow–up is now divided into small pieces
+corresponding to the agebands and calendar periods the subject passes
+through. We can make tables of deaths and person-years by age and
+calendar period with
+
+```{r 23.c, results='hide'}
+```
+
+As the data have been split in 1-year intervals on both time
+        scales the table created above is not so informative. Grouped
+        variables will provide a better overview.
+
+
+## (d) ##
+
+To make a table of rates by age and calendar period, try
+
+```{r 23.d, results='hide'}
+```
+
+## (e) ##
+
+To calculate the expected cases for a cohort, using reference
+        mortality rates classified by age and calendar period, it is
+        first necessary to merge the population rates with the
+        observed person-time.  Then the expected number of cases are
+        calculated by multiplying the follow-up time for each record
+        by the reference rate for that record. The SMR is the ratio of
+        the total observed cases to the total number expected.
+		
+```{r 23.e, results='hide'}
+```
+
+## (f) ##
+
+We can then model the observed outcomes using Poisson regression with an offset of the log of the expected counts, or using `poisson.test` with the expected counts as the exposure time.
+
+```{r 23.f, results='hide', fig.show='hide'}
+```

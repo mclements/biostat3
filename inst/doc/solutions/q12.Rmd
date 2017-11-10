@@ -1,0 +1,98 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Andreas Karlsson and Mark Clements
+---
+
+# Cox model for cause-specific mortality for melanoma (all stages) #
+
+
+Use Cox regression to model the cause-specific survival of patients with skin melanoma (including all stages).
+
+-----------
+
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q12.R')
+opts_chunk$set(cache=FALSE)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependencies, message=FALSE}
+```
+Load the melanoma data and explore it.
+
+```{r loadPreprocess, results='hide'}
+```
+
+## (a) ## 
+Without adjusting for potential confounders, we see that
+        females have a 37% lower mortality rate than males.
+
+```{r 12.a, warning=FALSE, message=FALSE}
+```
+
+## (b) ## 
+After adjusting for a range of potential confounders, we see that
+        the estimated difference in cancer-specific mortality between
+        males and females has decreased slightly but there is still
+        quite a large difference.
+		
+```{r 12.b, warning=FALSE, message=FALSE}
+```
+
+## (c) ##
+
+Let’s first estimate the effect of gender for each age group
+        without adjusting for confounders.
+		
+```{r 12.c, warning=FALSE, message=FALSE}
+```
+
+We see that there is some evidence that the survival advantage
+        experienced by females depends on age. The hazard ratio for
+        males/females in the youngest age group is 0.46, while in the
+        highest age group the hazard ratio is 0.68. There is evidence
+        that the hazard ratios for gender differ across the age
+        groups (p=0.0037). However, after adjusting for stage, subsite,
+        and period there is no longer evidence of an interaction.
+		
+There is not strong evidence in support of the
+        hypothesis (although some may consider that there is
+        weak evidence).
+		
+## (d) ##
+		
+After having fitted a main effects model we can check the
+        proportional hazards assumption by fitting a regression line
+        through the model-based Schoenfeld residulas and check if the
+        slope is statistically different from zero.
+
+There is strong evidence that the proportional hazard assumption
+		is not satisfied for the effect of stage. Unless our primary
+        interest is in the stage effect we can fit a stratified Cox
+        model where we stratify on stage (i.e. estimate a separate
+        baseline hazard function for each stage group).		
+
+```{r 12.d.i, warning=FALSE, message=FALSE}
+```
+
+If we re-do a test for non-proportional hazards we find that
+        there is no longer evidence that any of the remaining covariates
+        effects seem to depend on time since diagnosis.
+
+Having accounted for the time-dependent effect of stage, there
+        is still no evidence that the effect of sex is modified by age
+        at diagnosis.
+
+```{r 12.d.ii, warning=FALSE, message=FALSE}
+```
+
+If you have time make sure you check for additional interaction
+        terms between the remaining covariates, i.e. between age at
+        diagnosis and stage.
+
+```{r 12.d.iii, warning=FALSE, message=FALSE}
+```

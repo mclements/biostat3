@@ -1,0 +1,56 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Mark Clements
+---
+
+# Exercise 23. Calculating SMRs/SIRs #
+
+-----------
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q23.R')
+opts_chunk$set(cache=FALSE)
+```
+
+```{r loadDependencies, message=FALSE}
+```
+
+```{r loadPreprocess, results='hide'}
+```
+
+
+## (a) ##
+
+```{r 23.a}
+```
+
+## (b) ##
+
+```{r 23.b}
+```
+
+## (c) ##
+
+
+```{r 23.c}
+```
+
+## (d) ##
+
+
+```{r 23.d}
+```
+
+## (e) ##
+
+		
+```{r 23.e}
+```
+
+## (f) ##
+
+
+```{r 23.f}
+```

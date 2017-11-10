@@ -1,0 +1,93 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Andreas Karlsson and Mark Clements
+---
+
+# Exercise 22. Estimating the effect of a time-varying exposure – the bereavement data #
+
+
+These data were used to study a possible effect of marital bereavement (loss of husband or wife) on all–cause mortality in the elderly. The dataset was extracted from a larger follow-up study of an elderly population and concerns subjects whose husbands or wives were alive at entry to the study. Thus all subjects enter as not bereaved but may become bereaved at some point during follow–up. The variable dosp records the date of death of each subject’s spouse and takes the value 1/1/2000 where this has not yet happened.
+
+
+-----------
+
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q22.R')
+opts_chunk$set(cache=FALSE)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependencies, message=FALSE}
+```
+
+## (a) ## 
+
+Load the bereavement data and explore it.
+
+```{r loadPreprocess, results='hide'}
+```
+
+```{r 22.a, warning=FALSE, message=FALSE, results='hide'}
+```
+
+## (b) ## 
+Calculate the mortality rate per 1000 years for men and for women, and find the rate ratio comparing women (coded 2) with men (coded 1).
+
+  i. What dimension of time did we use as the timescale? Do you think this is a sensible choice?
+  ii. Which gender has the highest mortality? Is this expected?
+  iii. Could age be a potential confounder? Does age at entry differ between males and females? Later we will estimate the rate ratio while controlling for age.
+
+```{r 22.b, warning=FALSE, message=FALSE, results='hide'}
+```
+
+## (c) Breaking records into pre and post bereavement. ## 
+In these data a subject changes exposure status from not bereaved to bereaved when his or her spouse dies. The first stage of the analysis therefore is to partition each follow–up into a record describing the period of follow-up pre–bereavement and (for subjects who were bereaved during the study) the period post–bereavement.
+
+```{r 22.c, warning=FALSE, message=FALSE, results='hide'}
+```
+
+## (d) ## 
+Now find the (crude) effect of bereavement.
+
+
+```{r 22.d, warning=FALSE, message=FALSE, results='hide'}
+```
+
+## (e) ## 
+Since there is a strong possibility that the effect of bereavement is not the same for men as for women, use streg to estimate the effect of bereavement separately for men and women. Do this both by fitting separate models for males and females (e.g. streg brv if sex==1) as well as by using a single model with an interaction term (you may need to create dummy variables). Confirm that the estimates are identical for these two approaches.
+
+```{r 22.e, warning=FALSE, message=FALSE, results='hide'}
+```
+
+## (f) Controlling for age.## 
+There is strong confounding by age. Expand the data by 5 year age–bands, and check that the rate is increasing with age. Find the effect of bereavement controlled for age. If you wish to study the distribution of age then it is useful to know that age at entry and exit. Translate your time scale to age.
+
+```{r 22.f, warning=FALSE, message=FALSE, results='hide'}
+```
+
+## (g) ## 
+Now estimate the effect of bereavement (controlled for age) separately for each sex.
+
+```{r 22.g, warning=FALSE, message=FALSE, results='hide'}
+```
+
+## (h) ## 
+We have assumed that any effect of bereavement is both immediate and permanent. This is not realistic and we might wish to improve the analysis by further subdividing the post–bereavement follow–up. How might you do this? (you are not expected to actually do it)
+
+## (i) Analysis using Cox regression.## 
+We can also model these data using Cox regression. Provided we use the attained age as the time scale and split the data to obtain separate observations for the bereaved and non-bereaved person-time the following command will estimate the effect of bereavement adjusted for attained age.
+
+```{r 22.i, warning=FALSE, message=FALSE, results='hide'}
+```
+
+That is, we do not have to split the data by attained age (although we can fit the model to data split by attained age and the results will be the same).
+
+## (j) ## 
+Use the Cox model to estimate the effect of bereavement separately for males and females and compare the estimates to those obtained using Poisson regression.
+
+```{r 22.j, warning=FALSE, message=FALSE, results='hide'}
+```

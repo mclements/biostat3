@@ -1,0 +1,80 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Annika Tillander, Andreas Karlsson and Mark Clements
+---
+
+# Exercise 3. Localised melanoma: Comparing estimates of cause-specific survival between periods; first graphically and then using the log rank test #
+
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q3.R')
+opts_chunk$set(cache=FALSE, fig.width=10, fig.height=6)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependecies, message=FALSE}
+```
+
+We will now analyse the full data set of patients diagnosed with localised skin melanoma. We start by reading the data selecting those with a localised stage and then define a 1/0 varible for the events that we are interested in.
+
+```{r loadPreprocess, results="hide", fig.show="hide"}
+```
+
+## (a) ##
+
+Estimate the cause-specific survivor function, using the Kaplan-Meier method with survival time in months, separately for each of the two calendar periods 1975–1984 and 1985–1994. The variable year8594 indicates whether a patient was diagnosed 1985–1994 or 1975–1984. Without making reference to any formal statistical tests, does it appear that patient survival is superior during the most recent period?
+
+```{r a_survDiaDate, results="hide", fig.show="hide"}
+```
+
+There seems to be a clear difference in survival between the
+        two periods. Patients diagnosed during 1985–94 have superior
+        survival to those diagnosed 1975–84.
+
+## (b) ##
+
+The following commands can be used to plot the hazard function (instantaneous mortality rate):
+	i.  At what point in the follow-up is mortality highest?
+	ii. Does this pattern seem reasonable from a clinicial/biological perspective? [HINT:Consider the disease with which these patients were classified as being diagnosed along with the expected fatality of the disease as a function of time since diagnosis.]
+
+```{r b_hazDiaDate, results="hide", fig.show="hide"}
+```
+
+## (c) ##
+
+Use the log rank and the Wilcoxon test to determine whether there is a statistically significant difference in patient survival between the two periods.
+
+```{r c_testDiaDate, results="hide", fig.show="hide"}
+```
+
+Haven’t heard of the log rank test? It’s possible you may reach this exercise before we cover the details of this test during lectures. You should nevertheless do the exercise and try and interpret the results. Both of these tests (the log rank and the generalised Wilcoxon) are used to test for differences between the survivor functions. The null hypothesis is that the survivor functions are equivalent for the two calendar periods (i.e., patient survival does not depend on calendar period of diagnosis).
+
+
+## (d) ##
+
+Estimate cause-specific mortality rates for each age group, and graph Kaplan-Meier estimates of the cause-specific survivor function for each age group. Are there differences between the age groups? Is the interpretation consistent between the mortality rates and the survival proportions?
+
+```{r d_crudeRates1000_agegrp, results="hide", fig.show="hide"}
+```
+
+```{r d_plotSurv_sex, results="hide", fig.show="hide"}
+```
+
+What are the units of the estimated hazard rates? HINT: look at how you defined time.
+
+## (e) ##
+
+Repeat some of the previous analyses using years instead of months. This is equivalent to dividing the time variable by 12 so all analyses will be the same except the units of time will be different (e.g., the graphs will have different labels).
+
+```{r e_crudeRates1000_agegrp, results="hide", fig.show="hide"}
+```
+
+## (f) ##
+
+Study whether there is evidence of a difference in patient survival between males and females. Estimate both the hazard and survival function and use the log rank test to test for a difference.
+
+```{r f_sexDiff, results="hide", fig.show="hide"}
+```

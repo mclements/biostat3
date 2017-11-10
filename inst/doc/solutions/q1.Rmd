@@ -1,0 +1,46 @@
+---
+title: "Biostatistcs III in R"
+author:
+- Code by Annika Tillander, Andreas Karlsson and Mark Clements
+---
+
+# Exercise 1: Life tables and Kaplan-Meier estimates of survival #
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q1.R')
+opts_chunk$set(cache=FALSE, fig.width=7, fig.height=6)
+options(width=90)
+```
+
+## (a) Hand calculation: Life table and Kaplan-Meier estimates of survival ##
+
+The results are contained in the Excel file
+    `\solutions\exercise1.xls` and are also shown in the R
+    output below.
+
+## (b) Using R to validate the hand calculations done in part 1 (a) ##
+
+First, load the `biostat3` library:
+
+```{r loadDependecies, message=FALSE}
+```
+
+Following are the life table estimates. Note that in the lectures,
+    when we estimated all-cause survival, there were 8 deaths in the
+    first interval. One of these died of a cause other than cancer so in
+    the cause-specific survival analysis we see that there are 7
+    ‘deaths’ and 1 censoring (Stata uses the term ‘lost’ for lost
+    to follow-up) in the first interval.
+
+```{r lifeTable}
+```
+
+Following is a table of Kaplan-Meier estimates. Although it’s not
+    clear from the table, the person censored (lost) at time 2 was at
+    risk when the other person dies at time 2. On the following is
+    a graph of the survival function.
+
+```{r KaplanMeier}
+```
+

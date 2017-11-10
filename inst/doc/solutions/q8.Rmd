@@ -1,0 +1,99 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Annika Tillander, Andreas Karlsson, Benedicte Delcoigne, Johan Zetterqvist and Mark Clements
+---
+
+
+# Exercise 8. Diet data: Using Poisson regression to study the effect of energy intake adjusting for confounders on two different timescales #
+
+Use Poisson regression to study the association between energy intake (hieng) and CHD adjusted for potential confounders (job, BMI). We know that people who expend a lot of energy (i.e., are physically active) require a higher energy intake. We do not have data on physical activity but we are hoping that occupation (job) will serve as a surrogate measure of work-time physical activity (conductors on London double-decker busses expend energy walking up and down the stairs all day).
+
+Fit models both without adjusting for ‘time’ and by adjusting for attained age (you will need to split the data) and time-since-entry and compare the results.
+
+-----------
+
+Load the diet data using time-on-study as the timescale.
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q8.R')
+opts_chunk$set(cache=FALSE)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependencies, message=FALSE}
+```
+Load diet data and explore it.
+
+```{r loadPreprocess, results='hide'}
+```
+
+The rates plotted on timescale attained age show a clear
+        increasing trend as age increases, which is to be expected
+        (older persons are more likely to suffer from CHD). The rates
+        plotted on timescale time-since-entry are almost constant (if
+        you have some imagination you can see that the rates are flat).
+		
+
+## (a) ##
+
+```{r 8a1_Haz_att_age,  message=FALSE, warning = FALSE}
+```
+
+```{r 8a2_Haz_time_entry,  message=FALSE, warning = FALSE}
+```
+
+## (b) ##  
+
+Patients with high energy intake have 48% less CHD rate. The
+        underlying shape of the rates is assumed to be constant (i.e.
+        the baseline is flat) over time.
+		
+```{r 8b_ir,  message=FALSE}
+```
+
+## (c) ##  
+
+The effect of high energy intake is slightly confounded by bmi
+        and job, since the point estimate changes a little.
+
+
+```{r 8c_ir,  message=FALSE}
+```
+
+## (d) ##  
+
+The y variable is not correct since it is kept for all splitted
+        records, and contains the complete follow-up rather than the
+        risktime in that specific timeband. The risktime variable
+        contains the correct amount of risktime for each timeband. The
+        event variable chd is not correct since it is kept constant
+        for all splitted records, while it should only be 1 for the
+        last record (if the person has the event). For all other
+        records (timebands) for that person it should be 0.
+		
+
+```{r 8d_agebands,  message=FALSE}
+```
+
+The effect of high energy intake is somewhat confounded by age,
+        but also confounded by job and bmi.
+
+```{r 8d_model1,  message=FALSE}
+```
+
+Fitting the model for CHD, with adjustment for job and bmi.
+
+```{r 8d_model2,  message=FALSE}
+```
+
+
+## (e) ##
+		
+```{r 8.e.i,  message=FALSE}
+```
+
+There seems to be no confounding by time-since-entry, but there
+        is confounding by bmi and job.

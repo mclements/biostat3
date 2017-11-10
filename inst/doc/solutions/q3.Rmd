@@ -1,0 +1,91 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Annika Tillander, Andreas Karlsson and Mark Clements
+---
+
+# Exercise 3. Localised melanoma: Comparing estimates of cause-specific survival between periods; first graphically and then using the log rank test #
+
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q3.R')
+opts_chunk$set(cache=FALSE, fig.width=10, fig.height=6)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependecies, message=FALSE}
+```
+
+We will now analyse the full data set of patients diagnosed with localised skin melanoma. We start by reading the data selecting those with a localised stage and then define a 1/0 varible for the events that we are interested in.
+
+```{r loadPreprocess}
+```
+
+## (a) ##
+
+```{r a_survDiaDate}
+```
+
+There seems to be a clear difference in survival between the
+        two periods. Patients diagnosed during 1985–94 have superior
+        survival to those diagnosed 1975–84.
+
+## (b) ##
+
+The plot shows the instantaneous cancer-specific mortality rate
+        (the hazard) as a function of time. It appears that mortality is
+        highest approximately 40 months following diagnosis. Remember
+        that all patients were classified as having localised cancer at
+        the time of diagnosis so we would not expect mortality to be
+        high directly following diagnosis.
+
+The plot of the hazard clearly illustrates the pattern of
+        cancer-specific mortality as a function of time whereas this
+        pattern is not obvious in the plot of the survivor function.
+
+```{r b_hazDiaDate}
+```
+
+
+## (c) ##
+
+There is strong evidence that survival differs between the
+        two periods. The log-rank and the Wilcoxon tests give very
+        similar results. The Wilcoxon test gives more weight to
+        differences in survival in the early period of follow-up (where
+        there are more individuals at risk) whereas the log rank test
+        gives equal weight to all points in the follow-up. Both tests
+        assume that, if there is a difference, a proportional hazards
+        assumption is appropriate.
+
+```{r c_testDiaDate}
+```
+
+
+## (d) ##
+We see that mortality increases with age at diagnosis (and
+        survival decreases).
+		
+```{r d_crudeRates1000_agegrp}
+```
+
+The rates are (cause-specific) deaths per 1000 person-months.
+        When we stset we defined time as time in months and then asked
+        for rates per 1000 units of time.
+
+```{r d_plotSurv_sex}
+```
+
+What are the units of the estimated hazard rates? HINT: look at how you defined time.
+
+## (e) ##
+
+```{r e_crudeRates1000_agegrp}
+```
+
+## (f) ##
+
+```{r f_sexDiff}
+```

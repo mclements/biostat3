@@ -1,0 +1,48 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Johan Zetterqvist and Mark Clements
+---
+
+# Exercise 11. Cox regression with all-cause mortality as the outcome #
+
+
+Now fit a model to the localised melanoma data where the outcome is observed survival (i.e. all deaths are considered to be events).
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q11.R')
+opts_chunk$set(cache=FALSE)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependencies, message=FALSE}
+```
+Load the melanoma data and explore it.
+
+```{r loadPreprocess, results='hide'}
+```
+
+## (a) ## 
+
+For patients of the same sex diagnosed in the same period, those
+        aged 60–74 at diagnosis have a 2.9 times higher risk of death
+        *due to any causes* than those aged 0–44
+        at diagnosis. This difference is statistically significant.
+
+```{r 11.a, warning=FALSE}
+```
+
+## (b) ## 
+
+Note that the previous model estimated cause-specific hazard
+        ratios whereas the current model estimates all-cause
+        hazard ratios. The estimated hazard ratios for sex and period
+        are similar, whereas the estimated hazard ratios for age are
+        markedly different. This is because non-cancer mortality is
+        heavily dependent on age, but only lightly dependent on sex and
+        calendar period.
+		
+```{r 11.b, warning=FALSE}
+```

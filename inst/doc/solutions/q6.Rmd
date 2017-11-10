@@ -1,0 +1,119 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Johan Zetterqvist, Andreas Karlsson and Mark Clements
+---
+
+# Exercise 6. Diet data: tabulating incidence rates and modelling with Poisson regression #
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q6.R')
+opts_chunk$set(cache=FALSE)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependencies, message=FALSE}
+```
+Load the diet data using time-on-study as the timescale.
+
+```{r loadPreprocess}
+```
+
+## (a) ##
+
+```{r 6a_ir,  message=FALSE}
+```
+
+We see that individuals with a high energy intake have a lower
+        CHD incidence rate. The estimated crude incidence rate ratio
+        is 0.52 (95% CI: 0.27, 0.97).
+
+## (b) ##
+
+```{r 6b_ir}
+```
+
+The point estimate for the IRR calculated by the Poisson regression is the same as the
+        IRR calculated in 6(a). A theoretical observation: if we
+        consider the data as being cross-classified solely by `hieng` then
+        the Poisson regression model with one parameter is a saturated
+        model so the IRR estimated from the model will be identical to
+        the ‘observed’ IRR. That is, the model is a perfect fit.
+
+## (c) ##
+
+```{r 6c_energyDist,  message=FALSE}
+```
+
+The histogram  gives us an idea of
+        the distribution of energy intake. We can also tabulate moments
+        and percentiles of the distribution.
+
+## (d) ##
+
+```{r 6d_engCat}
+```
+
+## (e) ##
+
+
+```{r 6e_irEng}
+```
+
+We see that the CHD incidence rate decreases as the level of
+        total energy intake increases.
+
+## (f) ##
+
+
+```{r 6f_irEng}
+```
+
+## (g) ##
+
+```{r 6g_irEng}
+```
+
+## (h) ##
+
+```{r 6h,  message=FALSE}
+```
+
+Level 1 of the categorized total energy is the
+        reference category. The estimated rate ratio comparing level 2
+        to level 1 is 0.6452 and the estimated rate ratio comparing
+        level 3 to level 1 is 0.2886.
+
+
+## (i) ##
+
+
+```{r 6i,  message=FALSE}
+```
+
+Now use level 2 as the reference (by omitting X2 but including
+        X1 and X3). The estimated rate ratio comparing level 1 to level
+        2 is 1.5498 and the estimated rate ratio comparing level 3 to
+        level 2 is 0.4473.
+
+## (j) ##
+
+```{r 6j,  message=FALSE}
+```
+
+The estimates are identical (as we would hope) when we have
+        R create indicator variables for us.
+
+## (k) ##
+
+Somehow (there are many different alternatives) you’ll need to
+        calculate the total number of events and the total person-time
+        at risk and then calculate the incidence rate
+        as events/person-time. For example,
+
+```{r 6k}
+```
+
+The estimated incidence rate is 0.00999 events per person-year.

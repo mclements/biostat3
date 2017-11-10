@@ -1,0 +1,129 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Annika Tillander, Andreas Karlsson and Mark Clements
+---
+
+# Exercise 2. Comparing survival proportions and mortality rates by stage for cause-specific and all-cause survival #
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q2.R')
+opts_chunk$set(cache=FALSE)
+```
+
+Load dependencies
+
+```{r loadDependecies, message=FALSE}
+```
+
+We start by listing the first few observations to get an idea about the data. We then define two 1/0 variables for the events that we are interested in.
+
+```{r loadPreprocess}
+```
+
+## (a) Plot estimates of the survivor function and hazard function by stage. ##
+
+We now tabulate the distribution of the melanoma patients by cancer stage at diagnosis.
+
+```{r a_tabulate}
+```
+
+We then plot the survival by stage. 
+
+```{r a_plotSurv}
+```
+
+Survival depends heavily on stage. It is interesting to note
+        that patients with stage 0 (unknown) appear to have a similar
+        survival to patients with stage 1 (localized).
+
+
+## (b) Estimate the mortality rates for each stage using, for example, the new `survRate` command. ##
+
+```{r b_crudeRates}
+```
+
+The time unit is months (since we specified `surv_mm` as the analysis
+        time). Therefore, the units of the rates shown above are
+        events/person-month. We could multiply these rates by 12 to
+        obtain estimates with units events/person-year. For example,
+
+            . stset surv_mm, failure(status==1) scale(12)
+            . strate stage
+
+                     failure _d:  status == 1
+               analysis time _t:  surv_mm/12
+
+            Estimated rates and lower/upper bounds of 95% confidence intervals
+            (7775 records included in the analysis)
+              +--------------------------------------------------------------+
+              |     stage      D          Y       Rate      Lower      Upper |
+              |--------------------------------------------------------------|
+              |   Unknown    274    1.0e+04   0.026687   0.023707   0.030042 |
+              | Localised   1013    3.9e+04   0.026225   0.024659   0.027891 |
+              |  Regional    218    1.5e+03   0.145309   0.127245   0.165937 |
+              |   Distant    408   875.7500   0.465886   0.422804   0.513359 |
+              +--------------------------------------------------------------+
+
+## (c) Here we tabulate crude rates per 1000 person years. ###
+
+To obtain mortality rates per 1000 person years:
+
+```{r c_crudeRates1000}
+```
+
+Estimated rates (per 1000) and lower/upper bounds of 95% confidence intervals
+            (7775 records included in the analysis)
+
+              +----------------------------------------------------------+
+              |     stage      D         Y      Rate     Lower     Upper |
+              |----------------------------------------------------------|
+              |   Unknown    274   10.2671    26.687    23.707    30.042 |
+              | Localised   1013   38.6266    26.225    24.659    27.891 |
+              |  Regional    218    1.5003   145.309   127.245   165.937 |
+              |   Distant    408    0.8758   465.886   422.804   513.359 |
+              +----------------------------------------------------------+
+
+
+## (d) Below we see that the crude mortality rate is higher for males than for females. ##
+
+```{r d_crudeRates1000_sex}
+```
+
+We see that the crude mortality rate is higher for males than
+        females, a difference which is also reflected in the survival
+        and hazard curves
+
+
+## (e) ##
+
+The majority of patients are alive at end of study. 1,913 died
+        from cancer while 1,134 died from another cause. The cause of
+        death is highly depending of age, as young people die less from
+        other causes. To observe this we tabulate the events by age group.
+
+```{r e_tabByAge}
+```
+
+
+## (f) ##
+
+The survival is worse for all-cause survival than for cause-specific, since you now can die from other causes, and these deaths are incorporated in the Kaplan-Meier estimates. The ”other cause” mortality is particularly present in patients with localised and unknown stage.
+
+```{r f_survStage}
+```
+
+## (g) ##
+
+By comparing Kaplan-Meier estimates for cancer deaths with all-cause mortality conditioned on age over 75 years, we see that the “other” cause mortality is particularly influential in patients with localised and unknown stage. Patients with localised disease, have a better prognosis (i.e. the cancer does not kill them), and are thus more likely to experience death from another cause. For regional and distant stage, the cancer is more aggressive and is the cause of death for most of these patients (i.e. it is the cancer that kills these patients before they have “the chance” to die from something else).
+
+```{r g_allCa75p}
+```
+
+
+## (h) Compare Kaplan-Meier estimates for cancer deaths with all-cause mortality by age group. ##
+
+```{r h_allCaAgeGrp}
+```
+

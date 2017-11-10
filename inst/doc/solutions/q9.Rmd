@@ -1,0 +1,149 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Annika Tillander, Johan Zetterqvist and Mark Clements
+---
+
+# Exercise 9. Localised melanoma: modelling cause-specific mortality using Cox regression #
+
+In exercise 7 we modelled the cause-specific mortality of patients diagnosed with localised melanoma using Poisson regression. We will now model cause-specific mortality using Cox regression and compare the results to those we obtained using the Poisson regression model.
+
+To fit a Cox proportional hazards model (for cause-specific survival) with calendar period as the only explanatory variable, the following commands can be used. Note that we are censoring all survival times at 120 months (10 years) in order to facilitate comparisons with the Poisson regression model in exercise 7.
+
+-----------
+
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q9.R')
+opts_chunk$set(cache=FALSE)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependencies, message=FALSE}
+```
+
+```{r loadPreprocess, results='hide'}
+```
+
+## (a) ##  
+
+```{r 9.a}
+```
+
+Patients diagnosed during 1985–94 experience only 77.7% of the
+        cancer mortality experienced by those diagnosed 1975–84. That
+        is, mortality due to skin melanoma has decreased by 22.3% in the
+        latter period compared to the earlier period. This estimate is
+        not adjusted for potential confounders. There is strong evidence
+        of a statistically significant difference in survival between
+        the two periods (based on the test statistic or the fact that
+        the CI for the hazard ratio does not contain 1).
+
+
+## (b) ##  
+
+```{r 9.b}
+```
+
+The three test statistics are
+
+        log-rank
+
+        :   14.85 
+
+        Wald
+
+        :   $-3.84^2=14.75$ (from the $z$ test above)
+
+        Likelihood ratio
+
+        :   14.78 (from the output above)
+
+The three test statistics are very similar. We would expect each
+        of these test statistics to be similar since they each test the
+        same null hypothesis that survival is independent of
+        calendar period. The null hypothesis in each case is that
+        survival depends on calendar period in such a way that the
+        hazard ratio between the two periods is constant over follow-up
+        time (i.e. proportional hazards).
+
+
+## (c) ##  
+
+```{r  9.c}
+```
+
+  i. For patients of the same sex diagnosed in the same calendar
+            period, those aged 60–74 at diagnosis have an estimated 86%
+            higher risk of death due to skin melanoma than those aged
+            0–44 at diagnosis. The difference is
+            statistically significant.
+			
+	 If this were an exam question the previous paragraph would
+            be awarded full marks. It is worth noting, however, that the
+            analysis is adjusted for the fact that mortality may depend
+            on time since diagnosis (since this is the underlying
+            time scale) and the mortality ratio between the two age
+            groups is assumed to be the same at each point during the
+            follow-up (i.e., proportional hazard).
+
+  ii. The parameter estimate for period changes from 0.78 to 0.72 when
+            age and sex are added to the model. Whether this is
+            ‘strong confounding’, or even ‘confounding’, is a matter
+            of judgement. I would consider this confounding but not
+            strong confounding but there is no correct answer to this
+            question.
+ 
+  iii. Age (modelled as a categorical variable with 4 levels) is
+            highly significant in the model.
+
+
+## (d) ##
+
+```{r 9.d, warning=FALSE}
+```
+
+Age (modelled as a categorical variable with 4 levels) is highly
+        significant in the model. The Wald test is an approximation to
+        the LR test and we would expect the two to be similar (which
+        they are).
+
+## (e) ##
+
+```{r 9.e}
+```
+
+  i. Both models adjust for the same factors. When fitting the
+            Poisson regression model we split time since diagnosis into
+            annual intervals and explicitly estimated the effect of this
+            factor in the model. The Cox model does not estimate the
+            effect of ‘time’ but the other estimates are adjusted for
+            ‘time’.
+			
+  ii. Since the two models are conceptually similar we would
+            expect the parameter estimates to be similar, which
+            they are.
+			
+  iii. Yes, both models assume ‘proportional hazards’. The
+            proportional hazards assumption implies that the risk
+            ratios for sex, period, and age are constant across all
+            levels of follow-up time. In other words, the assumption
+            is that there is no effect modification by follow-up
+            time. This assumption is implicit in Poisson regression
+            (as it is in logistic regression) where it is assumed that
+            estimated risk ratios are constant across all combination
+            of the other covariates. We can, of course, relax this
+            assumption by fitting interaction terms.
+
+## (f) ##  
+
+```{r 9.f}
+```
+
+## (g) ##  
+
+```{r 9.g}
+```
+
