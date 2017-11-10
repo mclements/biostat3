@@ -1,5 +1,6 @@
 \name{eform}
 \alias{eform}
+\alias{eform.default}
 \alias{irr}
 \alias{or}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -10,7 +11,9 @@ Calculate the exponential form for coefficients and their confidence intervals u
 \code{irr} and \code{or} use eform with a different name for the estimator.
 }
 \usage{
-eform(object, parm, level = 0.95, method = c("Delta","Profile"), name = "exp(beta)")
+eform(object, ...)
+\method{eform}{default}(object, parm, level = 0.95, method =
+c("Delta","Profile"), name = "exp(beta)", ...)
 irr(..., name = "IRR")
 or(..., name = "OR")
 }

@@ -1,4 +1,6 @@
-eform <- function(object, parm, level = 0.95, method=c("Delta","Profile"), name="exp(beta)") {
+eform <- function (object, ...) 
+  UseMethod("eform")
+eform.default <- function(object, parm, level = 0.95, method=c("Delta","Profile"), name="exp(beta)", ...) {
   method <- match.arg(method)
   if (missing(parm))
     parm <- TRUE
