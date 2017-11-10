@@ -1,0 +1,60 @@
+
+# Biostatistics III in R: Survival analysis for epidemiologists
+
+**Authors: Annika Tillander, Johan Zetterqvist, Bénédicte Delcoigne, Xingrong Liu, Mark Clements and Andreas Karlsson.**
+
+## Installation instructions
+
+Instructions are available [here](file:labs/installation.html).
+
+
+## Computing laboratory exercises (on-line)
+
+ \#  Description                                                               Questions                                            R code                                         Solutions
+---  ------------------------------------------------------------------------  ---------------------------------------------------  ---------------------------------------------  -------------------------------------------------------
+ 1   Life tables and Kaplan-Meier estimates                                    [Q1](http://biostat3.net/download/R/labs/q1.html)    [q1.R](http://biostat3.net/download/R/q1.R)    [S1](http://biostat3.net/download/R/solutions/q1.html)
+ 2   Comparing survival and rates by stage                                     [Q2](http://biostat3.net/download/R/labs/q2.html)    [q2.R](http://biostat3.net/download/R/q2.R)    [S2](http://biostat3.net/download/R/solutions/q2.html)
+ 3   Comparing survival graphically and using the log rank test                [Q3](http://biostat3.net/download/R/labs/q3.html)    [q3.R](http://biostat3.net/download/R/q3.R)    [S3](http://biostat3.net/download/R/solutions/q3.html)
+ 4   Comparing actuarial and Kaplan-Meier estimators                           [Q4](http://biostat3.net/download/R/labs/q4.html)    [q4.R](http://biostat3.net/download/R/q4.R)    [S4](http://biostat3.net/download/R/solutions/q4.html)
+ 6   Tabulating rates and modelling with Poisson regression                    [Q6](http://biostat3.net/download/R/labs/q6.html)    [q6.R](http://biostat3.net/download/R/q6.R)    [S6](http://biostat3.net/download/R/solutions/q6.html)
+ 7   Model cause-specific mortality with Poisson regression                    [Q7](http://biostat3.net/download/R/labs/q7.html)    [q7.R](http://biostat3.net/download/R/q7.R)    [S7](http://biostat3.net/download/R/solutions/q7.html)
+ 8   Poisson regression adjusting for confounders on different timescales      [Q8](http://biostat3.net/download/R/labs/q8.html)    [q8.R](http://biostat3.net/download/R/q8.R)    [S8](http://biostat3.net/download/R/solutions/q8.html)
+ 9   Modelling cause-specific mortality using Cox regression                   [Q9](http://biostat3.net/download/R/labs/q9.html)    [q9.R](http://biostat3.net/download/R/q9.R)    [S9](http://biostat3.net/download/R/solutions/q9.html)
+ 10  Examining the proportional hazards hypothesis                             [Q10](http://biostat3.net/download/R/labs/q10.html)  [q10.R](http://biostat3.net/download/R/q10.R)  [S10](http://biostat3.net/download/R/solutions/q10.html)
+ 11  Cox regression with all-cause mortality as the outcome                    [Q11](http://biostat3.net/download/R/labs/q11.html)  [q11.R](http://biostat3.net/download/R/q11.R)  [S11](http://biostat3.net/download/R/solutions/q11.html)
+ 12  Cox model for cause-specific mortality for melanoma                       [Q12](http://biostat3.net/download/R/labs/q12.html)  [q12.R](http://biostat3.net/download/R/q12.R)  [S12](http://biostat3.net/download/R/solutions/q12.html)
+ 13  Modelling the diet data using Cox regression                              [Q13](http://biostat3.net/download/R/labs/q13.html)  [q13.R](http://biostat3.net/download/R/q13.R)  [S13](http://biostat3.net/download/R/solutions/q13.html)
+ 22  Time-varying exposures and the bereavement data                           [Q22](http://biostat3.net/download/R/labs/q22.html)  [q22.R](http://biostat3.net/download/R/q22.R)  [S22](http://biostat3.net/download/R/solutions/q22.html)
+ 23  Calculating SMRs/SIRs                                                     [Q23](http://biostat3.net/download/R/labs/q23.html)  [q23.R](http://biostat3.net/download/R/q23.R)  [S23](http://biostat3.net/download/R/solutions/q23.html)
+ 25  Generating and analysing a nested case-control (NCC) study                [Q25](http://biostat3.net/download/R/labs/q25.html)  [q25.R](http://biostat3.net/download/R/q25.R)  [S25](http://biostat3.net/download/R/solutions/q25.html)
+ 28  Flexible parametric survival models in R                                  [Q28](http://biostat3.net/download/R/labs/q28.html)  [q28.R](http://biostat3.net/download/R/q28.R)  [S28](http://biostat3.net/download/R/solutions/q28.html)
+------
+
+
+## Computing laboratory exercises (off-line)
+
+ \#  Description                                                               Questions             R code          Solutions
+---  ------------------------------------------------------------------------  --------------------  --------------  -------------------------
+ 1   Life tables and Kaplan-Meier estimates                                    [Q1](labs/q1.html)    [q1.R](q1.R)    [S1](solutions/q1.html)
+ 2   Comparing survival and rates by stage                                     [Q2](labs/q2.html)    [q2.R](q2.R)    [S2](solutions/q2.html)
+ 3   Comparing survival graphically and using the log rank test                [Q3](labs/q3.html)    [q3.R](q3.R)    [S3](solutions/q3.html)
+ 4   Comparing actuarial and Kaplan-Meier estimators                           [Q4](labs/q4.html)    [q4.R](q4.R)    [S4](solutions/q4.html)
+ 6   Tabulating rates and modelling with Poisson regression                    [Q6](labs/q6.html)    [q6.R](q6.R)    [S6](solutions/q6.html)
+ 7   Model cause-specific mortality with Poisson regression                    [Q7](labs/q7.html)    [q7.R](q7.R)    [S7](solutions/q7.html)
+ 8   Poisson regression adjusting for confounders on different timescales      [Q8](labs/q8.html)    [q8.R](q8.R)    [S8](solutions/q8.html)
+ 9   Modelling cause-specific mortality using Cox regression                   [Q9](labs/q9.html)    [q9.R](q9.R)    [S9](solutions/q9.html)
+ 10  Examining the proportional hazards hypothesis                             [Q10](labs/q10.html)  [q10.R](q10.R)  [S10](solutions/q10.html)
+ 11  Cox regression with all-cause mortality as the outcome                    [Q11](labs/q11.html)  [q11.R](q11.R)  [S11](solutions/q11.html)
+ 12  Cox model for cause-specific mortality for melanoma                       [Q12](labs/q12.html)  [q12.R](q12.R)  [S12](solutions/q12.html)
+ 13  Modelling the diet data using Cox regression                              [Q13](labs/q13.html)  [q13.R](q13.R)  [S13](solutions/q13.html)
+ 22  Time-varying exposures and the bereavement data                           [Q22](labs/q22.html)  [q22.R](q22.R)  [S22](solutions/q22.html)
+ 23  Calculating SMRs/SIRs                                                     [Q23](labs/q23.html)  [q23.R](q23.R)  [S23](solutions/q23.html)
+ 25  Generating and analysing a nested case-control (NCC) study                [Q25](labs/q25.html)  [q25.R](q25.R)  [S25](solutions/q25.html)
+ 28  Flexible parametric survival models in R                                  [Q28](labs/q28.html)  [q28.R](q28.R)  [S28](solutions/q28.html)
+------
+
+
+
+
+
+
