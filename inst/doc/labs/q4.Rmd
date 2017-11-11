@@ -2,6 +2,11 @@
 title: "Biostatistics III in R"
 author:
 - Code by Annika Tillander, Andreas Karlsson and Mark Clements
+output:
+  html_document:
+    theme: null
+  html_vignette: default
+  prettydoc::html_pretty: default
 ---
 
 ## Exercise 4. Localised melanoma: Comparing actuarial and Kaplan-Meier approaches with discrete time data ##
@@ -20,7 +25,7 @@ opts_chunk$set(cache=FALSE)
 
 You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
 
-```{r loadDependecies, message=FALSE}
+```{r loadDependencies, message=FALSE}
 ```
 
 ```{r loadPreprocess, results="hide", fig.show="hide"}

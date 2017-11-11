@@ -2,6 +2,11 @@
 title: "Biostatistics III in R"
 author:
 - Code by Annika Tillander, Andreas Karlsson and Mark Clements
+output:
+  html_document:
+    theme: null
+  html_vignette: default
+  prettydoc::html_pretty: default
 ---
 
 
@@ -14,7 +19,7 @@ Load the diet data using time-on-study as the timescale with a maximum of 10 yea
 ```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
 library('knitr')
 read_chunk('../q10.R')
-opts_chunk$set(cache=FALSE)
+opts_chunk$set(cache=FALSE, results='hide', fig.keep='none')
 ```
 
 You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
@@ -23,38 +28,38 @@ You may have to install the required packages the first time you use them. You c
 ```
 Load melanoma data and explore it.
 
-```{r loadPreprocess, results='hide'}
+```{r loadPreprocess}
 ```
 
 ## (a) ## 
 For the localised melanoma data with 10 years follow-up, plot the instantaneous cause-specific hazard for each calendar period.
 
 
-```{r 10.a, message=FALSE, results='hide', fig.show='hide'}
+```{r 10.a, message=FALSE}
 ```
 
 ## (b) ## 
 Now plot the instantaneous cause-specific hazard for each calendar period using a log scale for the y axis (use the option yscale(log)). What would you expect to see if a proportional hazards assumption was appropriate? Do you see it?
 
-```{r 10.b, message=FALSE, results='hide', fig.show='hide'}
+```{r 10.b, message=FALSE}
 ```
 
 ## (c) ## 
 Another graphical way of checking the proportional hazards assumption is to plot the log cumulative cause specific hazard function for each calendar period. These plots were not given extensive coverage in the lectures, so attempt this if you like or continue to part (d).
 
-```{r 10.c, message=FALSE, results='hide', fig.show='hide'}
+```{r 10.c, message=FALSE}
 ```
 
 ## (d) ## 
 Compare your estimated hazard ratio from part (a) with the one from a fitted Cox model with calendar period as the only explanatory variable. Are they similar?
 
-```{r 10.d, results='hide', fig.show='hide'}
+```{r 10.d}
 ```
 
 ## (e) ## 
 Now fit a more complex model and use graphical methods to explore the assumption of proportional hazards by calendar period.
 
-```{r 10.e, results='hide', fig.show='hide'}
+```{r 10.e}
 ```
 
 What do you conclude?
@@ -65,7 +70,7 @@ Do part (a)–(e) but now for the variable agegrp. What are your conclusions reg
 ## (g) ## 
 Now formally test the assumption of proportional hazards.
 
-```{r 10.g, results='hide', fig.show='hide'}
+```{r 10.g}
 ```
 
 Are your conclusions from the test coherent with your conclusions from the graphical assessments?
@@ -73,7 +78,7 @@ Are your conclusions from the test coherent with your conclusions from the graph
 ## (h) ## 
 Estimate separate age effects for the first two years of follow-up (and separate estimates for the remainder of the follow-up) while controlling for sex and period. Do the estimates for the effect of age differ between the two periods of follow-up?
 
-```{r 10.h, results='hide', fig.show='hide'}
+```{r 10.h}
 ```
 
 We see effects of age (i.e., the hazard ratios) for the period 0–2 years subsequent to diagnosis along with the interaction effects. An advantage of the default parameterisation is that one can easily test the statistical significance of the interaction effects. Before going further, test whether the age*follow-up interaction is statistically significant (using a Wald and/or LR test).
@@ -89,7 +94,7 @@ Often we wish to see the effects of exposure (age) for each level of the modifie
   Agegrp75+      --          --
 
 
-```{r 10.i, results='hide', fig.show='hide'}
+```{r 10.i}
 ```
 
 
@@ -97,6 +102,6 @@ Often we wish to see the effects of exposure (age) for each level of the modifie
 
 ADVANCED: Fit an analogous Poisson regression model. Are the parameter estimates similar? HINT: You will need to split the data by time since diagnosis. Calculate and plot the rates.
 
-```{r 10.j, results='hide', fig.show='hide'}
+```{r 10.j}
 ```
 

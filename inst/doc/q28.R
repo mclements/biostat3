@@ -8,7 +8,8 @@
 ## For more detail interpretation, please see solutions_biostat3_2016.pdf file
 ###############################################################################
 
-## @knitr loadDependecies
+## @knitr loadDependencies
+library(biostat3)  
 library(rstpm2)  # for the flexible parametric model
 library(dplyr)   # for data manipulation
 
@@ -28,7 +29,7 @@ melanoma0 <- melanoma %>% filter(stage=="Localised") %>%
 ## (a) Flexible parametric model with df=4
 
 fpma <- stpm2(Surv(time,event) ~ year8594, data=melanoma0, df=4)
-eform(fpma)
+exp(cbind(IRR=rstpm2::coef(fpma),rstpm2::confint(fpma)))
 summary(fpma)
 
 ## @knitr a_cox
@@ -43,7 +44,6 @@ alegend <- function() legend("topright", legend=years, col=1:2, lty=1, bty="n")
 
 plot(fpma,newdata=data.frame(year8594=years[1]),
      xlab="Time since diagnosis (years)")
-lines(fpma,newdata=data.frame(year8594=years[2]), ci=TRUE, col=2)
 lines(fpma,newdata=data.frame(year8594=years[1]), ci=FALSE) # repeated
 alegend()
 

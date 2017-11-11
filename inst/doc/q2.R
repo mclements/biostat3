@@ -7,7 +7,7 @@
 ###############################################################################
 ## Exercise 2
 ###############################################################################
-## @knitr loadDependecies
+## @knitr loadDependencies
 library(biostat3) # loads the survival and muhaz packages
 library(dplyr)    # for data manipulation
 

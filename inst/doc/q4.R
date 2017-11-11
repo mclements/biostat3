@@ -7,7 +7,7 @@
 ###############################################################################
 ## Exercise 4
 ###############################################################################
-## @knitr loadDependecies
+## @knitr loadDependencies
 library(biostat3) 
 library(dplyr)    # for data manipulation
 

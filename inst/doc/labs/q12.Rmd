@@ -2,6 +2,11 @@
 title: "Biostatistics III in R"
 author:
 - Code by Andreas Karlsson and Mark Clements
+output:
+  html_document:
+    theme: null
+  html_vignette: default
+  prettydoc::html_pretty: default
 ---
 
 # Cox model for cause-specific mortality for melanoma (all stages) #

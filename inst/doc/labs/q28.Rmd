@@ -2,6 +2,11 @@
 title: "Biostatistics III in R"
 author:
 - Code by Xing-Rong Liu and Mark Clements
+output:
+  html_document:
+    theme: null
+  html_vignette: default
+  prettydoc::html_pretty: default
 ---
 
 ## Exercise 28. Flexible parametric survival models in R ##
@@ -14,7 +19,7 @@ Note that there are some differences in the Stata implementation (`stpm2`) and o
 ```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
 library('knitr')
 read_chunk('../q28.R')
-opts_chunk$set(cache=FALSE, fig.width=10, fig.height=6)
+opts_chunk$set(cache=FALSE, fig.width=10, fig.height=6, results='hide', fig.keep='none')
 ```
 
 You may have to install the required packages the first time you use
@@ -34,11 +39,11 @@ events that we are interested in.
 ##(a)## 
 Flexible parametric model with df=4.
 
-```{r a_flex, results='hide', fig.show='hide'}
+```{r a_flex}
 ```
 
 Making a cox model for comparison.
-```{r a_cox, results='hide', fig.show='hide'}
+```{r a_cox}
 ```
 The hazard ratio, 95% confidence interval and statistical significance
 are very similar to the Cox model.
@@ -47,12 +52,12 @@ are very similar to the Cox model.
 Prediction and plots of survival and hazard by calendar
 period.
 
-```{r b_surv, results='hide', fig.show='hide'}
+```{r b_surv}
 ```
 Localised skin melanoma. Predicted survival functions from a exible
 parametric model.
 
-```{r b_haz, results='hide', fig.show='hide'}
+```{r b_haz}
 ```
 Localised skin melanoma. Predicted hazard functions from a exible
 parametric model.
@@ -62,7 +67,7 @@ Plotting the hazards on the log scale. There is a constant
 difference as the predictions are from a proportional hazards model
 and a multiplicative effect becomes additive on the log scale.
 
-```{r c_haz_log, results='hide', fig.show='hide'}
+```{r c_haz_log}
 ```
 Localised skin melanoma. Predicted hazard functions on log scale from
 a exible parametric model.
@@ -70,7 +75,7 @@ a exible parametric model.
 ##(d)## 
 Investigate DF for the baseline with criteria AIC and BIC.
 
-```{r d_AIC_BIC, results='hide', fig.show='hide'}
+```{r d_AIC_BIC}
 ```
 The log hazard ratios (and hence the hazard ratios) from 2 df and up
 are similar and for 3 df they are very similar.  The main difference
@@ -89,7 +94,7 @@ use 5df for the baseline hazard.
 ##(e)## 
 Plots of predicted baseline survivals and hazards with df=1:6.
 
-```{r e_base_surv, results='hide', fig.show='hide'}
+```{r e_base_surv}
 ```
 With the exception of 1 df (the Weibull model), the survival and
 hazard functions show similar shapes, so as long we have enough knots
@@ -98,7 +103,7 @@ our conclusions would be very similar.
 ##(f)## 
 Adjust for sex and age (in categories).
 
-```{r f_sex_age, results='hide', fig.show='hide'}
+```{r f_sex_age}
 ```
 
 The estimates are similar to those obtained from the Cox model.  The
@@ -117,7 +122,7 @@ model estimates virtually identical.
 ##(h)## 
 Change to time-varying effect of agegrp2:4.
 
-```{r h_time_varying, results='hide', fig.show='hide'}
+```{r h_time_varying}
 ```
 There is strong evidence of a non-proportional effect of age.
 
@@ -126,19 +131,19 @@ Plot of baseline hazard with fpmh. This baseline is for the
 youngest age group who are male and diagnosed in 1975-1984, i.e, when
 all the covariates are equal to zero.
 
-```{r i_plot_base_haz, results='hide', fig.show='hide'}
+```{r i_plot_base_haz}
 ```
 
 ##(j)## 
 Hazard ratios between age groups.
 
-```{r j_age_HR, results='hide', fig.show='hide'}
+```{r j_age_HR}
 ```
 The hazard ratios decrease as a function of follow-up time.  The
 hazard ratio is so high during the early years of follow-up because
 the hazard in the reference group is close to zero.
 
-```{r j_oldest, results='hide', fig.show='hide'}
+```{r j_oldest}
 ```
 The hazard ratio for the oldest age group with a 95% confidence
 interval.
@@ -146,7 +151,7 @@ interval.
 ##(k)## 
 The hazard difference for the oldest group.
 
-```{r k_haz_diff, results='hide', fig.show='hide'}
+```{r k_haz_diff}
 ```
 Localised skin melanoma.  Predicted difference in hazard rates (with a
 95% confidence interval) for oldest age group from a fexible parametric
@@ -158,7 +163,7 @@ being large, because the underlying hazard is so low.
 ##(l)## 
 The survival difference for the oldest group.
 
-```{r l_surv_diff, results='hide', fig.show='hide'}
+```{r l_surv_diff}
 ```
 Localised skin melanoma.  Predicted difference in survival functions
 (with a 95% confidence interval) for oldest age group from a flexible
@@ -167,7 +172,7 @@ parametric model (for females diagnosed in 1984-1994).
 ##(m)## 
 Fit models with 1, 2 and 3 df for time-dependent effect of age.
 
-```{r m_time_dep_eff, results='hide', fig.show='hide'}
+```{r m_time_dep_eff}
 ```
 AIC selects 2 df and BIC selects 1 df.  As discussed in the previous
 part, the BIC imposes a stronger penalty on aditional parameters.  The

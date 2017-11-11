@@ -2,6 +2,11 @@
 title: "Biostatistics III in R"
 author:
 - Code by Annika Tillander, Andreas Karlsson, Benedicte Delcoigne, Johan Zetterqvist and Mark Clements
+output:
+  html_document:
+    theme: null
+  html_vignette: default
+  prettydoc::html_pretty: default
 ---
 
 

@@ -2,6 +2,11 @@
 title: "Biostatistics III in R"
 author:
 - Code by Johan Zetterqvist, Andreas Karlsson and Mark Clements
+output:
+  html_document:
+    theme: null
+  html_vignette: default
+  prettydoc::html_pretty: default
 ---
 
 # Exercise 6. Diet data: tabulating incidence rates and modelling with Poisson regression #

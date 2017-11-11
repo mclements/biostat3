@@ -1,7 +1,12 @@
 ---
-title: "Biostatistcs III in R"
+title: "Biostatistics III in R"
 author:
 - Code by Annika Tillander, Andreas Karlsson and Mark Clements
+output:
+  html_document:
+    theme: null
+  html_vignette: default
+  prettydoc::html_pretty: default
 ---
 
 # Exercise 1: Life tables and Kaplan-Meier estimates of survival #
@@ -15,15 +20,14 @@ options(width=90)
 
 ## (a) Hand calculation: Life table and Kaplan-Meier estimates of survival ##
 
-The results are contained in the Excel file
-    `\solutions\exercise1.xls` and are also shown in the R
+The results are contained in an [Excel file](exercise1.xls) and are also shown in the R
     output below.
 
 ## (b) Using R to validate the hand calculations done in part 1 (a) ##
 
 First, load the `biostat3` library:
 
-```{r loadDependecies, message=FALSE}
+```{r loadDependencies, message=FALSE}
 ```
 
 Following are the life table estimates. Note that in the lectures,

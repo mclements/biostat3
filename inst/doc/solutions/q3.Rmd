@@ -2,6 +2,11 @@
 title: "Biostatistics III in R"
 author:
 - Code by Annika Tillander, Andreas Karlsson and Mark Clements
+output:
+  html_document:
+    theme: null
+  html_vignette: default
+  prettydoc::html_pretty: default
 ---
 
 # Exercise 3. Localised melanoma: Comparing estimates of cause-specific survival between periods; first graphically and then using the log rank test #
@@ -15,7 +20,7 @@ opts_chunk$set(cache=FALSE, fig.width=10, fig.height=6)
 
 You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
 
-```{r loadDependecies, message=FALSE}
+```{r loadDependencies, message=FALSE}
 ```
 
 We will now analyse the full data set of patients diagnosed with localised skin melanoma. We start by reading the data selecting those with a localised stage and then define a 1/0 varible for the events that we are interested in.

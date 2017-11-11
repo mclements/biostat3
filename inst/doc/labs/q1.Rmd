@@ -2,6 +2,11 @@
 title: "Biostatistics III in R"
 author:
 - Code by Annika Tillander, Andreas Karlsson and Mark Clements
+output:
+  html_document:
+    theme: null
+  html_vignette: default
+  prettydoc::html_pretty: default
 ---
 
 # Exercise 1: Life tables and Kaplan-Meier estimates of survival #
@@ -29,7 +34,7 @@ opts_chunk$set(cache=FALSE, fig.width=7, fig.height=6)
 options(width=90)
 ```
 
-```{r loadDependecies, message=FALSE}
+```{r loadDependencies, message=FALSE}
 ```
 
 ```{r printData, message=FALSE}

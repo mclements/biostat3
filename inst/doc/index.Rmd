@@ -1,14 +1,20 @@
+---
+title: "Biostatistics III in R: Survival analysis for epidemiologists"
+author:
+- Annika Tillander, Johan Zetterqvist, Bénédicte Delcoigne, Xingrong Liu, Mark Clements and Andreas Karlsson.
+output:
+  html_document:
+    theme: null
+  html_vignette: default
+  prettydoc::html_pretty: default
+---
 
-# Biostatistics III in R: Survival analysis for epidemiologists
+# Installation instructions
 
-**Authors: Annika Tillander, Johan Zetterqvist, Bénédicte Delcoigne, Xingrong Liu, Mark Clements and Andreas Karlsson.**
-
-## Installation instructions
-
-Instructions are available [here](file:labs/installation.html).
+Instructions are available [here](labs/installation.html).
 
 
-## Computing laboratory exercises (on-line)
+# Computing laboratory exercises (on-line)
 
  \#  Description                                                               Questions                                            R code                                         Solutions
 ---  ------------------------------------------------------------------------  ---------------------------------------------------  ---------------------------------------------  -------------------------------------------------------

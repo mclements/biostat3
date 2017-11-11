@@ -8,7 +8,7 @@
 ## Exercise 1b
 ###############################################################################
 
-## @knitr loadDependecies
+## @knitr loadDependencies
 library(biostat3)
 
 ## @knitr printData

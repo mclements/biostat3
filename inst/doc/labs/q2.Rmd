@@ -2,6 +2,11 @@
 title: "Biostatistics III in R"
 author:
 - Code by Annika Tillander, Andreas Karlsson and Mark Clements
+output:
+  html_document:
+    theme: null
+  html_vignette: default
+  prettydoc::html_pretty: default
 ---
 
 
@@ -11,7 +16,7 @@ author:
 ```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
 library('knitr')
 read_chunk('../q2.R')
-opts_chunk$set(cache=FALSE, fig.width=10, fig.height=6)
+opts_chunk$set(cache=FALSE, fig.width=10, fig.height=6, results='hide', fig.keep='none')
 ```
 
 The purpose of this exercise is to study survival of the patients
@@ -22,24 +27,24 @@ The purpose of this exercise is to study survival of the patients
 
 Load dependencies
 
-```{r loadDependecies, message=FALSE}
+```{r loadDependencies, message=FALSE}
 ```
 
 We start by listing the first few observations to get an idea about the data. We then define two 1/0 variables for the events that we are interested in.
 
-```{r loadPreprocess}
+```{r loadPreprocess, results='markup'}
 ```
 
 ## (a) Plot estimates of the survivor function and hazard function by stage. ##
 
 We now tabulate the distribution of the melanoma patients by cancer stage at diagnosis.
 
-```{r a_tabulate, results="hide"}
+```{r a_tabulate}
 ```
 
 We then plot the survival by stage. Does it appear that stage is associated with patient survival?
 
-```{r a_plotSurv, fig.show="hide"}
+```{r a_plotSurv}
 ```
 
 ## (b) Estimate the mortality rates for each stage using, for example, the `survRate` command. ##

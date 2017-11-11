@@ -2,6 +2,11 @@
 title: "Biostatistics III in R"
 author:
 - Code by Annika Tillander, Andreas Karlsson and Mark Clements
+output:
+  html_document:
+    theme: null
+  html_vignette: default
+  prettydoc::html_pretty: default
 ---
 
 ## Exercise 4. Localised melanoma: Comparing actuarial and Kaplan-Meier approaches with discrete time data ##
@@ -13,7 +18,7 @@ read_chunk('../q4.R')
 opts_chunk$set(cache=FALSE)
 ```
 
-```{r loadDependecies, message=FALSE}
+```{r loadDependencies, message=FALSE}
 ```
 
 ```{r loadPreprocess}

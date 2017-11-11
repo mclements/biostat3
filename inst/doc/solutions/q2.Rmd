@@ -2,6 +2,11 @@
 title: "Biostatistics III in R"
 author:
 - Code by Annika Tillander, Andreas Karlsson and Mark Clements
+output:
+  html_document:
+    theme: null
+  html_vignette: default
+  prettydoc::html_pretty: default
 ---
 
 # Exercise 2. Comparing survival proportions and mortality rates by stage for cause-specific and all-cause survival #
@@ -14,7 +19,7 @@ opts_chunk$set(cache=FALSE)
 
 Load dependencies
 
-```{r loadDependecies, message=FALSE}
+```{r loadDependencies, message=FALSE}
 ```
 
 We start by listing the first few observations to get an idea about the data. We then define two 1/0 variables for the events that we are interested in.
