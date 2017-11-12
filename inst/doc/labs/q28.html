@@ -101,7 +101,7 @@ melanoma0 &lt;-<span class="st"> </span>melanoma %&gt;%<span class="st"> </span>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## (a) Flexible parametric model with df=4
 
 fpma &lt;-<span class="st"> </span><span class="kw">stpm2</span>(<span class="kw">Surv</span>(time,event) ~<span class="st"> </span>year8594, <span class="dt">data=</span>melanoma0, <span class="dt">df=</span><span class="dv">4</span>)
-<span class="kw">exp</span>(<span class="kw">cbind</span>(<span class="dt">IRR=</span>rstpm2::<span class="kw">coef</span>(fpma),rstpm2::<span class="kw">confint</span>(fpma)))</code></pre></div>
+<span class="kw">exp</span>(<span class="kw">cbind</span>(<span class="dt">IRR=</span><span class="kw">coef</span>(fpma),<span class="kw">confint</span>(fpma)))</code></pre></div>
 <pre><code>## Profiling...</code></pre>
 <pre><code>## Warning in .local(object, parm, level, ...): non-monotonic spline fit
 ## to profile (nsx(log(time), df = 4)2): reverting from spline to linear

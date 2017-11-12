@@ -29,7 +29,8 @@ melanoma0 <- melanoma %>% filter(stage=="Localised") %>%
 ## (a) Flexible parametric model with df=4
 
 fpma <- stpm2(Surv(time,event) ~ year8594, data=melanoma0, df=4)
-exp(cbind(IRR=rstpm2::coef(fpma),rstpm2::confint(fpma)))
+exp(cbind(IRR=coef(fpma),confint(fpma)))
+## updated package: eform(fpma)
 summary(fpma)
 
 ## @knitr a_cox
