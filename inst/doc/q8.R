@@ -21,7 +21,7 @@ summary(diet)
 
 ## @knitr 8a1_Haz_att_age
 scale <- 365.24
-biostat3::plot.bshazard(bshazard(Surv((doe - dob)/scale, (dox - dob)/scale, chd) ~ 1, data=subset(diet,hieng=="low")),
+plot.bshazard(bshazard(Surv((doe - dob)/scale, (dox - dob)/scale, chd) ~ 1, data=subset(diet,hieng=="low")),
                          ylim=c(0,0.03), conf.int=FALSE, xlab="Attained age (years)")
 lines(bshazard(Surv((doe - dob)/scale, (dox - dob)/scale, chd) ~ 1, data=subset(diet,hieng=="high")),
       col="red", conf.int=FALSE)
