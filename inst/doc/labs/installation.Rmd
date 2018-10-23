@@ -1,3 +1,14 @@
+---
+title: "Biostatistics III in R"
+author:
+- Andreas Karlsson and Mark Clements
+output:
+  html_document:
+    theme: null
+  html_vignette: default
+  prettydoc::html_pretty: default
+---
+
 Installation for Biostatistics III in R
 ======================================================
 

@@ -48,3 +48,12 @@ The K-M estimate changes more. Because the actuarial method
         deals with ties in an appropriate manner it is not biased when
         data are heavily tied so is not heavily affected when we reduce
         the number of ties.
+
+
+## (c) ##
+
+The plot clearly shows that the Kaplan-Meier estimator with the
+aggregated data is upwardly biased compared with the other curves.
+
+```{r comparisonPlot}
+```

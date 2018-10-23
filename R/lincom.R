@@ -6,7 +6,7 @@ lincom <- function(model, specification, level = 0.95, eform=FALSE, ...) {
     ses <- sqrt(as.vector(attr(x,"vcov")))
     a <- (1 - level)/2
     a <- c(a, 1 - a)
-    pct <- stats:::format.perc(a, 3)
+    pct <- format_perc(a, 3)
     fac <- qnorm(a)
     ci <- cbind(cf, cf + ses %o% fac)
     if (eform) ci <- exp(ci)

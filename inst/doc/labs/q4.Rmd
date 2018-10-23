@@ -60,3 +60,10 @@ Kaplan-Meier estimates, using survival time in completed months. Only showing 20
 
 ```{r kmMonths, results="hide", fig.show="hide"}
 ```
+
+## (c) ##
+
+Plot the four sets of curves for a graphical comparison. Describe the direction of the bias for the Kaplan-Meier curves using completed years.
+
+```{r comparisonPlot, results="hide", fig.show="hide"}
+```

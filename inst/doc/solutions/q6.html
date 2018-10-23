@@ -96,13 +96,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 ## 4 1957-02-16 1972-07-10 1902-07-11 1957.126 1972.523 1902.523 0.015394935
 ## 5 1960-01-16 1961-07-15 1913-06-30 1960.041 1961.534 1913.493 0.001494866
 ## 6 1960-12-16 1976-12-01 1915-06-28 1960.958 1976.917 1915.487 0.015958932
-##        bmi jobNumber
-## 1 20.30316         1
-## 2 23.24473         2
-## 3       NA         2
-## 4 23.11057         2
-## 5       NA         2
-## 6 29.20385         1</code></pre>
+##   eng3 X1 X2 X3 eng3low eng3medium eng3high
+## 1  low  1  0  0       1          0        0
+## 2  low  1  0  0       1          0        0
+## 3  low  1  0  0       1          0        0
+## 4  low  1  0  0       1          0        0
+## 5  low  1  0  0       1          0        0
+## 6  low  1  0  0       1          0        0</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(diet)</code></pre></div>
 <pre><code>##        id           chd               y            hieng    
 ##  Min.   :  1   Min.   :0.0000   Min.   : 0.2875   low :155  
@@ -136,14 +136,22 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 ##  3rd Qu.:1915-01-30   3rd Qu.:1961   3rd Qu.:1977   3rd Qu.:1915  
 ##  Max.   :1930-09-19   Max.   :1967   Max.   :1977   Max.   :1931  
 ##                                                                   
-##       y1k                 bmi          jobNumber    
-##  Min.   :0.0002875   Min.   :15.88   Min.   :0.000  
-##  1st Qu.:0.0107762   1st Qu.:21.59   1st Qu.:0.000  
-##  Median :0.0154606   Median :24.11   Median :1.000  
-##  Mean   :0.0136607   Mean   :24.12   Mean   :1.145  
-##  3rd Qu.:0.0170431   3rd Qu.:26.50   3rd Qu.:2.000  
-##  Max.   :0.0200411   Max.   :33.29   Max.   :2.000  
-##                      NA's   :5</code></pre>
+##       y1k                eng3           X1               X2        
+##  Min.   :0.0002875   low   : 75   Min.   :0.0000   Min.   :0.0000  
+##  1st Qu.:0.0107762   medium:150   1st Qu.:0.0000   1st Qu.:0.0000  
+##  Median :0.0154606   high  :112   Median :0.0000   Median :0.0000  
+##  Mean   :0.0136607                Mean   :0.2226   Mean   :0.4451  
+##  3rd Qu.:0.0170431                3rd Qu.:0.0000   3rd Qu.:1.0000  
+##  Max.   :0.0200411                Max.   :1.0000   Max.   :1.0000  
+##                                                                    
+##        X3            eng3low         eng3medium        eng3high     
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   :0.0000  
+##  1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000  
+##  Median :0.0000   Median :0.0000   Median :0.0000   Median :0.0000  
+##  Mean   :0.3323   Mean   :0.2226   Mean   :0.4451   Mean   :0.3323  
+##  3rd Qu.:1.0000   3rd Qu.:0.0000   3rd Qu.:1.0000   3rd Qu.:1.0000  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :1.0000  
+## </code></pre>
 <div id="a" class="section level2">
 <h2>(a)</h2>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">diet &lt;-<span class="st"> </span>biostat3::diet

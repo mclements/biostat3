@@ -8,6 +8,6 @@ poisson.ci <- function(x, T=1, conf.level = 0.95) {
   val <- data.frame(val,row.names=names(x))
   a <- (1 - conf.level)/2
   a <- c(a, 1 - a)
-  names(val) <- stats:::format.perc(a, 3)
+  names(val) <- format_perc(a, 3)
   if (nrow(val)>1) val else as.vector(unlist(val))
 }

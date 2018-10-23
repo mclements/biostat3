@@ -53,9 +53,9 @@ We then plot the survival by stage. Does it appear that stage is associated with
 ```{r b_crudeRates}
 ```
 
-What are the units of the estimated rates? \[The `survRate` function, as the name suggests, is used to
+What are the units of the estimated rates? The `survRate` function, as the name suggests, is used to
         estimates rates. Look at the help pages if you are not familiar
-        with the function.\]
+        with the function.
 
 
 ## (c) If you haven’t already done so, estimate the mortality rates for each stage per 1000 person-years of follow-up. ##

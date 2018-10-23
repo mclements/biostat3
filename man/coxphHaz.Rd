@@ -15,7 +15,8 @@ coxphHaz(object, newdata, n.grid = 300, kernel = "epanechnikov", from,
 to, ...)
 \method{print}{coxphHaz}(x, digits=NULL, ...)
 \method{plot}{coxphHaz}(x, xlab="Time", ylab="Hazard", type="l", ...)
-\method{plot}{coxphHazList}(x, xlab="Time", ylab="Hazard", type="l", col=1:length(x), lty=1, legend.args=list(), ...)
+\method{plot}{coxphHazList}(x, xlab="Time", ylab="Hazard", type="l",
+                  col=1:length(x), lty=1, legend.args=list(), ...)
 \method{lines}{coxphHazList}(x, ...)
 }
 %- maybe also 'usage' for other objects documented here.

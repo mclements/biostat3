@@ -1,5 +1,6 @@
 \name{utilities}
 \alias{updateList}
+\alias{format_perc}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Utility functions for the \code{biostat3} package
@@ -9,6 +10,7 @@ Utility functions for the \code{biostat3} package.
 }
 \usage{
 updateList(object, ...)
+format_perc(probs, digits)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -17,6 +19,12 @@ base object (list)
 }
   \item{...}{
 arguments to update
+}
+  \item{probs}{
+probability to express as a percentage
+}
+  \item{digits}{
+number of significant digits
 }
 }
 \details{

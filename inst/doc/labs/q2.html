@@ -141,9 +141,7 @@ melanoma %&gt;%
 <span class="st">    </span><span class="kw">summarise</span>(<span class="dt">D =</span> <span class="kw">sum</span>(death_cancer), <span class="dt">M =</span> <span class="kw">sum</span>(surv_mm/<span class="dv">12</span>), <span class="dt">Rate =</span> D/M,
               <span class="dt">CI_low =</span> stats::<span class="kw">poisson.test</span>(D,M)$conf.int[<span class="dv">1</span>],
               <span class="dt">CI_high =</span> stats::<span class="kw">poisson.test</span>(D,M)$conf.int[<span class="dv">2</span>]) </code></pre></div>
-<p>What are the units of the estimated rates? <span class="math display">\[The `survRate` function, as the name suggests, is used to
-        estimates rates. Look at the help pages if you are not familiar
-        with the function.\]</span></p>
+<p>What are the units of the estimated rates? The <code>survRate</code> function, as the name suggests, is used to estimates rates. Look at the help pages if you are not familiar with the function.</p>
 </div>
 <div id="c-if-you-havent-already-done-so-estimate-the-mortality-rates-for-each-stage-per-1000-person-years-of-follow-up." class="section level2">
 <h2>(c) If you haven’t already done so, estimate the mortality rates for each stage per 1000 person-years of follow-up.</h2>

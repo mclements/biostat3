@@ -11,7 +11,8 @@ estimator. Prefer \code{muhaz} for right censored data and
 \code{bshazard} for left truncated and right censored data.
 }
 \usage{
-smoothHaz(object, n.grid = 300, kernel = "epanechnikov", from = NULL, to = NULL, min.n.risk = 1, ...)
+smoothHaz(object, n.grid = 300, kernel = "epanechnikov",
+          from = NULL, to = NULL, min.n.risk = 1, ...)
 \method{plot}{smoothHaz}(x, xlab = "Time", ylab = "Hazard", type = "l", ...)
 }
 %- maybe also 'usage' for other objects documented here.

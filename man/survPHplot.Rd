@@ -9,7 +9,10 @@ Plot of log(time) versus -log(-log(survival)) to assess
 non-proportionality. A constant distance between curves suggest proportionality.
 }
 \usage{
-survPHplot(formula, data, subset, contrasts, weights, col = 1:5, lty = 1:5, pch = 19, xlab = "Time (log scale)", ylab = "-log(-log(Survival))", log = "x", legend.args = list(), ...)
+survPHplot(formula, data, subset, contrasts, weights, col = 1:5,
+           lty = 1:5, pch = 19, xlab = "Time (log scale)",
+           ylab = "-log(-log(Survival))", log = "x",
+           legend.args = list(), ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

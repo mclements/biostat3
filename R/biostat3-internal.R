@@ -142,7 +142,7 @@ year <- function(date, trunc=FALSE, year.length=365.24) {
 ##       ses <- sqrt(diag(vcov))
 ##       a <- (1 - level)/2
 ##       a <- c(a, 1 - a)
-##       pct <- stats:::format.perc(a, 3)
+##       pct <- format.perc(a, 3)
 ##       fac <- qnorm(a)
 ##       ci <- cbind(cf, cf + ses %o% fac)
 ##       dimnames(ci) <- list(rownames(vcov), c("Estimate",pct))
@@ -155,3 +155,8 @@ updateList <- function(object, ...) {
         revised[[name]] <- object[[name]]
     revised
 }
+
+format_perc <- 
+    function (probs, digits) 
+        paste(format(100 * probs, trim = TRUE, scientific = FALSE, digits = digits), 
+              "%")

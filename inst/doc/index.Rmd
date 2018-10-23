@@ -11,7 +11,7 @@ output:
 
 # Installation instructions
 
-Instructions are available [here](labs/installation.html).
+Instructions are available [on-line](http://biostat3.net/download/R/labs/installation.html) and [off-line](labs/installation.html).
 
 
 # Computing laboratory exercises (on-line)
