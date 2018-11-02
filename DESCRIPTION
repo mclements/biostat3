@@ -1,13 +1,20 @@
 Package: biostat3
 Type: Package
-Title: Course Material for Biostatistics III in R
-Version: 0.1.3
-Date: 2018-10-23
-Author: Annika Tillander, Andreas Karlsson, Johan Zetterqvist, Peter Str\"{o}m, Mark Clements
+Title: Utility Functions, Datasets and Extended Examples for Survival Analysis
+Version: 0.1.4
+Date: 2018-10-30
+Authors@R: c(person("Annika","Tillander", role="ctb"),
+	  person("Andreas","Karlsson", role="aut"),
+	  person("Johan","Zetterqvist", role="ctb"),
+	  person("Peter","Strom", role="ctb"),
+	  person("Benedicte","Delcoigne", role="ctb"),
+	  person("Mark","Clements", role=c("aut","cre"), email="mark.clements@ki.se")
+	  )
+Author: Annika Tillander [ctb], Andreas Karlsson [aut], Johan Zetterqvist [ctb], Peter Strom [ctb], Benedicte Delcoigne [ctb], Mark Clements [aut, cre]
 Maintainer: Mark Clements <mark.clements@ki.se>
-Description: Package to support the course Biostatistics III on "Survival analysis for epidemiologists". This includes a range of other packages, some simple wrappers for time-to-event analyses, datasets, and extensive examples in HTML and R scripts.
-Depends: survival, R (>= 2.10)
-Imports: muhaz, car, graphics, stats, MASS
+Description: Utility functions, datasets and extended examples for survival analysis. This extends a range of other packages, some simple wrappers for time-to-event analyses, datasets, and extensive examples in HTML with R scripts. The package also supports the course Biostatistics III entitled "Survival analysis for epidemiologists in R".
+Depends: survival, R (>= 2.10), MASS
+Imports: muhaz, car, graphics, stats
 Suggests: bshazard, rstpm2, Epi
 License: GPL (>=2)
 LazyData: yes

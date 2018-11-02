@@ -2,3 +2,7 @@
 ^\.Rproj\.user$
 ^biostat3.*\.tar\.gz$
 Makefile
+R/archive/*
+man/archive/*
+inst/doc/archive/*
+inst/doc/fromAnnika/*

@@ -1,6 +1,7 @@
 exportPattern("^[[:alpha:]]+") # export names that start with a letter 
 
 import(survival)
+import(MASS)
 importFrom(muhaz, muhaz, plot.muhaz, lines.muhaz)
 importFrom(car, linearHypothesis)
 importFrom(graphics, lines, plot, matlines, matplot, plot.default,
