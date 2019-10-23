@@ -1,0 +1,97 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Mark Clements
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+---
+
+
+# Exercise 14. Non-collapsibility of proportional hazards models #
+
+-----------
+
+We simulate for time-to-event data assuming _constant hazards_ and then investigate whether we can estimate the underlying parameters. Note that the binary variable $X$ is essentially a coin toss and we have used a large variance for the normally distributed $U$. 
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q14.R')
+opts_chunk$set(cache=FALSE)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependencies, message=FALSE}
+```
+
+We can use `dagitty` to graph the causal diagram: 
+```{r 14.dag}
+```
+
+
+```{r 14.simulate}
+```
+
+## (a) Fitting models with both $X$ and $U$ ## 
+
+For constant hazards, we can fit (i) Poisson regression, (ii) Cox regression and (iii) flexible parametric survival models. With both covariates, these models are expected to estimate the parameters for $X$ and $U$, with values close to 1:
+
+```{r 14.a}
+```
+
+If we fit a time-varying hazard ratio for $X$, we see that the hazard ratio looks reasonably constant.
+
+```{r 14.tvc.xu}
+```
+
+## (b) Fitting models with only $X$ ## 
+
+We now model by excluding the variable $U$. This variable could be excluded when it is not measured or perhaps when the variable is not considered to be a confounding variable -- from the causal diagram, the two variables $X$ and $U$ are not correlated and are only connected through the time variable $T$.
+
+```{r 14.b}
+```
+
+```{r 14.b.2}
+```
+
+We clearly see that the estimate for $X$ is different in the models without $U$. If we now allow the the hazard ratio to vary by time:
+
+```{r 14.tvc.x}
+```
+
+We see that the hazard ratio is clearly time-varying, starting at an initial value at time = 0 of close to exp(1), but then declining rapidly. As discussed in class, this is an example of _unmeasured heterogeneity_, which is a normal _random effect_ or, in this context, a log-normal _frailty_. Initially, there is no selection in the at-risk population, and the estimated marginal hazard ratio from the model without $U$ is similar to the conditional hazrd ratio from the model that adjusts for $U$. However, at later times, the at-risk population has been selected for those with a smaller frailty (because they were less likely to have had the event), and for a log-normal frailty the marginal hazard ratio is attenuated towards 1.
+
+Let us stress that _$U$ is not a confounder_. The issue is that fitting proportional hazards models with unmodelled heterogeneity for variables that are not confounders can lead to time-varying hazard ratios -- and marginal estimates that do not have a causal interpretation. 
+
+## (c) Rarer outcomes ## 
+
+We now simulate for rarer outcomes by changing the censoring distribution. 
+
+```{r 14.simulate.2}
+```
+
+```{r 14.b, results='hide'}
+```
+
+```{r 14.b.2}
+```
+
+For rarer outcomes, the marginal estimates that do not model for $U$ are closer to the conditional estimates that have modelled for $U$.
+
+
+## (c) Less heterogeneity ## 
+
+We now simulate for less heterogeneity by changing the reducing the standard deviation for the random effect $U$ from 3 to 1. 
+
+```{r 14.simulate.3}
+```
+
+```{r 14.b, results='hide'}
+```
+
+```{r 14.b.2}
+```
+
+The marginal estimates are now much closer to the conditional estimates. For little or no heterogeneity, the marginal and conditional estimates would be very similar.

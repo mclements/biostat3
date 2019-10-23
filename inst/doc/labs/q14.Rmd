@@ -1,0 +1,97 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Mark Clements
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+---
+
+
+# Exercise 14. Non-collapsibility of proportional hazards models #
+
+-----------
+
+We simulate for time-to-event data assuming _constant hazards_ and then investigate whether we can estimate the underlying parameters. Note that the binary variable $X$ is essentially a coin toss and we have used a large variance for the normally distributed $U$. 
+
+```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
+library('knitr')
+read_chunk('../q14.R')
+opts_chunk$set(cache=FALSE)
+```
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{r loadDependencies, message=FALSE}
+```
+
+We can use `dagitty` to graph the causal diagram: 
+```{r 14.dag}
+```
+
+
+```{r 14.simulate, results='hide'}
+```
+
+## (a) Fitting models with both $X$ and $U$ ## 
+
+For constant hazards, we can fit (i) Poisson regression, (ii) Cox regression and (iii) flexible parametric survival models. 
+
+```{r 14.a, results='hide'}
+```
+
+It may be useful to investigate whether the hazard ratio for $X$ is time-varying hazard ratio and the form for survival.
+
+```{r 14.tvc.xu, results='hide'}
+```
+
+## (b) Fitting models with only $X$ ## 
+
+We now model by excluding the variable $U$. This variable could be excluded when it is not measured or perhaps when the variable is not considered to be a confounding variable -- from the causal diagram, the two variables $X$ and $U$ are not correlated and are only connected through the time variable $T$.
+
+```{r 14.b, results='hide'}
+```
+
+```{r 14.b.2, results='hide'}
+```
+
+Again, we suggest investigating whether the hazard ratio for $X$ is time-varying.
+
+```{r 14.tvc.x}
+```
+
+What do you see from the time-varing hazard ratio? Is $U$ a potential confounder for $X$?
+
+
+
+## (c) Rarer outcomes ## 
+
+We now simulate for rarer outcomes by changing the censoring distribution:
+
+```{r 14.simulate.2}
+```
+
+```{r 14.b, results='hide'}
+```
+
+```{r 14.b.2}
+```
+
+What do you observe?
+
+
+## (c) Less heterogeneity ## 
+
+We now simulate for less heterogeneity by changing the reducing the standard deviation for the random effect $U$ from 3 to 1. 
+
+```{r 14.simulate.3}
+```
+
+```{r 14.b, results='hide'}
+```
+
+```{r 14.b.2}
+```
+
+What do you observe?
