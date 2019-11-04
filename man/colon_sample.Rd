@@ -31,8 +31,8 @@ Sample from the \code{\link{colon}} dataset used for teaching.
 %% \references{
 %% %%  ~~ possibly secondary sources and usages ~~
 %% }
-%% \examples{
-%% data(colon_sample)
-%% ## maybe str(colon_sample) ; plot(colon_sample) ...
-%% }
+\examples{
+data(colon_sample)
+## maybe str(colon_sample) ; plot(colon_sample) ...
+}
 \keyword{datasets}

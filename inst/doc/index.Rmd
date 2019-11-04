@@ -3,10 +3,9 @@ title: "Biostatistics III in R: Survival analysis for epidemiologists"
 author:
 - Annika Tillander, Johan Zetterqvist, Bénédicte Delcoigne, Xingrong Liu, Mark Clements and Andreas Karlsson.
 output:
-  html_document:
-    theme: null
-  html_vignette: default
-  prettydoc::html_pretty: default
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
 ---
 
 # Installation instructions
@@ -30,6 +29,7 @@ Instructions are available [on-line](http://biostat3.net/download/R/labs/install
  11  Cox regression with all-cause mortality as the outcome                    [Q11](http://biostat3.net/download/R/labs/q11.html)  [q11.R](http://biostat3.net/download/R/q11.R)  [S11](http://biostat3.net/download/R/solutions/q11.html)
  12  Cox model for cause-specific mortality for melanoma                       [Q12](http://biostat3.net/download/R/labs/q12.html)  [q12.R](http://biostat3.net/download/R/q12.R)  [S12](http://biostat3.net/download/R/solutions/q12.html)
  13  Modelling the diet data using Cox regression                              [Q13](http://biostat3.net/download/R/labs/q13.html)  [q13.R](http://biostat3.net/download/R/q13.R)  [S13](http://biostat3.net/download/R/solutions/q13.html)
+ 14  Non-collapsibility of proportional hazards models                         [Q14](http://biostat3.net/download/R/labs/q14.html)  [q14.R](http://biostat3.net/download/R/q14.R)  [S14](http://biostat3.net/download/R/solutions/q14.html)
  22  Time-varying exposures and the bereavement data                           [Q22](http://biostat3.net/download/R/labs/q22.html)  [q22.R](http://biostat3.net/download/R/q22.R)  [S22](http://biostat3.net/download/R/solutions/q22.html)
  23  Calculating SMRs/SIRs                                                     [Q23](http://biostat3.net/download/R/labs/q23.html)  [q23.R](http://biostat3.net/download/R/q23.R)  [S23](http://biostat3.net/download/R/solutions/q23.html)
  25  Generating and analysing a nested case-control (NCC) study                [Q25](http://biostat3.net/download/R/labs/q25.html)  [q25.R](http://biostat3.net/download/R/q25.R)  [S25](http://biostat3.net/download/R/solutions/q25.html)
@@ -53,6 +53,7 @@ Instructions are available [on-line](http://biostat3.net/download/R/labs/install
  11  Cox regression with all-cause mortality as the outcome                    [Q11](labs/q11.html)  [q11.R](q11.R)  [S11](solutions/q11.html)
  12  Cox model for cause-specific mortality for melanoma                       [Q12](labs/q12.html)  [q12.R](q12.R)  [S12](solutions/q12.html)
  13  Modelling the diet data using Cox regression                              [Q13](labs/q13.html)  [q13.R](q13.R)  [S13](solutions/q13.html)
+ 14  Non-collapsibility of proportional hazards models                         [Q14](labs/q14.html)  [q14.R](q14.R)  [S14](solutions/q14.html)
  22  Time-varying exposures and the bereavement data                           [Q22](labs/q22.html)  [q22.R](q22.R)  [S22](solutions/q22.html)
  23  Calculating SMRs/SIRs                                                     [Q23](labs/q23.html)  [q23.R](q23.R)  [S23](solutions/q23.html)
  25  Generating and analysing a nested case-control (NCC) study                [Q25](labs/q25.html)  [q25.R](q25.R)  [S25](solutions/q25.html)

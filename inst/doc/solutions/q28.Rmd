@@ -3,10 +3,9 @@ title: "Biostatistics III in R"
 author:
 - Code by Xing-Rong Liu and Mark Clements
 output:
-  html_document:
-    theme: null
-  html_vignette: default
-  prettydoc::html_pretty: default
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
 ---
 
 ## Exercise 28. Flexible parametric survival models in R ##
@@ -62,19 +61,19 @@ There is a constant difference as the predictions are from a
 ##(d)## 
 
 The log hazard ratios (and hence the hazard ratios) from 2 df
-        and up are similar and for 3 df they are very similar. The main
-        difference is for 1 df, which is equivalent to a Weibull model.
-        The Weibull model enforces a monotonic hazard function and as
-        the hazard function in the melanoma data has a turning point it
-        is clearly inappropriate.\
-        The lowest AIC is for the model with 5 df and for the BIC it is
-        the model with 2 df. The penalty term in the AIC is twice the
-        number of parameters ($2 \times k$) whereas in the BIC it is
-        $\ln(D) \times k$ where $D$ is the number of events. Since
-        $\ln(D) > k$ the BIC penalizes extra parameters much more
-        strongly than AIC. Since we have a large data set and there are
-        no disadvantages to including extra parameters we would use 5df
-        for the baseline hazard.
+and up are similar and for 3 df they are very similar. The main
+difference is for 1 df, which is equivalent to a Weibull model.
+The Weibull model enforces a monotonic hazard function and as
+the hazard function in the melanoma data has a turning point it
+is clearly inappropriate.\
+The lowest AIC is for the model with 5 df and for the BIC it is
+the model with 2 df. The penalty term in the AIC is twice the
+number of parameters ($2 \times k$) whereas in the BIC it is
+$\log(D) \times k$ where $D$ is the number of events. Since
+$\log(D) > k$ the BIC penalizes extra parameters much more
+strongly than AIC. Since we have a large data set and there are
+no disadvantages to including extra parameters we would use 5 df
+for the baseline hazard.
 		
 ```{r d_AIC_BIC}
 ```
@@ -84,30 +83,38 @@ The log hazard ratios (and hence the hazard ratios) from 2 df
 ```{r e_base_surv}
 ```
 
+The code for hazards is very similar:
+
+```{r e_base_haz}
+```
+
 With the exception of 1 df (the Weibull model), the survival and
-        hazard functions show similar shapes, so as long we have enough
-        knots our conclusions would be very similar.
-		
+hazard functions show similar shapes, so as long we have enough
+knots our conclusions would be very similar.
+
+
 ##(f)## 
 
 ```{r f_sex_age}
 ```
 
-The estimates are similar to those obtained from the Cox model.
-        The Wald test yields a very highly significant result, which is
-        similar to that obtained from the comparable test for the
-        Cox model.
+After modelling for sex, calendar period age group and time with five degrees of freedom, the adjusted hazard ratios for: females compared with males was 0.59 (95% CI: 0.54, 0.64); diagnoses during the period 1985--1994 compared with those diagnosed 1974--1984 was 0.72 (95% CI: 0.66, 0.79); and age groups 45--59, 60--74 and 75+ compared with ages 0--44 years were 1.33 (95% CI: 1.17, 1.49), 1.86 (95% CI: 1.66. 2.07) and 3.40 (95% CI: 2.93, 3.92), respectively.
+
+Undertaking a likelihood ratio test, there was strong evidence (p<1e-16) that age group contributed significantly to the model fit.
 
 ##(g)## 
 
+```{r g_sex_age}
+```
+
 The estimates are so similar because very similar models are
-        being fitted with exactly the same covariates. The two models
-        differ only in the manner in which they account for the
-        baseline hazard. In the Cox model it is assumed arbitrary and
-        not directly estimated. In the flexible parametric model the
-        baseline hazard is modelled using splines. The 5 df spline
-        allows sufficient flexibility to make the model estimates
-        virtually identical.
+being fitted with exactly the same covariates. The two models
+differ only in the manner in which they account for the
+baseline hazard. In the Cox model it is assumed arbitrary and
+not directly estimated. In the flexible parametric model the
+baseline hazard is modelled using splines. The 5 df spline
+allows sufficient flexibility to make the model estimates
+virtually identical.
 
 ##(h)## 
 

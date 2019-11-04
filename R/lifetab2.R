@@ -1,4 +1,4 @@
-## copied from KMsurv
+## copied/edited from KMsurv
 lifetab <- 
 function (tis, ninit, nlost, nevent) 
 {
@@ -18,10 +18,12 @@ function (tis, ninit, nlost, nevent)
     fmj.se[n] <- NA
     hmj.se <- sqrt(1 - (hmj * diff(tis)/2)^2) * sqrt(hmj^2/Yj/qj)
     hmj.se[n] <- NA
-    data.frame(nsubs = Ypj, nlost = nlost, nrisk = Yj, nevent = nevent, 
-        surv = Sj, pdf = fmj, hazard = hmj, se.surv = Sj.se, 
-        se.pdf = fmj.se, se.hazard = hmj.se, row.names = paste(tis[-n - 
-            1], tis[-1], sep = "-"))
+    data.frame(tstart=tis[-n-1], # new
+               tstop=tis[-1],   # new
+               nsubs = Ypj, nlost = nlost, nrisk = Yj, nevent = nevent, 
+               surv = Sj, pdf = fmj, hazard = hmj, se.surv = Sj.se, 
+               se.pdf = fmj.se, se.hazard = hmj.se,
+               row.names = paste(tis[-n - 1], tis[-1], sep = "-"))
 }
 
 lifetab2 <-
@@ -79,8 +81,16 @@ lifetab2 <-
     if (length(temp)==1) {
       temp <- temp[[1]]
     }
-    structure(temp, call=Call)
+    structure(temp, call=Call, class=c("lifetab2", "data.frame"))
   }
+
+plot.lifetab2 <- function(x, y=NULL, ...) {
+    plot(x$tstart, x$surv, ...)
+}
+lines.lifetab2 <- function(x, y=NULL, ...) {
+    lines(x$tstart, x$surv, ...)
+}
+
 
 .survset <- function(.surv, data, scale=1, origin=0, enter=NULL, exit=NULL, start="tstart", end="tstop", event="event", zero = 0, valid="tvalid") {
     Y <- eval(substitute(.surv), data, parent.frame())

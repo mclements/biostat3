@@ -3,10 +3,9 @@ title: "Biostatistics III in R"
 author:
 - Code by Andreas Karlsson and Mark Clements
 output:
-  html_document:
-    theme: null
-  html_vignette: default
-  prettydoc::html_pretty: default
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
 ---
 
 # Exercise 22. Estimating the effect of a time-varying exposure – the bereavement data #

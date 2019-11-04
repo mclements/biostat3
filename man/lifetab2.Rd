@@ -1,5 +1,7 @@
 \name{lifetab2}
 \alias{lifetab2}
+\alias{plot.lifetab2}
+\alias{lines.lifetab2}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Formula wrapper for \code{\link{lifetab}} from the
@@ -11,6 +13,8 @@ data-frame with optional breaks.
 }
 \usage{
 lifetab2(formula, data, subset, breaks = NULL)
+\method{plot}{lifetab2}(x, y=NULL, ...)
+\method{lines}{lifetab2}(x, y=NULL, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -28,14 +32,17 @@ lifetab2(formula, data, subset, breaks = NULL)
     optional numeric vector of breaks. If this is not provided, then the
     unique time values from the \code{Surv} object are used together
     with \code{Inf}.
-}
+  }
+  \item{x}{\code{lifetab2} object}
+  \item{y}{unused argument (part of the generic function)}
+  \item{\dots}{other arguments}
 }
 \details{
 See \code{lifetab} for details. This wrapper is meant to make
 life easier.
 
 A copy of the \code{lifetab} function has been included in
-the \code{biostat3} package to reduce dependencies.
+the \pkg{biostat3} package to reduce dependencies.
 }
 \value{
   A \code{data.frame} as per \code{\link{lifetab}}.

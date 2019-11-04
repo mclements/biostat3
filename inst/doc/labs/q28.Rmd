@@ -3,10 +3,9 @@ title: "Biostatistics III in R"
 author:
 - Code by Xing-Rong Liu and Mark Clements
 output:
-  html_document:
-    theme: null
-  html_vignette: default
-  prettydoc::html_pretty: default
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
 ---
 
 ## Exercise 28. Flexible parametric survival models in R ##
@@ -30,151 +29,118 @@ require.
 ```{r loadDependencies, message=FALSE}
 ```
 
-We start by reading the data and then define a 1/0 varible for the
-events that we are interested in.
+We start by reading the melanoma data, restrict to localised cancer, define cause-specific death through to at most 120 months as the event, express the time in years, and then define 1/0 varibles for age groups.
 
 ```{r loadPreprocess}
 ```
 
 ##(a)## 
-Flexible parametric model with df=4.
+First, fit a flexible parametric model adjusting for calendar period of diagnosis (`year8594`) with four degrees of freedom for the baseline log cumulative hazard function, and use the `summary` method. How do you interpret the period effect?
 
 ```{r a_flex}
 ```
 
-Making a cox model for comparison.
-```{r a_cox}
-```
-The hazard ratio, 95% confidence interval and statistical significance
-are very similar to the Cox model.
+Also fit a similar Cox model. How similar are the points estimates and standard errors for the parameters that are in both models? 
+
+For those parameters in the stpm2 model that are not in the Cox model, what do those parameters represent?
+<!-- ```{r a_cox} -->
+<!-- ``` -->
 
 ##(b)## 
-Prediction and plots of survival and hazard by calendar
-period.
+Using the fitted model, present plots for survival and hazards by calendar period. What do you observe?
 
+Example `ggplot2` code for survival is below:
 ```{r b_surv}
 ```
-Localised skin melanoma. Predicted survival functions from a exible
-parametric model.
 
+Example code using `base` graphics is below:
 ```{r b_haz}
 ```
-Localised skin melanoma. Predicted hazard functions from a exible
-parametric model.
 
 ##(c)## 
-Plotting the hazards on the log scale. There is a constant
-difference as the predictions are from a proportional hazards model
-and a multiplicative effect becomes additive on the log scale.
+Plotting the hazards on the log scale. Is there evidence that the difference in predictions is similar by time? Does the plot suggest that the model assumes proportionality?
 
 ```{r c_haz_log}
 ```
-Localised skin melanoma. Predicted hazard functions on log scale from
-a exible parametric model.
 
 ##(d)## 
-Investigate DF for the baseline with criteria AIC and BIC.
+Investigate varying the degrees of freedom for the baseline using the AIC and BIC criteria.
+
+Re-fit the model with degrees of freedom varying between 1 and 6 degrees of freedom. Calculate the AIC and BIC and extract the beta and standard error for the period term. Which model has the smallest AIC and which has the smallest BIC?
 
 ```{r d_AIC_BIC}
 ```
-The log hazard ratios (and hence the hazard ratios) from 2 df and up
-are similar and for 3 df they are very similar.  The main difference
-is for 1 df, which is equivalent to a Weibull model.  The Weibull
-model enforces a monotonic hazard function and as the hazard function
-in the melanoma data has a turning point it is clearly inappropriate.
 
-The lowest AIC is for the model with 5 df and for the BIC it is the
-model with 2 df.  The penalty term in the AIC is twice the number of
-parameters (2 x k ) whereas in the BIC it is ln( D ) > k where D is
-the number of events.  Since ln( D ) > k the BIC penalizes extra
-parameters much more strongly than AIC.  Since we have a large data set
-and there are no disadvantages to including extra parameters we would
-use 5df for the baseline hazard.
+Finally, is it clear why we use the AIC and BIC criteria rather than using likelihood ratio tests?
 
 ##(e)## 
-Plots of predicted baseline survivals and hazards with df=1:6.
+Plots of predicted baseline survivals and hazards with varying degrees of freedom.
+
+We first plot survival by varying the degrees of freedom:
 
 ```{r e_base_surv}
 ```
-With the exception of 1 df (the Weibull model), the survival and
-hazard functions show similar shapes, so as long we have enough knots
-our conclusions would be very similar.
 
-##(f)## 
-Adjust for sex and age (in categories).
+Adapt the above code to work with hazards.
 
-```{r f_sex_age}
-```
+##(f) Adjust for sex and age (in categories) ##
 
-The estimates are similar to those obtained from the Cox model.  The
-Wald test yields a very highly significant result, which is similar to
-that obtained from the comparable test for the Cox model.
+Fit a flexible parametric survival model that adjusts for calendar period, sex and age group, with four degrees of freedom for the baseline. How do you interpret the fitted parameters?
+
+Use a likelihod ratio test to assess whether age group contributes significantly to the model fit. How do you interpret the test?
 
 ##(g)## 
-The estimates are so similar because very similar models are
-being fitted with exactly the same covariates.  The two models differ
-only in the manner in which they account for the baseline hazard.  In
-the Cox model it is assumed arbitrary and not directly estimated.  In
-the flexible parametric model the baseline hazard is modelled using
-splines.  The 5 df spline allows sufficient flexibility to make the
-model estimates virtually identical.
+
+Fit a similar model and undertake a similar test using Cox regression. Are the results similar? If so, can you suggest why?
 
 ##(h)## 
-Change to time-varying effect of agegrp2:4.
+Now allow for time-varying effects for the age groups, using 0--44 years as the reference group, with two degrees of freedom for each age-group:time interaction. Using a likelihood ratio test, assess whether the time-varying effects are significant.
 
 ```{r h_time_varying}
 ```
-There is strong evidence of a non-proportional effect of age.
 
 ##(i)## 
-Plot of baseline hazard with fpmh. This baseline is for the
-youngest age group who are male and diagnosed in 1975-1984, i.e, when
-all the covariates are equal to zero.
+Plot of baseline hazard with time-varying effects. 
+
+Plot the hazard for the youngest age group for males diagnosed in 1975--1984.
 
 ```{r i_plot_base_haz}
 ```
 
-##(j)## 
-Hazard ratios between age groups.
+##(j) Hazard ratios between age groups ##
+
+Now plot the hazard ratios for each of the older age groups compared with cases diagnosed aged 0-44 years. For ease of comparison, initially plot the hazard ratios without confidence intervals. Describe the form of the hazard ratios.
 
 ```{r j_age_HR}
 ```
-The hazard ratios decrease as a function of follow-up time.  The
-hazard ratio is so high during the early years of follow-up because
-the hazard in the reference group is close to zero.
 
-```{r j_oldest}
-```
-The hazard ratio for the oldest age group with a 95% confidence
-interval.
+For the hazard ratio comparing those diagnosed aged 75 years and over with those aged 0--44 years, plot the hazard ratio and 95% confidence intervals. 
 
-##(k)## 
-The hazard difference for the oldest group.
+<!-- ```{r j_oldest} -->
+<!-- ``` -->
 
-```{r k_haz_diff}
-```
-Localised skin melanoma.  Predicted difference in hazard rates (with a
-95% confidence interval) for oldest age group from a fexible parametric
-model (other covariates are set to zero).
+Finally, as an extension, use `ggplot` to plot the hazard ratios with confidence intervals using `alpha` transparency. How do you interpret the hazard ratios?
 
-The hazard difference is small early on, despite the hazard ratio
-being large, because the underlying hazard is so low.
+<!-- ```{r j_age_HR_ggplot} -->
+<!-- ``` -->
 
-##(l)## 
-The survival difference for the oldest group.
+##(k) The hazard difference for the oldest group ##
 
-```{r l_surv_diff}
-```
-Localised skin melanoma.  Predicted difference in survival functions
-(with a 95% confidence interval) for oldest age group from a flexible
-parametric model (for females diagnosed in 1984-1994).
+There are a number of other target parameters that we can estimate. One is the difference in hazards between groups. Plot the hazard for those aged 75 years and over minus the hazard for those aged 0--44 years. Describe the general pattern.
 
-##(m)## 
-Fit models with 1, 2 and 3 df for time-dependent effect of age.
+<!-- ```{r k_haz_diff} -->
+<!-- ``` -->
 
-```{r m_time_dep_eff}
-```
-AIC selects 2 df and BIC selects 1 df.  As discussed in the previous
-part, the BIC imposes a stronger penalty on aditional parameters.  The
-fitted time-dependent effects are similar.  We would suggest 2 df for
-the time-varying effect of age.
+##(l) The survival difference for the oldest group ##
+
+Similarly, plot the survival difference between those aged 75 years and over and those aged 0--44 years at diagnosis. How will the survival difference be related to the risk difference?
+
+<!-- ```{r l_surv_diff} -->
+<!-- ``` -->
+
+##(m) Fit models with 1, 2 and 3 df for time-dependent effect of age ##
+
+Adapting code from (e), fit models with a varying degrees of freedom for the time-dependent effects for age groups. Also plot the time-varying hazard ratios comparing the hazards for those aged 75 years and over with the hazard for those diagnosed aged 0--44 years.
+
+<!-- ```{r m_time_dep_eff} -->
+<!-- ``` -->

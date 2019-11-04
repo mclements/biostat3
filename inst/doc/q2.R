@@ -42,8 +42,29 @@ plot(hazards,
      col=1:4, lty=1, xlim=c(0,250), ylim=c(0,0.08),
      legend.args=list(bty="n"))
 
+## @knitr a_plotHaz
+library(bshazard)
+library(ggplot2)
+as.data.frame.bshazard <- function(x, ...) {
+    with(x, data.frame(time,hazard,lower.ci,upper.ci))
+}
+hazards <- group_by(melanoma, stage) %>% 
+    do(as.data.frame(bshazard(Surv(surv_mm, death_cancer)~1, data=., verbose=FALSE))) %>% 
+    ungroup
+ggplot(hazards,aes(x=time,y=hazard,group=stage)) + geom_line(aes(col=stage)) +
+    geom_ribbon(aes(ymin=lower.ci, ymax=upper.ci, fill=stage), alpha=0.3) + ylim(0,0.1) +
+    xlab('Follow-up Time') + ylab('Hazard')
+
+
+
 ## @knitr b_crudeRates
+survRate(Surv(surv_mm, death_cancer) ~ stage, data=melanoma)
+
+## @knitr b2_crudeRates
 survRate(Surv(surv_mm/12, death_cancer) ~ stage, data=melanoma)
+
+## @knitr b3_crudeRates
+library(dplyr)
 melanoma %>%
     select(death_cancer, surv_mm, stage) %>%
     group_by(stage) %>%

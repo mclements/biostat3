@@ -35,12 +35,12 @@ plot(mfit_months, conf.int=FALSE,
      ylim=c(0.7,1), cex=5,
      xlab="Time from cancer diagnosis (months)",
      ylab="Survival")
-lty <- lifetab2(Surv(floor(surv_yy),death_cancer)~1, data = localised)
+lty <- lifetab2(Surv(floor(surv_yy)*12,death_cancer)~1, data = localised)
 ltm <- lifetab2(Surv(floor(surv_mm),death_cancer)~1, data = localised)
-kmy <- summary(mfit_years, times=0:20)
-lines((0:20)*12, lty$surv, col="green")
-lines(0:251, ltm$surv, col="orange")
-lines((0:20)*12, kmy$surv, col="red", type="s")
+mfit_years <- survfit(Surv(surv_yy*12, death_cancer) ~ 1, data = localised)
+lines(lty, col="green")
+lines(ltm, col="orange")
+lines(mfit_years, col="red", conf.int=FALSE)
 legend("topright",
        legend=c("KM (months)", "KM (years)", "Actuarial (months)", "Actuarial (years)"),
        lty=1,

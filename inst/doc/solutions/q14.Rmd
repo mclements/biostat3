@@ -26,8 +26,28 @@ You may have to install the required packages the first time you use them. You c
 ```{r loadDependencies, message=FALSE}
 ```
 
-We can use `dagitty` to graph the causal diagram: 
-```{r 14.dag}
+<!-- We can use `dagitty` to graph the causal diagram:  -->
+<!-- ```{r 14.dag} -->
+<!-- ``` -->
+
+The assumed causal diagram is reproduced below: 
+
+```{r,engine='tikz',fig.ext='svg',fig.width=3,echo=FALSE}
+    \usetikzlibrary{arrows,decorations.pathmorphing,backgrounds,positioning,fit,petri,matrix}
+    \begin{tikzpicture}[->,bend angle=20,semithick,>=stealth']
+      \matrix [matrix of nodes,row sep=10mm, column sep=15mm]
+      {
+        |(X)| $X$ & |(C)| $C$ \\
+        & |(T)| $T$ & |(Y)| $(Y,\Delta)$ \\
+        |(U)| $U$ \\
+      };
+      \begin{scope}[every node/.style={auto}]
+        \draw (X) to node[anchor=south] {1} (T);
+        \draw (U) to node[anchor=south] {1} (T);
+        \draw (T) to node[anchor=north] {} (Y);
+        \draw (C) to node[anchor=north] {} (Y);
+      \end{scope}
+    \end{tikzpicture}
 ```
 
 
@@ -81,7 +101,7 @@ We now simulate for rarer outcomes by changing the censoring distribution.
 For rarer outcomes, the marginal estimates that do not model for $U$ are closer to the conditional estimates that have modelled for $U$.
 
 
-## (c) Less heterogeneity ## 
+## (d) Less heterogeneity ## 
 
 We now simulate for less heterogeneity by changing the reducing the standard deviation for the random effect $U$ from 3 to 1. 
 
@@ -95,3 +115,17 @@ We now simulate for less heterogeneity by changing the reducing the standard dev
 ```
 
 The marginal estimates are now much closer to the conditional estimates. For little or no heterogeneity, the marginal and conditional estimates would be very similar.
+
+## (e) Accelerated failure time models ##
+
+We re-run the baseline simulations:
+
+```{r 14.simulate, results='hide'}
+```
+
+The accelerated failure time models have the form $S(t|x,u)=S_0(t/\exp( \beta_1 x + \beta_2 u))$, where the function $S_0(t)$ is expressed in terms of splines. For an exponential distribution, the hazard ratio is equal to the inverse of the ratio of the means --- so we expect values of $-1$ for $x$ and $u$. 
+
+```{r 14.aft}
+```
+
+We see that the model with both $x$ and $u$ estimates values are very close to $-1$ --- which is as expected. Importantly, the model with only $x$ also estimates a value close to $-1$, which shows that the acclerated failure time models are robust to omitted covariates. The standard error for $x$ was smaller in the model with both $x$ and $u$ compared with that for the model with only $x$.

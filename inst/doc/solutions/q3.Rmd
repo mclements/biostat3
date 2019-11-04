@@ -3,10 +3,9 @@ title: "Biostatistics III in R"
 author:
 - Code by Annika Tillander, Andreas Karlsson and Mark Clements
 output:
-  html_document:
-    theme: null
-  html_vignette: default
-  prettydoc::html_pretty: default
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
 ---
 
 # Exercise 3. Localised melanoma: Comparing estimates of cause-specific survival between periods; first graphically and then using the log rank test #
@@ -77,7 +76,7 @@ We see that mortality increases with age at diagnosis (and
 ```
 
 The rates are (cause-specific) deaths per 1000 person-months.
-        When we stset we defined time as time in months and then asked
+        When we use `Surv` we defined time as time in months and then asked
         for rates per 1000 units of time.
 
 ```{r d_plotSurv_sex}

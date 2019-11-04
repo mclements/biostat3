@@ -27,8 +27,8 @@ popmort dataset, with population-based mortality rates
 %% \references{
 %% %%  ~~ possibly secondary sources and usages ~~
 %% }
-%% \examples{
-%% data(popmort)
-%% ## maybe str(popmort) ; plot(popmort) ...
-%% }
+\examples{
+data(popmort)
+## maybe str(popmort) ; plot(popmort) ...
+}
 \keyword{datasets}

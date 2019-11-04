@@ -3,10 +3,9 @@ title: "Biostatistics III in R"
 author:
 - Code by Annika Tillander, Andreas Karlsson and Mark Clements
 output:
-  html_document:
-    theme: null
-  html_vignette: default
-  prettydoc::html_pretty: default
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
 ---
 
 # Exercise 3. Localised melanoma: Comparing estimates of cause-specific survival between periods; first graphically and then using the log rank test #
@@ -45,8 +44,8 @@ The following commands can be used to plot the hazard function (instantaneous mo
 	i.  At what point in the follow-up is mortality highest?
 	ii. Does this pattern seem reasonable from a clinicial/biological perspective? [HINT:Consider the disease with which these patients were classified as being diagnosed along with the expected fatality of the disease as a function of time since diagnosis.]
 
-```{r b_hazDiaDate, results="hide", fig.show="hide"}
-```
+<!-- ```{r b_hazDiaDate, results="hide", fig.show="hide"} -->
+<!-- ``` -->
 
 ## (c) ##
 
@@ -62,11 +61,11 @@ Haven’t heard of the log rank test? It’s possible you may reach this exercis
 
 Estimate cause-specific mortality rates for each age group, and graph Kaplan-Meier estimates of the cause-specific survivor function for each age group. Are there differences between the age groups? Is the interpretation consistent between the mortality rates and the survival proportions?
 
-```{r d_crudeRates1000_agegrp, results="hide", fig.show="hide"}
-```
+<!-- ```{r d_crudeRates1000_agegrp, results="hide", fig.show="hide"} -->
+<!-- ``` -->
 
-```{r d_plotSurv_sex, results="hide", fig.show="hide"}
-```
+<!-- ```{r d_plotSurv_sex, results="hide", fig.show="hide"} -->
+<!-- ``` -->
 
 What are the units of the estimated hazard rates? HINT: look at how you defined time.
 
@@ -74,12 +73,12 @@ What are the units of the estimated hazard rates? HINT: look at how you defined 
 
 Repeat some of the previous analyses using years instead of months. This is equivalent to dividing the time variable by 12 so all analyses will be the same except the units of time will be different (e.g., the graphs will have different labels).
 
-```{r e_crudeRates1000_agegrp, results="hide", fig.show="hide"}
-```
+<!-- ```{r e_crudeRates1000_agegrp, results="hide", fig.show="hide"} -->
+<!-- ``` -->
 
 ## (f) ##
 
 Study whether there is evidence of a difference in patient survival between males and females. Estimate both the hazard and survival function and use the log rank test to test for a difference.
 
-```{r f_sexDiff, results="hide", fig.show="hide"}
-```
+<!-- ```{r f_sexDiff, results="hide", fig.show="hide"} -->
+<!-- ``` -->

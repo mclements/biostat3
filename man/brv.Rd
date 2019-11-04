@@ -2,7 +2,7 @@
 \alias{brv}
 \docType{data}
 \title{
-  Bereavement dataset
+Bereavement dataset
 }
 \description{
 Bereavement dataset
@@ -11,17 +11,17 @@ Bereavement dataset
 \format{
   A data frame with 399 observations on the following 11 variables.
   \describe{
-    \item{\code{id}}{a numeric vector}
-    \item{\code{couple}}{a numeric vector}
-    \item{\code{dob}}{a Date}
-    \item{\code{doe}}{a Date}
-    \item{\code{dox}}{a Date}
-    \item{\code{dosp}}{a Date}
-    \item{\code{fail}}{a numeric vector}
-    \item{\code{group}}{a numeric vector}
-    \item{\code{disab}}{a numeric vector}
-    \item{\code{health}}{a numeric vector}
-    \item{\code{sex}}{a numeric vector}
+    \item{\code{id}}{a numeric vector the id of a subject}
+    \item{\code{couple}}{a numeric vector for the id of a couple}
+    \item{\code{dob}}{a Date for the date of birth}
+    \item{\code{doe}}{a Date for the date of entry into study}
+    \item{\code{dox}}{a Date for the date of exit from study}
+    \item{\code{dosp}}{a Date for the date of bereavement}
+    \item{\code{fail}}{a numeric vector for status at study exit 0=alive 1=died}
+    \item{\code{group}}{a numeric vector for Group}
+    \item{\code{disab}}{a numeric vector for disability level}
+    \item{\code{health}}{a numeric vector for perceived health status}
+    \item{\code{sex}}{a numeric vector for sex 1=M 2=F}
   }
 }
 %% \details{
@@ -33,8 +33,8 @@ Bereavement dataset
 %% \references{
 %% %%  ~~ possibly secondary sources and usages ~~
 %% }
-%% \examples{
-%% data(brv)
-%% ## maybe str(brv) ; plot(brv) ...
-%% }
+\examples{
+data(brv)
+## maybe str(brv) ; plot(brv) ...
+}
 \keyword{datasets}

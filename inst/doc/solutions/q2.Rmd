@@ -3,10 +3,9 @@ title: "Biostatistics III in R"
 author:
 - Code by Annika Tillander, Andreas Karlsson and Mark Clements
 output:
-  html_document:
-    theme: null
-  html_vignette: default
-  prettydoc::html_pretty: default
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
 ---
 
 # Exercise 2. Comparing survival proportions and mortality rates by stage for cause-specific and all-cause survival #
@@ -22,91 +21,77 @@ Load dependencies
 ```{r loadDependencies, message=FALSE}
 ```
 
-We start by listing the first few observations to get an idea about the data. We then define two 1/0 variables for the events that we are interested in.
+We start by listing the first few observations to get an idea about the data. We then define two 1/0 variables for the events that we are interested in. 
 
 ```{r loadPreprocess}
 ```
 
-## (a) Plot estimates of the survivor function and hazard function by stage. ##
+We convert the logical variables to 0/1 because some of the `R` functions use logical variables (with values `TRUE` and `FALSE`) as factors. A short-hand approach for converting `TRUE` to 1 and `FALSE` to 0 is to add 0:
 
+```{r}
+c(TRUE,FALSE)+0
+```
+
+## (a) Plot estimates of the survivor function and hazard function by stage ##
 We now tabulate the distribution of the melanoma patients by cancer stage at diagnosis.
 
 ```{r a_tabulate}
 ```
 
-We then plot the survival by stage. 
+We then plot the survival and survival by stage. 
 
 ```{r a_plotSurv}
 ```
 
 Survival depends heavily on stage. It is interesting to note
-        that patients with stage 0 (unknown) appear to have a similar
-        survival to patients with stage 1 (localized).
+that patients with stage 0 (unknown) appear to have a similar
+survival to patients with stage 1 (localized).
+
+As an extension, we can use the`bshazard` to calculate the hazards with confidence intervals (see below). Note, however, that the bshazard function will _adjust_ for covariates rather than stratify by covariates. This means that we need to divide the dataset into strata and calculate the smoothed hazards separately. I have shown one approach using `dplyr` for dividing the data, with he plots use `ggplot`, which allows for over-lapping confidence intervals (using the `alpha` transparency argument).
+
+```{r a_plotHaz}
+```
 
 
-## (b) Estimate the mortality rates for each stage using, for example, the new `survRate` command. ##
+## (b) Estimate the mortality rates for each stage using, for example, the  `survRate` command ##
 
 ```{r b_crudeRates}
 ```
 
 The time unit is months (since we specified `surv_mm` as the analysis
-        time). Therefore, the units of the rates shown above are
-        events/person-month. We could multiply these rates by 12 to
-        obtain estimates with units events/person-year. For example,
+time). Therefore, the units of the rates shown above are
+events/person-month. 
 
-            . stset surv_mm, failure(status==1) scale(12)
-            . strate stage
 
-                     failure _d:  status == 1
-               analysis time _t:  surv_mm/12
+## (c) ##
+Here we tabulate crude rates per person-year and per 1000 person-years. We could divide the times by 12 to obtain estimates with units of the number of events per person-year. For example,
 
-            Estimated rates and lower/upper bounds of 95% confidence intervals
-            (7775 records included in the analysis)
-              +--------------------------------------------------------------+
-              |     stage      D          Y       Rate      Lower      Upper |
-              |--------------------------------------------------------------|
-              |   Unknown    274    1.0e+04   0.026687   0.023707   0.030042 |
-              | Localised   1013    3.9e+04   0.026225   0.024659   0.027891 |
-              |  Regional    218    1.5e+03   0.145309   0.127245   0.165937 |
-              |   Distant    408   875.7500   0.465886   0.422804   0.513359 |
-              +--------------------------------------------------------------+
-
-## (c) Here we tabulate crude rates per 1000 person years. ###
-
-To obtain mortality rates per 1000 person years:
+```{r b2_crudeRates}
+```
+To obtain mortality rates per 1000 person-years:
 
 ```{r c_crudeRates1000}
 ```
 
-Estimated rates (per 1000) and lower/upper bounds of 95% confidence intervals
-            (7775 records included in the analysis)
-
-              +----------------------------------------------------------+
-              |     stage      D         Y      Rate     Lower     Upper |
-              |----------------------------------------------------------|
-              |   Unknown    274   10.2671    26.687    23.707    30.042 |
-              | Localised   1013   38.6266    26.225    24.659    27.891 |
-              |  Regional    218    1.5003   145.309   127.245   165.937 |
-              |   Distant    408    0.8758   465.886   422.804   513.359 |
-              +----------------------------------------------------------+
-
-
-## (d) Below we see that the crude mortality rate is higher for males than for females. ##
+## (d) ##
+Below we see that the crude mortality rate is higher for males than for females.
 
 ```{r d_crudeRates1000_sex}
 ```
 
 We see that the crude mortality rate is higher for males than
-        females, a difference which is also reflected in the survival
-        and hazard curves
+females, a difference which is also reflected in the survival
+and hazard curves:
 
+```{r d_plotSurv_sex}
+```
 
 ## (e) ##
 
 The majority of patients are alive at end of study. 1,913 died
-        from cancer while 1,134 died from another cause. The cause of
-        death is highly depending of age, as young people die less from
-        other causes. To observe this we tabulate the events by age group.
+from cancer while 1,134 died from another cause. The cause of
+death is highly depending of age, as young people die less from
+other causes. To observe this we tabulate the events by age group.
 
 ```{r e_tabByAge}
 ```
@@ -131,4 +116,3 @@ By comparing Kaplan-Meier estimates for cancer deaths with all-cause mortality c
 
 ```{r h_allCaAgeGrp}
 ```
-

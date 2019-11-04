@@ -3,10 +3,9 @@ title: "Biostatistics III in R"
 author:
 - Code by Bénédicte Delcoigne and Mark Clements
 output:
-  html_document:
-    theme: null
-  html_vignette: default
-  prettydoc::html_pretty: default
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
 ---
 
 # Exercise 25. Localised melanoma : generating and analysing a nested case-control (NCC) study #

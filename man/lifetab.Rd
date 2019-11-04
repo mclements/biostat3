@@ -18,6 +18,8 @@ lifetab(tis, ninit, nlost, nevent)
 }
 \value{
   A data.frame with the following columns:
+  \item{tstart}{ interval start time.}
+  \item{tstop}{ interval end time.}
   \item{nsubs}{ the number of subject entering the intervals
     who have not experienced the event.}
   \item{nlost}{ the number of individuals lost follow or
@@ -40,6 +42,11 @@ lifetab(tis, ninit, nlost, nevent)
     function at the midpoint of the intervals}
   The row.names are the intervals.
 }
+\details{
+  This is a minor update of the \code{lifetab} function from the
+  \pkg{KMsurv} package, where the start and stop times of the intervals
+  are now included in the return value.
+  }
 \author{ Jun Yan \email{jyan@stat.uconn.edu} }
 \examples{
 tis <- c(0, 2, 3, 5, 7, 11, 17, 25, 37, 53, NA)

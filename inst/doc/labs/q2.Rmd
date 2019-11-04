@@ -3,10 +3,9 @@ title: "Biostatistics III in R"
 author:
 - Code by Annika Tillander, Andreas Karlsson and Mark Clements
 output:
-  html_document:
-    theme: null
-  html_vignette: default
-  prettydoc::html_pretty: default
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
 ---
 
 
@@ -35,57 +34,52 @@ We start by listing the first few observations to get an idea about the data. We
 ```{r loadPreprocess, results='markup'}
 ```
 
-## (a) Plot estimates of the survivor function and hazard function by stage. ##
+## (a) Plot estimates of the survivor function and hazard function by stage ##
 
 We now tabulate the distribution of the melanoma patients by cancer stage at diagnosis.
 
 ```{r a_tabulate}
 ```
 
-We then plot the survival by stage. Does it appear that stage is associated with patient survival?
+We then plot the survival and hazards by stage. Does it appear that stage is associated with patient survival?
 
 ```{r a_plotSurv}
 ```
 
-## (b) Estimate the mortality rates for each stage using, for example, the `survRate` command. ##
+As an extension, this could be calculated using the `bshazard` package, with plotting using either `ggplot2` or `lattice` packages.
 
+## (b) Estimate the mortality rates for each stage using, for example, the `survRate` command ##
 
 ```{r b_crudeRates}
 ```
 
 What are the units of the estimated rates? The `survRate` function, as the name suggests, is used to
         estimates rates. Look at the help pages if you are not familiar
-        with the function.
+        with the function (e.g. `?survRate` or `help(survRate)`).
 
 
-## (c) If you haven’t already done so, estimate the mortality rates for each stage per 1000 person-years of follow-up. ##
-
-```{r c_crudeRates1000}
-```
+## (c) ##
+If you haven’t already done so, estimate the mortality rates for each stage per person-year and per 1000 person-years of follow-up.
 
 ## (d) ##
 
 Study whether survival is different for males and females (both
         by plotting the survivor function and by tabulating
         mortality rates).
-
-```{r d_plotSurv_sex}
-```
-
 Is there a difference in survival between males and females? If
         yes, is the difference present throughout the follow up?
 
 ## (e) ##
 
 The plots you made above were based on cause-specific survival
-        (i.e., only deaths due to cancer are counted as events, deaths
-        due to other causes are censored). In the next part of this
-        question we will estimate all-cause survival (i.e., any death is
-        counted as an event). First, however, study the coding of vital
-        status and tabulate vital status by age group.
+(i.e., only deaths due to cancer are counted as events, deaths
+due to other causes are censored). In the next part of this
+question we will estimate all-cause survival (i.e., any death is
+counted as an event). First, however, study the coding of vital
+status and tabulate vital status by age group.
 
 How many patients die of each cause? Does the distribution of
-        cause of death depend on age?
+cause of death depend on age?
 
 
 ```{r e_tabByAge}
@@ -94,32 +88,23 @@ How many patients die of each cause? Does the distribution of
 ## (f) ##
 
 To get all-cause survival, specify all deaths (both cancer
-        and other) as events.
+and other) as events.
 
 Now plot the survivor proportion for all-cause survival
-        by stage. We name the graph to be able to separate them in the
-        graph window. Is the survivor proportion different compared to
-        the cause-specific survival you estimated above? Why?
-```{r f_survStage}
-```
+by stage. We name the graph to be able to separate them in the
+graph window. Is the survivor proportion different compared to
+the cause-specific survival you estimated above? Why?
 
 ## (g) ##
 
 It is more common to die from a cause other than cancer in
-        older ages. How does this impact the survivor proportion for
-        different stages? Compare cause-specific and all-cause survival
-        by plotting the survivor proportion by stage for the oldest age
-        group (75+ years) for both cause-specific and
-        all-cause survival.
-
-		
-```{r g_allCa75p}
-```
+older ages. How does this impact the survivor proportion for
+different stages? Compare cause-specific and all-cause survival
+by plotting the survivor proportion by stage for the oldest age
+group (75+ years) for both cause-specific and
+all-cause survival.
 
 ## (h) ##
 
 Now estimate both cancer-specific and all-cause survival for
         each age group.
-
-```{r h_allCaAgeGrp}
-```

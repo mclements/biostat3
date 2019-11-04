@@ -12,6 +12,7 @@
 library(biostat3)  
 library(rstpm2)  # for the flexible parametric model
 library(dplyr)   # for data manipulation
+library(ggplot2)
 
 ## @knitr loadPreprocess
 data(melanoma)
@@ -27,11 +28,9 @@ melanoma0 <- melanoma %>% filter(stage=="Localised") %>%
 
 ## @knitr a_flex
 ## (a) Flexible parametric model with df=4
-
 fpma <- stpm2(Surv(time,event) ~ year8594, data=melanoma0, df=4)
-exp(cbind(IRR=coef(fpma),confint(fpma)))
-## updated package: eform(fpma)
 summary(fpma)
+eform(fpma)["year8594Diagnosed 85-94",]
 
 ## @knitr a_cox
 cox <- coxph(Surv(time, event) ~ year8594,
@@ -41,211 +40,174 @@ summary(cox)
 ## @knitr b_surv
 ## (b) Prediction and plots of survival and hazard by calendar period
 years <- levels(melanoma0$year8594)
-alegend <- function() legend("topright", legend=years, col=1:2, lty=1, bty="n")
 
-plot(fpma,newdata=data.frame(year8594=years[1]),
-     xlab="Time since diagnosis (years)")
-lines(fpma,newdata=data.frame(year8594=years[1]), ci=FALSE) # repeated
-alegend()
+s <- predict(fpma,newdata=data.frame(year8594=years),grid=TRUE,full=TRUE,se.fit=TRUE)
+ggplot(s, aes(x=time,y=Estimate,fill=year8594,ymin=lower,ymax=upper)) +
+    xlab("Time since diagnosis (years)") +
+    ylab("Survival") +
+    geom_ribbon(alpha=0.6) +
+    geom_line()
 
 ## @knitr b_haz
 plot(fpma,newdata=data.frame(year8594=years[1]), type="haz",
      xlab="Time since diagnosis (years)", ylab="Hazard")
 lines(fpma,newdata=data.frame(year8594=years[2]), type="haz", col=2)
-alegend()
+legend("topright", legend=years, col=1:2, lty=1, bty="n")
+
 
 ## @knitr c_haz_log
 ## (c) hazards on log scale, adding log="y"
 plot(fpma,newdata=data.frame(year8594=years[1]), type="haz",
-     xlab="Time since diagnosis (years)", log="y", ci=FALSE,
-     ylab="Hazard (log scale)")
+     xlab="Time since diagnosis (years)", 
+     ylab="Hazard (log scale)",main=years[1], log="y", ylim=c(0.01,0.07))
 lines(fpma,newdata=data.frame(year8594=years[2]), type="haz", col=2)
-alegend()
+legend("topright", legend=years, col=1:2, lty=1, bty="n")
 
 ## @knitr d_AIC_BIC
-summary(fpma)
-aicc <- bicc <- beta <- se <- rep(NULL,6)
-BIC <- function(object, nknots){
-    -2 * as.numeric(bbmle::logLik(object)) + log(sum(melanoma0$event)) * (1 + nknots)
-}
-
-for (i in 1:6 ) {
-  fitaic <- stpm2(Surv(time, event) ~ year8594, data=melanoma0, df=i)
-  aicc[i] <- AIC(fitaic)
-  bicc[i] <- BIC(fitaic, i)
-  beta[i] <- as.numeric(coef(fitaic)[2])
-  se[i] <- as.numeric(sqrt(fitaic@vcov[2,2]))
-}
-rbind(beta=beta, se=se, aicc=aicc, bicc=bicc)
+## utility function to row bind from a list
+Rbind <- function(object) do.call(rbind,object)
+out <- lapply(1:6, function(i) {
+    fitaic <- stpm2(Surv(time, event) ~ year8594, data=melanoma0, df=i)
+    data.frame(
+        i,
+        AIC=AIC(fitaic),
+        BIC=BIC(fitaic),
+        beta=as.numeric(coef(fitaic)[2]),
+        se=coef(summary(fitaic))[2,2])
+})
+out %>% Rbind
 
 ## @knitr e_base_surv
 ## Baseline survival
 fitaic0 <- stpm2(Surv(time, event) ~ year8594, data=melanoma0, df=6)
-plot(fitaic0,newdata=data.frame(year8594=years[1]), lty=6, ci=F,
+plot(fitaic0,newdata=data.frame(year8594=years[1]), lty=6, ci=FALSE,
      xlab="Time since diagnosis (years)")
-
-dfs <- c("s_df1","s_df2","s_df3","s_df4","s_df5","s_df6")
 for (i in 1:5 ) {
   fitaic <- stpm2(Surv(time, event) ~ year8594, data=melanoma0, df=i)
-  plot(fitaic,newdata=data.frame(year8594=years[1]), add=TRUE,lty=i,
-       xlab="Time since diagnosis (years)")
+  lines(fitaic,newdata=data.frame(year8594=years[1]), lty=i)
 }
-legend("topright", legend=dfs[1:6], lty=1:6)
+legend("topright", legend=paste0("df=",1:6), lty=1:6)
 
+## @knitr e_base_haz
 ## Baseline hazard
 fitaic1 <- stpm2(Surv(time, event) ~ year8594, data=melanoma0, df=6)
 plot(fitaic1,newdata=data.frame(year8594=years[1]), lty=6, type="haz",
-     ci=F, xlab="Time since diagnosis (years)", ylab="Hazard")
-
+     ci=FALSE, xlab="Time since diagnosis (years)", ylab="Hazard")
 for (i in 1:5 ) {
   fitaic <- stpm2(Surv(time, event) ~ year8594, data=melanoma0, df=i)
-  plot(fitaic,newdata=data.frame(year8594=years[1]), add=TRUE, lty=i,
-       type="haz", xlab="Time since diagnosis (years)", ylab="Hazard")
+  lines(fitaic,type="haz",newdata=data.frame(year8594=years[1]), lty=i)
 }
-dfs2 <- c("h_df1","h_df2","h_df3","h_df4","h_df5","h_df6")
-legend("topright", legend=dfs2[1:6], lty=1:6)
+legend("topright", legend=paste0("df=",1:6), lty=1:6)
 
 ## @knitr f_sex_age
 fpmf <- stpm2(Surv(time, event) ~ sex + year8594 + agegrp,
               data=melanoma0, df=4)
-
-beta <- coef(fpmf)[2:6] ## log(HR)
-se <- sqrt(diag(fpmf@vcov[2:6,2:6]))            # standard errors of beta
-z <- beta/se                                    # z-scores
-confin <- cbind(beta - 1.96*se, beta + 1.96*se) # 95% confidence interval of beta=log(HR)
-p_value <- 1-pchisq((beta/se)^2, 1)             # Wald-type test of beta
-
-## Summaries of Beta and HR
-cbind(beta = beta, se = se, z = beta/se, p_value = p_value) # summaries of beta
-cbind(HR = exp(beta), lower.95 = exp(confin)[,1], upper.95 =  exp(confin)[,2])
-
-## To test the joint significance of categorized age with Wald-type test
-## Joint H0:
-##          beta_(agegrp45-59) = 0
-##          beta_(agegrp60-74) = 0
-##          beta_(agegrp75+) = 0
-statistic <- t(coef(fpmf)[4:6]) %*% solve(vcov(fpmf)[4:6,4:6]) %*% coef(fpmf)[4:6]
-p_value <- 1 - pchisq(statistic, 3)
-cbind(chi2_statistics =statistic, P_value = p_value)
+summary(fpmf)
+eform(fpmf)[2:6,]
 
 ## To test the overall effect of age with LR test
-fpmf2 <- stpm2(Surv(time,event) ~ sex + year8594 , data=melanoma0, df=4)
+fpmf2 <- stpm2(Surv(time,event) ~ sex + year8594, data=melanoma0, df=4)
 anova(fpmf, fpmf2)
+
+
+## @knitr g_sex_age
+summary(fit <- coxph(Surv(time, event) ~ sex + year8594 + agegrp,
+                     data=melanoma0))
+anova(fit)
 
 ## @knitr h_time_varying
 ## (h) Change to time-varying effect of agegrp2:4
-## NB: including main effect of agerp
+## NB: including main effect of agegrp
 fpmh <- stpm2(Surv(time,event) ~ sex + year8594 + agegrp2 + agegrp3 + agegrp4,
               data=melanoma0, tvc=list(agegrp2 = 2, agegrp3 = 2, agegrp4 = 2),
-              smooth.formula=~ nsx(log(time),df=4)  )
-## NB: no main effect of agegrp
-fpmh1 <- stpm2(Surv(time,event) ~ sex + year8594 ,
-               data=melanoma0, tvc=list(agegrp2 = 2, agegrp3 = 2, agegrp4 = 2),
-               smooth.formula=~ nsx(log(time),df=4)  )
-
-beta <- coef(fpmh)[2:6] ## log(HR)
-se <- sqrt(diag(fpmh@vcov[2:6,2:6])) ## standard errors of beta
-z <- beta/se ## z-scores
-confin <- cbind(beta - 1.96*se, beta + 1.96*se) ## 95% confidence interval of beta=log(HR)
-p_value <- 1-pchisq((beta/se)^2, 1) ## Wald-type test of beta
-
-## Summaries of Beta and HR
-cbind(beta = beta, se = se, z = beta/se, p_value = p_value) ## summaries of beta
-cbind(HR = exp(beta), lower.95 = exp(confin)[,1], upper.95 =  exp(confin)[,2])
+              df=4)
+summary(fpmh)
 
 ## LR test comparing fpmh (non-PH for agegrp2:4) with fpmf(PH for agegrp2:4)
 anova(fpmh, fpmf)
-anova(fpmh1, fpmf)
 
+## @knitr h_time_varying_penalised
 ## I investigated the non-proportional effect of age with penalized models
 ## here, sp is the optimal smoothing parameters estimated from models without sp argument
-pfit0 <- pstpm2(Surv(time,event) ~ sex + year8594 + agegrp2 + agegrp3 + agegrp4,
-                smooth.formula=~s(log(time)), data=melanoma0, sp=0.1359685)
+pfit0 <- pstpm2(Surv(time,event) ~ sex + year8594 + agegrp,
+                data=melanoma0, sp=0.1359685)
 
 ## The time-dependent effects including linear forms of age groups
-pfit1 <- pstpm2(Surv(time,event) ~ sex + year8594,
-                smooth.formula=~s(log(time)) + s(log(time),by=agegrp2) +
-                                s(log(time),by=agegrp3) + s(log(time),by=agegrp4),
+pfit1 <- pstpm2(Surv(time,event) ~ sex + year8594 + agegrp2 + agegrp3 + agegrp4,
+                tvc=list(agegrp2=7,agegrp3=7,agegrp4=7),
                 data=melanoma0, sp=c( 0.1429949, 1.6133966, 1.3183117, 1.9958815))
 anova(pfit1, pfit0)## the results also suggest there is strong evidence
 
 ## @knitr i_plot_base_haz
-## (i) Plot of baseline hazard with fpmh
-sexs <- levels(melanoma$sex)
+## Plot of baseline hazard with fpmh
+sexes <- levels(melanoma$sex)
 years <- levels(melanoma$year8594)
 agegrps <- levels(melanoma$agegrp)
-par(mfrow=c(1,1))
-newdata1 <- data.frame(sex=sexs[1],year8594=years[1],agegrp2=0, agegrp3=0, agegrp4=0)
-plot(fpmh,newdata=newdata1, xlab="Time since diagnosis (years)", ylab="Hazard",
-     type="haz", ci=FALSE, ylim=c(0,0.051), rug=FALSE)
-legend("topright", legend=c(sexs[1], years[1], agegrps[1]), lty=1, bty="n")
+newdata1 <- data.frame(sex=sexes[1],year8594=years[1],agegrp2=0, agegrp3=0, agegrp4=0)
+plot(fpmh, newdata=newdata1, xlab="Time since diagnosis (years)", 
+     type="haz")
 
 ## @knitr j_age_HR
-plot(fpmh, newdata=data.frame(sex=sexs[1],year8594=years[1],agegrp2=0, agegrp3=0, agegrp4=0),
-     type="hr", rug=FALSE, line.col=1, ci=FALSE,log="y", ylim=c(1,500), lty=1,
-     exposed=function(data) transform(data,sex=sexs[1],year8594=years[1],agegrp2=1, agegrp3=0, agegrp4=0),
-     xlab="Time since diagnosis (years)",ylab="Hazards ratio")
-plot(fpmh, newdata=data.frame(sex=sexs[1],year8594=years[1],agegrp2=0, agegrp3=0, agegrp4=0),
-     type="hr", rug=FALSE, line.col=1, ci=FALSE, add=T,log="y", lty=2,
-     exposed=function(data) transform(data,sex=sexs[1],year8594=years[1],agegrp2=0, agegrp3=1, agegrp4=0),
-     xlab="Time since diagnosis (years)",ylab="Hazards ratio")
-plot(fpmh, newdata=data.frame(sex=sexs[1],year8594=years[1],agegrp2=0, agegrp3=0, agegrp4=0),
-     type="hr", rug=FALSE, line.col=1, ci=FALSE,add=T,log="y", lty=3,
-     exposed=function(data) transform(data,sex=sexs[1],year8594=years[1],agegrp2=0, agegrp3=0, agegrp4=1),
-     xlab="Time since diagnosis (years)",ylab="Hazards ratio")
-legend("topright", legend=agegrps[2:4], lty=1:3)
+plot(fpmh, newdata=newdata1, xlab="Time since diagnosis (years)",
+     type="hr",var="agegrp2", ci=FALSE, ylim=c(0,6))
+lines(fpmh, newdata=newdata1, type="hr", var="agegrp3", lty=2)
+lines(fpmh, newdata=newdata1, type="hr", var="agegrp4", lty=3)
+legend("topright", legend=paste0(agegrps[-1]," vs 0-44"), lty=1:3)
 
 ## @knitr j_oldest
-plot(fpmh, newdata=data.frame(sex=sexs[1],year8594=years[1],agegrp2=0, agegrp3=0, agegrp4=0),
-     type="hr", rug=FALSE, line.col=1, ci=T, log="y",
-     exposed=function(data) transform(data,sex=sexs[1],year8594=years[1],agegrp2=0, agegrp3=0, agegrp4=1),
-     xlab="Time since diagnosis (years)",ylab="Hazards ratio")
+plot(fpmh, newdata=newdata1,
+     type="hr", log="y",
+     exposed=function(data) transform(data,agegrp4=agegrp4+1), # same as var="agegrp4"
+     xlab="Time since diagnosis (years)")
+
+## @knitr j_age_HR_ggplot
+pred <- lapply(2:4, function(i)
+    predict(fpmh, newdata=newdata1, type="hr",var=paste0("agegrp",i),
+            grid=TRUE, se.fit=TRUE, full=TRUE) %>%
+    mutate(ageGroup=paste0(agegrps[i]," vs 0-44")))
+pred <- Rbind(pred)
+ggplot(pred, aes(x=time,y=Estimate,fill=ageGroup,ymin=lower,ymax=upper)) +
+    geom_ribbon(alpha=0.3) +
+    geom_line() +
+    ylim(0,8) +
+    xlab("Time since diagnosis (years)") +
+    ylab("Hazard ratio") +
+    labs(fill="Age group")
 
 ## @knitr k_haz_diff
-plot(fpmh,newdata=data.frame(sex=sexs[1],year8594=years[1],agegrp2=0, agegrp3=0, agegrp4=0),
-     type="hdiff", rug=FALSE, line.col=1, ci=T,
-     exposed=function(data) transform(data,sex=sexs[1],year8594=years[1],agegrp2=0, agegrp3=0, agegrp4=1),
-     xlab="Time since diagnosis (years)",ylab="Hazards difference")
+plot(fpmh,newdata=newdata1,
+     type="hdiff", var="agegrp4",
+     xlab="Time since diagnosis (years)")
 
 ## @knitr l_surv_diff
-plot(fpmh,newdata=data.frame(sex=sexs[1],year8594=years[1],agegrp2=0, agegrp3=0, agegrp4=0),
-     type="sdiff", rug=FALSE, line.col=1, ci=T,
-     exposed=function(data) transform(data, sex=sexs[1],year8594=years[1],agegrp2=0, agegrp3=0, agegrp4=1),
-     xlab="Time since diagnosis (years)",ylab="Survivals difference")
+plot(fpmh,newdata=newdata1,
+     type="sdiff", var="agegrp4",
+     xlab="Time since diagnosis (years)")
 
 ## @knitr m_time_dep_eff
-aicc <- bicc <- beta <- se <- rep(1,3)
-nevent <- sum(melanoma0$event)
-BIC <- function(object, nknots){
-  -2 * as.numeric(bbmle::logLik(object)) + log(nevent) * (1 + nknots)
-}
-for (i in 1:3 ) {
-  fitdf <- stpm2(Surv(time,event) ~ sex + year8594 + agegrp2 + agegrp3 + agegrp4,
-                  data=melanoma0, tvc=list(agegrp2 = i, agegrp3 = i, agegrp4 = i),
-                  smooth.formula=~ nsx(log(time),df=4)  )
-  aicc[i] <- AIC(fitaic)
-  bicc[i] <- BIC(fitaic, i)
-}
-cbind(aicc=aicc, bicc=bicc)
+out <- lapply(1:3, function(i) {
+    fitdf <- stpm2(Surv(time,event) ~ sex + year8594 + agegrp2 + agegrp3 + agegrp4,
+                   data=melanoma0, tvc=list(agegrp2 = i, agegrp3 = i, agegrp4 = i),
+                   df=4)
+    data.frame(i,
+               aic=AIC(fitdf),
+               bic=BIC(fitdf))
+}) 
+out %>% Rbind
 
-## PLots with different df
+## Plots with different df
 fitdf1 <- stpm2(Surv(time,event) ~ sex + year8594 + agegrp2 + agegrp3 + agegrp4, data=melanoma0,
-                tvc = list(agegrp2 = 1, agegrp3 = 1, agegrp4 = 1), smooth.formula=~ nsx(log(time),df=4))
+                tvc = list(agegrp2 = 1, agegrp3 = 1, agegrp4 = 1), df=4)
 
-plot(fitdf1, newdata = data.frame(sex=sexs[1], year8594=years[1], agegrp2=0, agegrp3=0, agegrp4=0),
-     type="hr", rug=FALSE, line.col=1, ci=F, log="y", lty=1,
-     exposed=function(data) transform(data, sex = sexs[1],year8594=years[1],
-                                        agegrp2=0, agegrp3 = 0, agegrp4=1),
-     xlab="Time since diagnosis (years)", ylab="Hazards ratio")
-
+plot(fitdf1, newdata = newdata1,
+     type="hr", ci=FALSE, log="y", var="agegrp4",
+     xlab="Time since diagnosis (years)")
 for (i in 2:3 ) {
     fitdf <- stpm2(Surv(time,event) ~ sex + year8594 + agegrp2 + agegrp3 + agegrp4,
                    data=melanoma0, tvc=list(agegrp2 = i, agegrp3 = i, agegrp4 = i),
-                   smooth.formula=~ nsx(log(time),df=4))
-
-    plot(fitdf, newdata=data.frame(sex=sexs[1],year8594=years[1],agegrp2=0, agegrp3=0, agegrp4=0),
-         type="hr", rug=FALSE, line.col=1, ci=F, log="y", add=T, lty=i,
-         exposed=function(data) transform(data, sex=sexs[1],year8594=years[1],agegrp2=0, agegrp3=0, agegrp4=1),
-         xlab="Time since diagnosis (years)",ylab="Hazards ratio")
+                   df=4)
+    lines(fitdf, newdata=newdata1,
+          type="hr", lty=i,
+          var="agegrp4")
 }
 legend("topright", legend=c("1 df", "2 df", "3 df"), lty=1:3)

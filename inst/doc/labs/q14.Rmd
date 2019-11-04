@@ -26,8 +26,28 @@ You may have to install the required packages the first time you use them. You c
 ```{r loadDependencies, message=FALSE}
 ```
 
-We can use `dagitty` to graph the causal diagram: 
-```{r 14.dag}
+<!-- We can use `dagitty` to graph the causal diagram:  -->
+<!-- ```{r 14.dag} -->
+<!-- ``` -->
+
+The assumed causal diagram is reproduced below: 
+
+```{r,engine='tikz',fig.ext='svg',fig.width=3,echo=FALSE}
+    \usetikzlibrary{arrows,decorations.pathmorphing,backgrounds,positioning,fit,petri,matrix}
+    \begin{tikzpicture}[->,bend angle=20,semithick,>=stealth']
+      \matrix [matrix of nodes,row sep=10mm, column sep=15mm]
+      {
+        |(X)| $X$ & |(C)| $C$ \\
+        & |(T)| $T$ & |(Y)| $(Y,\Delta)$ \\
+        |(U)| $U$ \\
+      };
+      \begin{scope}[every node/.style={auto}]
+        \draw (X) to node[anchor=south] {1} (T);
+        \draw (U) to node[anchor=south] {1} (T);
+        \draw (T) to node[anchor=north] {} (Y);
+        \draw (C) to node[anchor=north] {} (Y);
+      \end{scope}
+    \end{tikzpicture}
 ```
 
 
@@ -81,7 +101,7 @@ We now simulate for rarer outcomes by changing the censoring distribution:
 What do you observe?
 
 
-## (c) Less heterogeneity ## 
+## (d) Less heterogeneity ## 
 
 We now simulate for less heterogeneity by changing the reducing the standard deviation for the random effect $U$ from 3 to 1. 
 
@@ -95,3 +115,11 @@ We now simulate for less heterogeneity by changing the reducing the standard dev
 ```
 
 What do you observe?
+
+
+## (e) Accelerated failure time models ##
+
+As an alternative model class, we can fit _accelerated failure time models_ with a smooth baseline survival function. We can use the *rstpm2::aft* function, which uses splines to model baseline survival. Using the baseline simulation, fit and interpret smooth accelerated failure time models:
+
+```{r 14.aft}
+```
