@@ -6,3 +6,8 @@ R/archive/*
 man/archive/*
 inst/doc/archive/*
 inst/doc/fromAnnika/*
+inst/doc/labs/markdown.*
+inst/doc/labs/q.*_files/*
+inst/doc/solutions/markdown*
+inst/doc/solutions/q.*_files
+^.*\.log$
