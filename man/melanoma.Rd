@@ -9,7 +9,7 @@ Melanoma cancer dataset
 }
 \usage{data("melanoma")}
 \format{
-  A data frame with 7775 observations on the following 14 variables.
+  A data frame with 7775 observations on the following 18 variables.
   \describe{
     \item{\code{sex}}{a factor with levels \code{Male} \code{Female}}
     \item{\code{age}}{a numeric vector}
@@ -25,6 +25,10 @@ Melanoma cancer dataset
     \item{\code{exit}}{a Date}
     \item{\code{agegrp}}{a factor with levels \code{0-44} \code{45-59} \code{60-74} \code{75+}}
     \item{\code{id}}{a numeric vector}
+    \item{\code{ydx}}{a numeric vector for continuous year of diagnosis}
+    \item{\code{yexit}}{a numeric vector for continuous year of exit}
+    \item{\code{bdate}}{a Date vector for date of birth}
+    \item{\code{ybdate}}{a numeric vector for continuous year of birth}
   }
 }
 %% \details{

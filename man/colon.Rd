@@ -9,7 +9,7 @@ Colon cancer dataset
 }
 \usage{data("colon")}
 \format{
-  A data frame with 15564 observations on the following 14 variables.
+  A data frame with 15564 observations on the following 18 variables.
   \describe{
     \item{\code{sex}}{a factor with levels \code{Male} \code{Female}}
     \item{\code{age}}{a numeric vector}
@@ -25,6 +25,10 @@ Colon cancer dataset
     \item{\code{dx}}{a Date}
     \item{\code{exit}}{a Date}
     \item{\code{id}}{a numeric vector}
+    \item{\code{ydx}}{a numeric vector for continuous year of diagnosis}
+    \item{\code{yexit}}{a numeric vector for continuous year of exit}
+    \item{\code{bdate}}{a Date vector for year of birth}
+    \item{\code{ybdate}}{a numeric vector for continuous year of birth}
   }
 }
 %% \details{

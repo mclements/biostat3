@@ -9,7 +9,7 @@ Diet data set
 }
 \usage{data("diet")}
 \format{
-  A data frame with 337 observations on the following 12 variables.
+  A data frame with 337 observations on the following 15 variables.
   \describe{
     \item{\code{id}}{a numeric vector}
     \item{\code{chd}}{a numeric vector}
@@ -20,9 +20,12 @@ Diet data set
     \item{\code{month}}{a numeric vector}
     \item{\code{height}}{a numeric vector}
     \item{\code{weight}}{a numeric vector}
-    \item{\code{doe}}{a Date}
-    \item{\code{dox}}{a Date}
-    \item{\code{dob}}{a Date}
+    \item{\code{doe}}{a Date for date of study entry}
+    \item{\code{dox}}{a Date for date of study exit}
+    \item{\code{dob}}{a Date for date of birth}
+    \item{\code{yob}}{a numeric vector for continuous year of birth}
+    \item{\code{yoe}}{a numeric vector for continuous year of entry}
+    \item{\code{yox}}{a numeric vector for continuous year of exit}
   }
 }
 %% \details{
