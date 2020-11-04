@@ -116,7 +116,7 @@ mel &lt;-<span class="st"> </span><span class="kw">transform</span>(mel,
                  <span class="dt">dc =</span> (mel<span class="op">$</span>status<span class="op">==</span><span class="st">&quot;Dead: cancer&quot;</span> <span class="op">&amp;</span><span class="st"> </span>surv_mm<span class="op">&lt;</span><span class="dv">120</span>)<span class="op">+</span><span class="dv">0</span>,
                  <span class="dt">surv_10y =</span> <span class="kw">pmin</span>(<span class="dv">120</span>, surv_mm))
 <span class="kw">table</span>(mel<span class="op">$</span>dc , mel<span class="op">$</span>status)                            <span class="co"># check</span></code></pre></div>
-<p>The Cox proportional hazard analysis is done thanks to the “coxph” command in the “survival” package. It is often a good idea to check first the structure of the variables.</p>
+<p>The Cox proportional hazard analysis is done thanks to the &quot;coxph&quot; command in the &quot;survival&quot; package. It is often a good idea to check first the structure of the variables.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(mel<span class="op">$</span>sex) ; <span class="kw">str</span>(mel<span class="op">$</span>year8594) ; <span class="kw">str</span>(mel<span class="op">$</span>agegrp)    <span class="co">#Check structure of risk factors/confounders</span>
 out_coh &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_10y,dc) <span class="op">~</span><span class="st"> </span>sex <span class="op">+</span><span class="st"> </span>year8594 <span class="op">+</span><span class="st"> </span>agegrp, <span class="dt">data =</span> mel)
 <span class="kw">summary</span>(out_coh)</code></pre></div>
@@ -135,13 +135,13 @@ ncase</code></pre></div>
 </div>
 <div id="c1" class="section level2">
 <h2>(c1)</h2>
-<p>Generate a nested case-control study with 1 control per case. Cases and controls are matched on time since entry. This is done by using the function “cwcc” in the Epi package. Note that in the codes provided here, the variables “dc” and “id” are not necessary. They permit however to understand how the data are handled as for eample: how many individuals are sampled several times or how many cases happened to be sampled as controls before their failure time.</p>
+<p>Generate a nested case-control study with 1 control per case. Cases and controls are matched on time since entry. This is done by using the function &quot;cwcc&quot; in the Epi package. Note that in the codes provided here, the variables &quot;dc&quot; and &quot;id&quot; are not necessary. They permit however to understand how the data are handled as for eample: how many individuals are sampled several times or how many cases happened to be sampled as controls before their failure time.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">nccdata &lt;-<span class="kw">ccwc</span>( <span class="dt">entry=</span><span class="dv">0</span>, <span class="dt">exit=</span>surv_10y , <span class="dt">fail=</span>dc, <span class="dt">origin=</span><span class="dv">0</span>, <span class="dt">controls=</span><span class="dv">1</span>, <span class="dt">include=</span><span class="kw">list</span>(sex,year8594,agegrp,dc,id), <span class="dt">data=</span>mel )
 <span class="kw">tail</span>(nccdata, <span class="dv">8</span>)</code></pre></div>
 </div>
 <div id="c2" class="section level2">
 <h2>(c2)</h2>
-<p>Analyse the nested case-control data (with the survival package or the Epi package) and function “clogit”. As the ncc data was generated with the Epi package, we use the syntax of this package.</p>
+<p>Analyse the nested case-control data (with the survival package or the Epi package) and function &quot;clogit&quot;. As the ncc data was generated with the Epi package, we use the syntax of this package.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">out_ncc &lt;-<span class="st"> </span><span class="kw">clogit</span>(Fail <span class="op">~</span><span class="st"> </span>sex <span class="op">+</span><span class="st"> </span>year8594 <span class="op">+</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span><span class="kw">strata</span>(Set), <span class="dt">data=</span>nccdata)
 <span class="kw">summary</span>(out_ncc)</code></pre></div>
 </div>
@@ -163,7 +163,7 @@ var                            <span class="co"># print the variances of estimat
 </div>
 <div id="f" class="section level2">
 <h2>(f)</h2>
-<p>Generate several nested case-control study and analyse them. A loop is generated with M sampling of NCC with 1 control per case. The codes provide the estimated HR for each loop i an data frame in which the first line contains the cohort’s HR. The codes provide also a summary table with the cohort’s HR and the mean and sd of the HR provided by the M loops. The histograms for each of the variables include a green vertical line at the cohort’s HR value and a red line at the HR loops’ mean.</p>
+<p>Generate several nested case-control study and analyse them. A loop is generated with M sampling of NCC with 1 control per case. The codes provide the estimated HR for each loop i an data frame in which the first line contains the cohort's HR. The codes provide also a summary table with the cohort's HR and the mean and sd of the HR provided by the M loops. The histograms for each of the variables include a green vertical line at the cohort's HR value and a red line at the HR loops' mean.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">M &lt;-<span class="st"> </span><span class="dv">20</span>                   <span class="co"># Number of loops: change the M value to change the number of loops</span>
 param   &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dv">0</span>,M,<span class="dv">5</span>)  <span class="co"># Define the matrice of the coefficients</span>
 <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>M)  {         <span class="co"># Start of the loop, create NCC data and analyse it</span>

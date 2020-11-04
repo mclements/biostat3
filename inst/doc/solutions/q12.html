@@ -109,8 +109,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>You may have to install the required packages the first time you use them. You can install a package by <code>install.packages(&quot;package_of_interest&quot;)</code> for each package you require.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(biostat3) </code></pre></div>
 <p>Load the melanoma data and explore it.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(melanoma)
-melanoma &lt;-<span class="st"> </span><span class="kw">transform</span>(melanoma,
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">melanoma.l &lt;-<span class="st"> </span><span class="kw">transform</span>(biostat3<span class="op">::</span>melanoma,
                       <span class="dt">death_cancer =</span> <span class="kw">ifelse</span>( status <span class="op">==</span><span class="st"> &quot;Dead: cancer&quot;</span>, <span class="dv">1</span>, <span class="dv">0</span>))</code></pre></div>
 <div id="a" class="section level2">
 <h2>(a)</h2>
@@ -118,10 +117,10 @@ melanoma &lt;-<span class="st"> </span><span class="kw">transform</span>(melanom
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Cox regression with time-since-entry as the timescale</span>
 <span class="co"># Note that R uses the Efron method for approximating the likelihood in the presence of ties,</span>
 <span class="co"># whereas Stata (and some other software) uses the Breslow method</span>
-cox1 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>sex, <span class="dt">data=</span>melanoma)
+cox1 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>sex, <span class="dt">data=</span>melanoma.l)
 <span class="kw">summary</span>(cox1)</code></pre></div>
 <pre><code>## Call:
-## coxph(formula = Surv(surv_mm, death_cancer) ~ sex, data = melanoma)
+## coxph(formula = Surv(surv_mm, death_cancer) ~ sex, data = melanoma.l)
 ## 
 ##   n= 7775, number of events= 1913 
 ## 
@@ -134,7 +133,6 @@ cox1 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw
 ## sexFemale    0.6266      1.596    0.5725    0.6859
 ## 
 ## Concordance= 0.562  (se = 0.006 )
-## Rsquare= 0.013   (max possible= 0.985 )
 ## Likelihood ratio test= 103.7  on 1 df,   p=&lt;2e-16
 ## Wald test            = 102.7  on 1 df,   p=&lt;2e-16
 ## Score (logrank) test = 104.6  on 1 df,   p=&lt;2e-16</code></pre>
@@ -142,11 +140,11 @@ cox1 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw
 <div id="b" class="section level2">
 <h2>(b)</h2>
 <p>After adjusting for a range of potential confounders, we see that the estimated difference in cancer-specific mortality between males and females has decreased slightly but there is still quite a large difference.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cox2 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>sex <span class="op">+</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>stage <span class="op">+</span><span class="st"> </span>subsite <span class="op">+</span><span class="st"> </span>year8594, <span class="dt">data=</span>melanoma)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cox2 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>sex <span class="op">+</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>stage <span class="op">+</span><span class="st"> </span>subsite <span class="op">+</span><span class="st"> </span>year8594, <span class="dt">data=</span>melanoma.l)
 <span class="kw">summary</span>(cox2)</code></pre></div>
 <pre><code>## Call:
 ## coxph(formula = Surv(surv_mm, death_cancer) ~ sex + agegrp + 
-##     stage + subsite + year8594, data = melanoma)
+##     stage + subsite + year8594, data = melanoma.l)
 ## 
 ##   n= 7775, number of events= 1913 
 ## 
@@ -179,7 +177,6 @@ cox1 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw
 ## year8594Diagnosed 85-94    0.7863    1.27172    0.7159    0.8637
 ## 
 ## Concordance= 0.755  (se = 0.006 )
-## Rsquare= 0.212   (max possible= 0.985 )
 ## Likelihood ratio test= 1854  on 11 df,   p=&lt;2e-16
 ## Wald test            = 2579  on 11 df,   p=&lt;2e-16
 ## Score (logrank) test = 4112  on 11 df,   p=&lt;2e-16</code></pre>
@@ -187,11 +184,11 @@ cox1 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw
 <div id="c" class="section level2">
 <h2>(c)</h2>
 <p>Let’s first estimate the effect of gender for each age group without adjusting for confounders.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cox3 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>agegrp <span class="op">*</span><span class="st"> </span>sex, <span class="dt">data=</span>melanoma)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cox3 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>agegrp <span class="op">*</span><span class="st"> </span>sex, <span class="dt">data=</span>melanoma.l)
 <span class="kw">summary</span>(cox3)</code></pre></div>
 <pre><code>## Call:
 ## coxph(formula = Surv(surv_mm, death_cancer) ~ agegrp + agegrp * 
-##     sex, data = melanoma)
+##     sex, data = melanoma.l)
 ## 
 ##   n= 7775, number of events= 1913 
 ## 
@@ -216,7 +213,6 @@ cox1 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw
 ## agegrp75+:sexFemale      1.4736     0.6786    1.1014    1.9717
 ## 
 ## Concordance= 0.622  (se = 0.006 )
-## Rsquare= 0.042   (max possible= 0.985 )
 ## Likelihood ratio test= 332.6  on 7 df,   p=&lt;2e-16
 ## Wald test            = 307.7  on 7 df,   p=&lt;2e-16
 ## Score (logrank) test = 333.9  on 7 df,   p=&lt;2e-16</code></pre>
@@ -226,12 +222,12 @@ cox1 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw
 <div id="d" class="section level2">
 <h2>(d)</h2>
 <p>After having fitted a main effects model we can check the proportional hazards assumption by fitting a regression line through the model-based Schoenfeld residulas and check if the slope is statistically different from zero.</p>
-<p>There is strong evidence that the proportional hazard assumption is not satisfied for the effect of stage. Unless our primary interest is in the stage effect we can fit a stratified Cox model where we stratify on stage (i.e. estimate a separate baseline hazard function for each stage group).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cox4 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>sex <span class="op">+</span><span class="st"> </span>year8594 <span class="op">+</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>subsite <span class="op">+</span><span class="st"> </span>stage, <span class="dt">data=</span>melanoma)
+<p>There is strong evidence that the proportional hazard assumption is not satisfied for the effect of stage. Unless our primary interest is in the stage effect we can fit a stratified Cox model where we stratify on stage (i.e. estimate a separate baseline hazard function for each stage group).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cox4 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>sex <span class="op">+</span><span class="st"> </span>year8594 <span class="op">+</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>subsite <span class="op">+</span><span class="st"> </span>stage, <span class="dt">data=</span>melanoma.l)
 <span class="kw">summary</span>(cox4)</code></pre></div>
 <pre><code>## Call:
 ## coxph(formula = Surv(surv_mm, death_cancer) ~ sex + year8594 + 
-##     agegrp + subsite + stage, data = melanoma)
+##     agegrp + subsite + stage, data = melanoma.l)
 ## 
 ##   n= 7775, number of events= 1913 
 ## 
@@ -264,47 +260,34 @@ cox1 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw
 ## stageDistant              13.7477    0.07274   11.7211   16.1248
 ## 
 ## Concordance= 0.755  (se = 0.006 )
-## Rsquare= 0.212   (max possible= 0.985 )
 ## Likelihood ratio test= 1854  on 11 df,   p=&lt;2e-16
 ## Wald test            = 2579  on 11 df,   p=&lt;2e-16
 ## Score (logrank) test = 4112  on 11 df,   p=&lt;2e-16</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Test proportional hazards assumption
 <span class="kw">cox.zph</span>(cox4, <span class="dt">transform=</span><span class="st">&quot;log&quot;</span>) </code></pre></div>
-<pre><code>##                               rho    chisq        p
-## sexFemale               -1.63e-02 5.18e-01 4.72e-01
-## year8594Diagnosed 85-94 -2.70e-02 1.42e+00 2.34e-01
-## agegrp45-59              3.86e-03 2.88e-02 8.65e-01
-## agegrp60-74              3.99e-03 3.08e-02 8.61e-01
-## agegrp75+               -5.53e-03 6.02e-02 8.06e-01
-## subsiteTrunk             2.59e-03 1.35e-02 9.07e-01
-## subsiteLimbs            -7.45e-04 1.11e-03 9.73e-01
-## subsiteMultiple and NOS -7.57e-02 1.07e+01 1.04e-03
-## stageLocalised           8.32e-02 1.32e+01 2.81e-04
-## stageRegional            5.74e-05 6.27e-06 9.98e-01
-## stageDistant            -1.45e-01 3.85e+01 5.35e-10
-## GLOBAL                         NA 2.09e+02 9.34e-39</code></pre>
+<pre><code>##            chisq df      p
+## sex        0.526  1   0.47
+## year8594   1.185  1   0.28
+## agegrp     2.043  3   0.56
+## subsite   64.648  3  6e-14
+## stage    185.921  3 &lt;2e-16
+## GLOBAL   201.516 11 &lt;2e-16</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cox.zph</span>(cox4, <span class="dt">transform=</span><span class="st">&quot;identity&quot;</span>) <span class="co"># Stata default</span></code></pre></div>
-<pre><code>##                              rho   chisq        p
-## sexFemale                0.03148  1.9231 1.66e-01
-## year8594Diagnosed 85-94 -0.00818  0.1299 7.19e-01
-## agegrp45-59             -0.00845  0.1381 7.10e-01
-## agegrp60-74             -0.00902  0.1575 6.91e-01
-## agegrp75+               -0.02320  1.0579 3.04e-01
-## subsiteTrunk             0.01630  0.5339 4.65e-01
-## subsiteLimbs             0.00361  0.0261 8.72e-01
-## subsiteMultiple and NOS -0.00763  0.1092 7.41e-01
-## stageLocalised           0.08215 12.8687 3.34e-04
-## stageRegional           -0.01842  0.6460 4.22e-01
-## stageDistant            -0.06776  8.3772 3.80e-03
-## GLOBAL                        NA 84.1461 2.32e-13</code></pre>
+<pre><code>##            chisq df      p
+## sex        4.480  1 0.0343
+## year8594   0.208  1 0.6483
+## agegrp     3.951  3 0.2668
+## subsite   19.681  3 0.0002
+## stage     97.393  3 &lt;2e-16
+## GLOBAL   104.673 11 &lt;2e-16</code></pre>
 <p>If we re-do a test for non-proportional hazards we find that there is no longer evidence that any of the remaining covariates effects seem to depend on time since diagnosis.</p>
 <p>Having accounted for the time-dependent effect of stage, there is still no evidence that the effect of sex is modified by age at diagnosis.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Stratified Cox model; separate baseline hazard functions are fit for each strata.
-cox5 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>sex <span class="op">+</span><span class="st"> </span>year8594 <span class="op">+</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>subsite <span class="op">+</span><span class="st"> </span><span class="kw">strata</span>(stage), <span class="dt">data=</span>melanoma)
+cox5 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>sex <span class="op">+</span><span class="st"> </span>year8594 <span class="op">+</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>subsite <span class="op">+</span><span class="st"> </span><span class="kw">strata</span>(stage), <span class="dt">data=</span>melanoma.l)
 <span class="kw">summary</span>(cox5)</code></pre></div>
 <pre><code>## Call:
 ## coxph(formula = Surv(surv_mm, death_cancer) ~ sex + year8594 + 
-##     agegrp + subsite + strata(stage), data = melanoma)
+##     agegrp + subsite + strata(stage), data = melanoma.l)
 ## 
 ##   n= 7775, number of events= 1913 
 ## 
@@ -331,39 +314,30 @@ cox5 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw
 ## subsiteMultiple and NOS    1.2562     0.7960    1.0275    1.5359
 ## 
 ## Concordance= 0.645  (se = 0.008 )
-## Rsquare= 0.035   (max possible= 0.969 )
 ## Likelihood ratio test= 276  on 8 df,   p=&lt;2e-16
 ## Wald test            = 279.6  on 8 df,   p=&lt;2e-16
 ## Score (logrank) test = 286.5  on 8 df,   p=&lt;2e-16</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Test proportional hazards assumption
 <span class="kw">cox.zph</span>(cox5, <span class="dt">transform=</span><span class="st">&quot;log&quot;</span>) </code></pre></div>
-<pre><code>##                              rho    chisq       p
-## sexFemale               -0.01143  0.25311 0.61490
-## year8594Diagnosed 85-94 -0.02319  1.04099 0.30759
-## agegrp45-59              0.00108  0.00226 0.96207
-## agegrp60-74             -0.00137  0.00366 0.95177
-## agegrp75+               -0.00718  0.10146 0.75009
-## subsiteTrunk             0.01169  0.27337 0.60108
-## subsiteLimbs             0.00477  0.04535 0.83136
-## subsiteMultiple and NOS -0.06766  8.53850 0.00348
-## GLOBAL                        NA 16.62536 0.03426</code></pre>
+<pre><code>##           chisq df      p
+## sex       0.351  1 0.5537
+## year8594  1.920  1 0.1659
+## agegrp    0.484  3 0.9224
+## subsite  11.966  3 0.0075
+## GLOBAL   13.820  8 0.0866</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cox.zph</span>(cox5, <span class="dt">transform=</span><span class="st">&quot;identity&quot;</span>) </code></pre></div>
-<pre><code>##                              rho  chisq     p
-## sexFemale                0.03384 2.2209 0.136
-## year8594Diagnosed 85-94 -0.00479 0.0445 0.833
-## agegrp45-59             -0.00998 0.1923 0.661
-## agegrp60-74             -0.01433 0.3977 0.528
-## agegrp75+               -0.02751 1.4897 0.222
-## subsiteTrunk             0.01898 0.7199 0.396
-## subsiteLimbs             0.00527 0.0553 0.814
-## subsiteMultiple and NOS -0.00748 0.1043 0.747
-## GLOBAL                        NA 5.2235 0.733</code></pre>
-<p>If you have time make sure you check for additional interaction terms between the remaining covariates, i.e. between age at diagnosis and stage.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cox5 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>sex <span class="op">*</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>year8594 <span class="op">+</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>subsite <span class="op">+</span><span class="st"> </span><span class="kw">strata</span>(stage), <span class="dt">data=</span>melanoma)
+<pre><code>##          chisq df    p
+## sex      1.456  1 0.23
+## year8594 0.424  1 0.51
+## agegrp   2.646  3 0.45
+## subsite  2.216  3 0.53
+## GLOBAL   6.918  8 0.55</code></pre>
+<p>If you have time make sure you check for additional interaction terms between the remaining covariates, i.e. between age at diagnosis and stage.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cox5 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>sex <span class="op">*</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>year8594 <span class="op">+</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>subsite <span class="op">+</span><span class="st"> </span><span class="kw">strata</span>(stage), <span class="dt">data=</span>melanoma.l)
 <span class="kw">summary</span>(cox5)</code></pre></div>
 <pre><code>## Call:
 ## coxph(formula = Surv(surv_mm, death_cancer) ~ sex * agegrp + 
-##     year8594 + agegrp + subsite + strata(stage), data = melanoma)
+##     year8594 + agegrp + subsite + strata(stage), data = melanoma.l)
 ## 
 ##   n= 7775, number of events= 1913 
 ## 
@@ -396,7 +370,6 @@ cox5 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw
 ## sexFemale:agegrp75+        1.3041     0.7668    0.9734    1.7473
 ## 
 ## Concordance= 0.645  (se = 0.008 )
-## Rsquare= 0.035   (max possible= 0.969 )
 ## Likelihood ratio test= 280.8  on 11 df,   p=&lt;2e-16
 ## Wald test            = 275.6  on 11 df,   p=&lt;2e-16
 ## Score (logrank) test = 287.5  on 11 df,   p=&lt;2e-16</code></pre>

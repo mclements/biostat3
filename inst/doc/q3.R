@@ -37,13 +37,13 @@ survdiff(Surv(surv_mm, death_cancer) ~ year8594, data=melanoma)
 survdiff(Surv(surv_mm, death_cancer) ~ year8594, data=melanoma, rho=1)
 
 ## @knitr d_crudeRates1000_agegrp
-survRate(Surv(surv_mm,death_cancer)~year8594, data=melanoma)
-melanoma %>%
-    select(death_cancer, surv_mm, agegrp) %>%
-    group_by(agegrp) %>%
-    summarise(D = sum(death_cancer), Y = sum(surv_mm)/1000, Rate = D/Y,
-              CI_low = stats::poisson.test(D,Y)$conf.int[1],
-              CI_high = stats::poisson.test(D,Y)$conf.int[2]) 
+survRate(Surv(surv_mm/1000,death_cancer)~year8594, data=melanoma)
+## melanoma %>%
+##     select(death_cancer, surv_mm, year8594) %>%
+##     group_by(year8594) %>%
+##     summarise(D = sum(death_cancer), Y = sum(surv_mm)/1000, Rate = D/Y,
+##               CI_low = stats::poisson.test(D,Y)$conf.int[1],
+##               CI_high = stats::poisson.test(D,Y)$conf.int[2]) 
 
 mfit_agegrp <- survfit(Surv(surv_mm, death_cancer) ~ agegrp, data = melanoma)
 plot(mfit_agegrp, col = 1:4,

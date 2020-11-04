@@ -170,78 +170,66 @@ mel.split2 &lt;-<span class="st"> </span><span class="kw">survSplit</span>(mel.s
 <h2>(c)</h2>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">xtabs</span>(pt <span class="op">~</span><span class="st"> </span>age<span class="op">+</span>year, <span class="dt">data=</span>mel.split2, <span class="dt">subset =</span> age<span class="op">&gt;=</span><span class="dv">50</span> <span class="op">&amp;</span><span class="st"> </span>age<span class="op">&lt;</span><span class="dv">60</span>)</code></pre></div>
 <pre><code>##     year
-## age        1975       1976       1977       1978       1979       1980
-##   50   1.000000   3.603060   7.906637  11.925716  17.494141  20.496879
-##   51   0.500000   6.937242   8.486716  13.378194  18.352832  23.275632
-##   52   0.500000   2.996546  11.506658  10.193065  17.135965  26.424032
-##   53   1.500000   5.889945   8.513261  15.494141  15.766774  25.264265
-##   54   0.500000   7.171796  10.339179  10.055799  19.498576  16.952798
-##   55   0.000000   4.257365  11.056839  19.360640  15.994967  22.657317
-##   56   1.000000   3.543054   8.250849  16.044980  20.164933  18.723588
-##   57   1.500000   3.482532   8.764730  14.754184  21.427618  26.946902
-##   58   0.000000   5.403899   9.139716  13.280943  20.743041  23.920363
-##   59   1.500000   1.601577   8.486958  12.762207  18.902991  26.348935
+## age        1975       1976       1977       1978       1979       1980       1981
+##   50   1.000000   3.603060   7.906637  11.925716  17.494141  20.496879  22.912350
+##   51   0.500000   6.937242   8.486716  13.378194  18.352832  23.275632  23.493867
+##   52   0.500000   2.996546  11.506658  10.193065  17.135965  26.424032  27.705951
+##   53   1.500000   5.889945   8.513261  15.494141  15.766774  25.264265  29.231409
+##   54   0.500000   7.171796  10.339179  10.055799  19.498576  16.952798  27.570625
+##   55   0.000000   4.257365  11.056839  19.360640  15.994967  22.657317  20.551637
+##   56   1.000000   3.543054   8.250849  16.044980  20.164933  18.723588  28.117325
+##   57   1.500000   3.482532   8.764730  14.754184  21.427618  26.946902  22.319046
+##   58   0.000000   5.403899   9.139716  13.280943  20.743041  23.920363  31.134145
+##   59   1.500000   1.601577   8.486958  12.762207  18.902991  26.348935  26.806123
 ##     year
-## age        1981       1982       1983       1984       1985       1986
-##   50  22.912350  20.286478  27.592597  30.238966  35.267431  42.891679
-##   51  23.493867  29.015661  27.370469  35.314369  33.376629  40.765793
-##   52  27.705951  27.958274  35.807328  31.110808  35.011572  36.030441
-##   53  29.231409  34.923908  30.832284  40.881849  32.550560  40.934313
-##   54  27.570625  36.238884  42.677290  34.475587  43.312242  36.751542
-##   55  20.551637  34.597954  42.596202  49.956631  39.821916  47.657266
-##   56  28.117325  24.859339  42.418387  47.143463  50.819949  41.177071
-##   57  22.319046  33.033357  29.985188  46.035210  55.091921  53.140168
-##   58  31.134145  26.057903  35.816559  35.888393  52.113327  56.908362
-##   59  26.806123  37.922165  33.310640  36.961382  40.945762  53.040371
+## age        1982       1983       1984       1985       1986       1987       1988
+##   50  20.286478  27.592597  30.238966  35.267431  42.891679  43.262827  46.144640
+##   51  29.015661  27.370469  35.314369  33.376629  40.765793  46.657353  53.231624
+##   52  27.958274  35.807328  31.110808  35.011572  36.030441  43.384564  45.869789
+##   53  34.923908  30.832284  40.881849  32.550560  40.934313  40.546691  46.557734
+##   54  36.238884  42.677290  34.475587  43.312242  36.751542  44.260651  47.423662
+##   55  34.597954  42.596202  49.956631  39.821916  47.657266  43.382794  50.312028
+##   56  24.859339  42.418387  47.143463  50.819949  41.177071  56.113127  48.171650
+##   57  33.033357  29.985188  46.035210  55.091921  53.140168  46.543022  66.622248
+##   58  26.057903  35.816559  35.888393  52.113327  56.908362  49.812726  44.128938
+##   59  37.922165  33.310640  36.961382  40.945762  53.040371  60.711030  57.155364
 ##     year
-## age        1987       1988       1989       1990       1991       1992
-##   50  43.262827  46.144640  51.187986  54.479292  59.384683  56.472333
-##   51  46.657353  53.231624  58.294450  56.907951  52.096521  62.210556
-##   52  43.384564  45.869789  54.640077  57.963198  62.713832  51.338677
-##   53  40.546691  46.557734  50.451338  58.560581  64.672129  66.266355
-##   54  44.260651  47.423662  54.967145  62.090566  62.660283  62.693640
-##   55  43.382794  50.312028  56.845686  58.152690  64.330020  67.130293
-##   56  56.113127  48.171650  57.384802  59.999334  59.287902  71.289814
-##   57  46.543022  66.622248  61.501839  61.223707  58.135477  67.294934
-##   58  49.812726  44.128938  73.159014  60.210305  60.468578  63.772205
-##   59  60.711030  57.155364  56.006808  74.611488  57.769978  65.273446
-##     year
-## age        1993       1994       1995
-##   50  53.544336  69.878641 113.962824
-##   51  53.357007  51.060764 108.927541
-##   52  60.188734  61.241152  84.636326
-##   53  55.040111  59.802582  74.505668
-##   54  69.401124  60.657280  84.256790
-##   55  69.179686  69.737469  82.842934
-##   56  73.125059  75.621975  89.499927
-##   57  71.303695  73.745063 106.993580
-##   58  69.293843  76.750406 114.119488
-##   59  77.193786  69.046093 119.298183</code></pre>
+## age        1989       1990       1991       1992       1993       1994       1995
+##   50  51.187986  54.479292  59.384683  56.472333  53.544336  69.878641 113.962824
+##   51  58.294450  56.907951  52.096521  62.210556  53.357007  51.060764 108.927541
+##   52  54.640077  57.963198  62.713832  51.338677  60.188734  61.241152  84.636326
+##   53  50.451338  58.560581  64.672129  66.266355  55.040111  59.802582  74.505668
+##   54  54.967145  62.090566  62.660283  62.693640  69.401124  60.657280  84.256790
+##   55  56.845686  58.152690  64.330020  67.130293  69.179686  69.737469  82.842934
+##   56  57.384802  59.999334  59.287902  71.289814  73.125059  75.621975  89.499927
+##   57  61.501839  61.223707  58.135477  67.294934  71.303695  73.745063 106.993580
+##   58  73.159014  60.210305  60.468578  63.772205  69.293843  76.750406 114.119488
+##   59  56.006808  74.611488  57.769978  65.273446  77.193786  69.046093 119.298183</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">xtabs</span>(dead <span class="op">~</span><span class="st"> </span>age<span class="op">+</span>year, <span class="dt">data=</span>mel.split2, <span class="dt">subset =</span> age<span class="op">&gt;=</span><span class="dv">50</span> <span class="op">&amp;</span><span class="st"> </span>age<span class="op">&lt;</span><span class="dv">60</span>)</code></pre></div>
 <pre><code>##     year
-## age  1975 1976 1977 1978 1979 1980 1981 1982 1983 1984 1985 1986 1987 1988
-##   50    0    1    0    1    2    0    4    2    0    0    2    1    3    1
-##   51    0    1    1    1    1    3    0    2    2    0    2    1    1    3
-##   52    0    1    1    1    0    2    1    0    3    1    0    1    1    1
-##   53    0    1    2    0    2    4    0    3    2    2    0    5    2    0
-##   54    0    2    1    0    0    0    1    2    2    4    2    0    0    3
-##   55    0    0    0    4    3    1    0    2    4    0    2    2    5    1
-##   56    0    1    0    3    0    2    3    1    3    3    1    2    3    0
-##   57    0    0    2    1    2    2    3    4    2    0    4    3    2    2
-##   58    0    0    2    1    1    2    1    3    2    2    5    2    2    2
-##   59    0    0    2    1    3    1    1    3    3    1    2    3    4    3
+## age  1975 1976 1977 1978 1979 1980 1981 1982 1983 1984 1985 1986 1987 1988 1989 1990 1991
+##   50    0    1    0    1    2    0    4    2    0    0    2    1    3    1    4    2    3
+##   51    0    1    1    1    1    3    0    2    2    0    2    1    1    3    1    4    2
+##   52    0    1    1    1    0    2    1    0    3    1    0    1    1    1    1    1    2
+##   53    0    1    2    0    2    4    0    3    2    2    0    5    2    0    0    0    3
+##   54    0    2    1    0    0    0    1    2    2    4    2    0    0    3    2    3    5
+##   55    0    0    0    4    3    1    0    2    4    0    2    2    5    1    3    3    2
+##   56    0    1    0    3    0    2    3    1    3    3    1    2    3    0    3    6    0
+##   57    0    0    2    1    2    2    3    4    2    0    4    3    2    2    3    2    3
+##   58    0    0    2    1    1    2    1    3    2    2    5    2    2    2    3    5    2
+##   59    0    0    2    1    3    1    1    3    3    1    2    3    4    3    4    0    0
 ##     year
-## age  1989 1990 1991 1992 1993 1994 1995
-##   50    4    2    3    3    4    1    5
-##   51    1    4    2    2    2    0    2
-##   52    1    1    2    1    0    3    6
-##   53    0    0    3    2    4    1    1
-##   54    2    3    5    1    0    3    2
-##   55    3    3    2    3    5    0    2
-##   56    3    6    0    1    4    4    1
-##   57    3    2    3    5    3    2    1
-##   58    3    5    2    2    4    3    0
-##   59    4    0    0    0    7    1    3</code></pre>
+## age  1992 1993 1994 1995
+##   50    3    4    1    5
+##   51    2    2    0    2
+##   52    1    0    3    6
+##   53    2    4    1    1
+##   54    1    0    3    2
+##   55    3    5    0    2
+##   56    1    4    4    1
+##   57    5    3    2    1
+##   58    2    4    3    0
+##   59    0    7    1    3</code></pre>
 </div>
 <div id="d" class="section level2">
 <h2>(d)</h2>
@@ -249,43 +237,38 @@ mel.split2 &lt;-<span class="st"> </span><span class="kw">survSplit</span>(mel.s
                      <span class="dt">age10=</span><span class="kw">cut</span>(age,<span class="kw">seq</span>(<span class="dv">0</span>,<span class="dv">110</span>,<span class="dt">by=</span><span class="dv">10</span>),<span class="dt">right=</span><span class="ot">FALSE</span>),
                      <span class="dt">year10=</span><span class="kw">cut</span>(year,<span class="kw">seq</span>(<span class="dv">1970</span>,<span class="dv">2000</span>,<span class="dt">by=</span><span class="dv">5</span>),<span class="dt">right=</span><span class="ot">FALSE</span>))
 <span class="kw">head</span>(<span class="kw">survRate</span>(<span class="kw">Surv</span>(pt,dead)<span class="op">~</span>sex<span class="op">+</span>age10<span class="op">+</span>year10, <span class="dt">data=</span>mel.split2))</code></pre></div>
-<pre><code>##                                                sex   age10      year10
-## sex=Male, age10=[0,10)   , year10=[1980,1985) Male  [0,10) [1980,1985)
-## sex=Male, age10=[0,10)   , year10=[1985,1990) Male  [0,10) [1985,1990)
-## sex=Male, age10=[0,10)   , year10=[1990,1995) Male  [0,10) [1990,1995)
-## sex=Male, age10=[10,20)  , year10=[1975,1980) Male [10,20) [1975,1980)
-## sex=Male, age10=[10,20)  , year10=[1980,1985) Male [10,20) [1980,1985)
-## sex=Male, age10=[10,20)  , year10=[1985,1990) Male [10,20) [1985,1990)
-##                                                   tstop event       rate
-## sex=Male, age10=[0,10)   , year10=[1980,1985) 10.152283     0 0.00000000
-## sex=Male, age10=[0,10)   , year10=[1985,1990)  8.556456     0 0.00000000
-## sex=Male, age10=[0,10)   , year10=[1990,1995)  1.541667     1 0.64864865
-## sex=Male, age10=[10,20)  , year10=[1975,1980)  3.912062     1 0.25561965
-## sex=Male, age10=[10,20)  , year10=[1980,1985) 13.850322     1 0.07220049
-## sex=Male, age10=[10,20)  , year10=[1985,1990) 22.890446     0 0.00000000
-##                                                     lower     upper
-## sex=Male, age10=[0,10)   , year10=[1980,1985) 0.000000000 0.3633547
-## sex=Male, age10=[0,10)   , year10=[1985,1990) 0.000000000 0.4311224
-## sex=Male, age10=[0,10)   , year10=[1990,1995) 0.016422362 3.6140390
-## sex=Male, age10=[10,20)  , year10=[1975,1980) 0.006471729 1.4242215
-## sex=Male, age10=[10,20)  , year10=[1980,1985) 0.001827958 0.4022754
-## sex=Male, age10=[10,20)  , year10=[1985,1990) 0.000000000 0.1611537</code></pre>
+<pre><code>##                                                sex   age10      year10     tstop event
+## sex=Male, age10=[0,10)   , year10=[1980,1985) Male  [0,10) [1980,1985) 10.152283     0
+## sex=Male, age10=[0,10)   , year10=[1985,1990) Male  [0,10) [1985,1990)  8.556456     0
+## sex=Male, age10=[0,10)   , year10=[1990,1995) Male  [0,10) [1990,1995)  1.541667     1
+## sex=Male, age10=[10,20)  , year10=[1975,1980) Male [10,20) [1975,1980)  3.912062     1
+## sex=Male, age10=[10,20)  , year10=[1980,1985) Male [10,20) [1980,1985) 13.850322     1
+## sex=Male, age10=[10,20)  , year10=[1985,1990) Male [10,20) [1985,1990) 22.890446     0
+##                                                     rate       lower     upper
+## sex=Male, age10=[0,10)   , year10=[1980,1985) 0.00000000 0.000000000 0.3633547
+## sex=Male, age10=[0,10)   , year10=[1985,1990) 0.00000000 0.000000000 0.4311224
+## sex=Male, age10=[0,10)   , year10=[1990,1995) 0.64864865 0.016422362 3.6140390
+## sex=Male, age10=[10,20)  , year10=[1975,1980) 0.25561965 0.006471729 1.4242215
+## sex=Male, age10=[10,20)  , year10=[1980,1985) 0.07220049 0.001827958 0.4022754
+## sex=Male, age10=[10,20)  , year10=[1985,1990) 0.00000000 0.000000000 0.1611537</code></pre>
 </div>
 <div id="e" class="section level2">
 <h2>(e)</h2>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pt &lt;-<span class="st"> </span><span class="kw">mutate</span>(mel.split2,<span class="dt">sex=</span><span class="kw">unclass</span>(sex)) <span class="op">%&gt;%</span>
 <span class="st">    </span><span class="kw">group_by</span>(sex, age, year) <span class="op">%&gt;%</span>
-<span class="st">    </span><span class="kw">summarise</span>(<span class="dt">pt=</span><span class="kw">sum</span>(pt))
-expected &lt;-<span class="st"> </span><span class="kw">inner_join</span>(popmort, pt) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">summarise</span>(<span class="dt">pt=</span><span class="kw">sum</span>(pt))</code></pre></div>
+<pre><code>## `summarise()` regrouping output by 'sex', 'age' (override with `.groups` argument)</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">expected &lt;-<span class="st"> </span><span class="kw">inner_join</span>(popmort, pt) <span class="op">%&gt;%</span>
 <span class="st">    </span><span class="kw">mutate</span>(<span class="dt">pt=</span><span class="kw">ifelse</span>(<span class="kw">is.na</span>(pt),<span class="dv">0</span>,pt)) <span class="op">%&gt;%</span>
 <span class="st">    </span><span class="kw">group_by</span>(sex,year) <span class="op">%&gt;%</span>
 <span class="st">    </span><span class="kw">summarise</span>(<span class="dt">E=</span><span class="kw">sum</span>(rate<span class="op">*</span>pt)) <span class="op">%&gt;%</span><span class="st"> </span>ungroup</code></pre></div>
 <pre><code>## Joining, by = c(&quot;sex&quot;, &quot;age&quot;, &quot;year&quot;)</code></pre>
-<pre><code>## Warning: Column `sex` has different attributes on LHS and RHS of join</code></pre>
+<pre><code>## `summarise()` regrouping output by 'sex' (override with `.groups` argument)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">observed &lt;-<span class="st"> </span><span class="kw">mutate</span>(mel.split2, <span class="dt">sex=</span><span class="kw">as.numeric</span>(<span class="kw">unclass</span>(sex))) <span class="op">%&gt;%</span>
 <span class="st">    </span><span class="kw">group_by</span>(sex, year) <span class="op">%&gt;%</span>
-<span class="st">    </span><span class="kw">summarise</span>(<span class="dt">O=</span><span class="kw">sum</span>(dead)) <span class="op">%&gt;%</span><span class="st"> </span>ungroup
-joint &lt;-<span class="st"> </span><span class="kw">inner_join</span>(observed,expected) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">summarise</span>(<span class="dt">O=</span><span class="kw">sum</span>(dead)) <span class="op">%&gt;%</span><span class="st"> </span>ungroup</code></pre></div>
+<pre><code>## `summarise()` regrouping output by 'sex' (override with `.groups` argument)</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">joint &lt;-<span class="st"> </span><span class="kw">inner_join</span>(observed,expected) <span class="op">%&gt;%</span>
 <span class="st">    </span><span class="kw">mutate</span>(<span class="dt">SMR =</span> O<span class="op">/</span>E)</code></pre></div>
 <pre><code>## Joining, by = c(&quot;sex&quot;, &quot;year&quot;)</code></pre>
 </div>
@@ -306,7 +289,7 @@ joint &lt;-<span class="st"> </span><span class="kw">inner_join</span>(observed,
 ## event rate 
 ##   2.637757 
 ## 
-## -------------------------------------------------------- 
+## ------------------------------------------------------------------- 
 ## joint$sex: 2
 ## 
 ##  Exact Poisson test

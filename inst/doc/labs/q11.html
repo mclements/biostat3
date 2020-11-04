@@ -104,15 +104,14 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <section class="main-content">
 <div id="exercise-11.-cox-regression-with-all-cause-mortality-as-the-outcome" class="section level1">
 <h1>Exercise 11. Cox regression with all-cause mortality as the outcome</h1>
-<p>Now fit a model to the localised melanoma data where the outcome is observed survival (i.e. all deaths are considered to be events).</p>
+<p>Now fit a model to the localised melanoma data where the outcome is observed survival (i.e. all deaths are considered to be events).</p>
 <p>You may have to install the required packages the first time you use them. You can install a package by <code>install.packages(&quot;package_of_interest&quot;)</code> for each package you require.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(biostat3) <span class="co"># </span>
 <span class="kw">library</span>(dplyr)    <span class="co"># for data manipulation</span></code></pre></div>
 <p>Load the melanoma data and explore it.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Read melanoma data
 ## and select subcohorts
-<span class="kw">data</span>(melanoma)
-melanoma.l &lt;-<span class="st"> </span>melanoma <span class="op">%&gt;%</span>
+melanoma.l &lt;-<span class="st"> </span>biostat3<span class="op">::</span>melanoma <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">filter</span>(stage<span class="op">==</span><span class="st">&quot;Localised&quot;</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">mutate</span>(
     ## Create a death indicator
@@ -130,7 +129,7 @@ melanoma.l2 &lt;-
          <span class="dt">surv_mm =</span> <span class="kw">pmin</span>(surv_mm, <span class="dv">120</span>))</code></pre></div>
 <div id="a" class="section level2">
 <h2>(a)</h2>
-<p>Interpret the estimated hazard ratio for the parameter labelled 2.agegrp, including a comment on statistical significance.</p>
+<p>Interpret the estimated hazard ratio for the parameter labelled <code>agegrp60-74</code>, including a comment on statistical significance.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>( coxfit11a &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_any) <span class="op">~</span><span class="st"> </span>sex <span class="op">+</span><span class="st"> </span>year8594 <span class="op">+</span><span class="st"> </span>agegrp,
                            <span class="dt">data =</span> melanoma.l2) )</code></pre></div>
 </div>

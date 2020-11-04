@@ -18,52 +18,22 @@ download and install the files required for the computing exercises
 extending R. If you are working in a computer lab during a course
 it’s possible these files may have already been installed for you.
 
-Downloading the course files
-----------------------------
+Download and installation of R packages is generally done within R. The packages can be installed from CRAN by
 
-It is suggested that you create a new directory, change the R
-working directory to the new directory (e.g., `setwd("c:\survival\")`), and
-then download the files. You can create a new directory in Windows
-Explorer or another file manager.
-
-Use the `getwd()` function to confirm that you are in the working directory you
-wish to use for the course. The course files are available on the web as
-a ZIP archive:\
-<http://biostat3.net/download/biostat3.zip>\
-Save and extract this folder in your created working directory. You can
-also read the data files directly from the web from within R. For
-example,
-
-    library(foreign)
-	colon <- read.dta("http://www.biostat3.net/download/colon.dta")
-
-Installing R packages 
---------------------------------------
-
-Download and installation of R packages is generally done within R.
-
-### How can I check if these commands are already installed?
+    install.packages("biostat3")
+    install.packages(c("bshazard","rstpm2","Epi","dplyr"))
 
 You can use the `library` function to check if an R package is installed (and load it).
 
-    library(biostat3)  # main package (not yet on CRAN)
-    library(car)       # linearHypothesis()
-    library(muhaz)     # muhaz()
+    library(biostat3)  # main package
 	## some additional packages
     library(rstpm2)    # stpm2(), pstpm2()
     library(bshazard)  # bshazard()
     library(Epi)       # ccwc()
     library(dplyr)     # mutate(), filter(), group_by(), summarise(), %>%
-
-If any of these libraries are not available, then they can be installed by
-
-	## CRAN dependencies
-    install.packages(c("muhaz","car"))
-	## NB: car requires R>=3.2.3
-    install.packages(c("bshazard","rstpm2","Epi","dplyr"))
 	
-    ## Windows
-	install.packages("http://biostat3.net/download/biostat3.zip",repos=NULL)
-	## Linux, Mac
-	install.packages("http://biostat3.net/download/biostat3.tar.gz",repos=NULL)
-	
+You can also read the data files directly from the web from within
+R. For example,
+
+    library(foreign)
+	colon <- read.dta("http://www.biostat3.net/download/colon.dta")

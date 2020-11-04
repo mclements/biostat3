@@ -19,9 +19,9 @@ opts_chunk$set(cache=FALSE, fig.width=10, fig.height=6, results='hide', fig.keep
 ```
 
 The purpose of this exercise is to study survival of the patients
-    using two alternative measures --- survival proportions and
-    mortality rates. A second purpose is to study the difference between
-    cause-specific and all-cause survival.
+using two alternative measures --- survival proportions and
+mortality rates. A second purpose is to study the difference between
+cause-specific and all-cause survival.
 
 
 Load dependencies

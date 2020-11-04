@@ -127,8 +127,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </div>
 <div id="b" class="section level2">
 <h2>(b)</h2>
-<p>The following commands can be used to plot the hazard function (instantaneous mortality rate): i. At what point in the follow-up is mortality highest? ii. Does this pattern seem reasonable from a clinicial/biological perspective? [HINT:Consider the disease with which these patients were classified as being diagnosed along with the expected fatality of the disease as a function of time since diagnosis.]</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="kw">muhaz2</span>(<span class="kw">Surv</span>(surv_mm,death_cancer)<span class="op">~</span>year8594, <span class="dt">data=</span>melanoma))</code></pre></div>
+<p>Plot the hazard function (instantaneous mortality rate):</p>
+<ol style="list-style-type: lower-roman">
+<li>At what point in the follow-up is mortality highest?</li>
+<li>Does this pattern seem reasonable from a clinicial/biological perspective? [HINT:Consider the disease with which these patients were classified as being diagnosed along with the expected fatality of the disease as a function of time since diagnosis.]</li>
+</ol>
+<!-- ```{r b_hazDiaDate, results="hide", fig.show="hide"} -->
+<!-- ``` -->
 </div>
 <div id="c" class="section level2">
 <h2>(c)</h2>
@@ -142,45 +147,23 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div id="d" class="section level2">
 <h2>(d)</h2>
 <p>Estimate cause-specific mortality rates for each age group, and graph Kaplan-Meier estimates of the cause-specific survivor function for each age group. Are there differences between the age groups? Is the interpretation consistent between the mortality rates and the survival proportions?</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">survRate</span>(<span class="kw">Surv</span>(surv_mm,death_cancer)<span class="op">~</span>year8594, <span class="dt">data=</span>melanoma)
-melanoma <span class="op">%&gt;%</span>
-<span class="st">    </span><span class="kw">select</span>(death_cancer, surv_mm, agegrp) <span class="op">%&gt;%</span>
-<span class="st">    </span><span class="kw">group_by</span>(agegrp) <span class="op">%&gt;%</span>
-<span class="st">    </span><span class="kw">summarise</span>(<span class="dt">D =</span> <span class="kw">sum</span>(death_cancer), <span class="dt">Y =</span> <span class="kw">sum</span>(surv_mm)<span class="op">/</span><span class="dv">1000</span>, <span class="dt">Rate =</span> D<span class="op">/</span>Y,
-              <span class="dt">CI_low =</span> stats<span class="op">::</span><span class="kw">poisson.test</span>(D,Y)<span class="op">$</span>conf.int[<span class="dv">1</span>],
-              <span class="dt">CI_high =</span> stats<span class="op">::</span><span class="kw">poisson.test</span>(D,Y)<span class="op">$</span>conf.int[<span class="dv">2</span>]) 
-
-mfit_agegrp &lt;-<span class="st"> </span><span class="kw">survfit</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>agegrp, <span class="dt">data =</span> melanoma)
-<span class="kw">plot</span>(mfit_agegrp, <span class="dt">col =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">4</span>,
-     <span class="dt">xlab =</span> <span class="st">&quot;Months since diagnosis&quot;</span>,
-     <span class="dt">ylab =</span> <span class="st">&quot;Survival&quot;</span>,
-     <span class="dt">main =</span> <span class="st">&quot;Kaplan-Meier survival estimates&quot;</span>)
-<span class="kw">legend</span>(<span class="st">&quot;bottomleft&quot;</span>, <span class="kw">levels</span>(melanoma<span class="op">$</span>agegrp), <span class="dt">col=</span><span class="dv">1</span><span class="op">:</span><span class="dv">4</span>, <span class="dt">lty =</span> <span class="dv">1</span>)</code></pre></div>
+<!-- ```{r d_crudeRates1000_agegrp, results="hide", fig.show="hide"} -->
+<!-- ``` -->
+<!-- ```{r d_plotSurv_sex, results="hide", fig.show="hide"} -->
+<!-- ``` -->
 <p>What are the units of the estimated hazard rates? HINT: look at how you defined time.</p>
 </div>
 <div id="e" class="section level2">
 <h2>(e)</h2>
 <p>Repeat some of the previous analyses using years instead of months. This is equivalent to dividing the time variable by 12 so all analyses will be the same except the units of time will be different (e.g., the graphs will have different labels).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mfit_agegrp_year &lt;-<span class="st"> </span><span class="kw">survfit</span>(<span class="kw">Surv</span>(surv_mm<span class="op">/</span><span class="dv">12</span>, death_cancer) <span class="op">~</span><span class="st"> </span>agegrp, <span class="dt">data =</span> melanoma)
-<span class="kw">plot</span>(mfit_agegrp_year, <span class="dt">col =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">4</span>,
-     <span class="dt">xlab =</span> <span class="st">&quot;Years since diagnosis&quot;</span>,
-     <span class="dt">ylab =</span> <span class="st">&quot;Survival&quot;</span>,
-     <span class="dt">main =</span> <span class="st">&quot;Kaplan-Meier survival estimates&quot;</span>)
-<span class="kw">legend</span>(<span class="st">&quot;bottomleft&quot;</span>, <span class="kw">levels</span>(melanoma<span class="op">$</span>agegrp), <span class="dt">col=</span><span class="dv">1</span><span class="op">:</span><span class="dv">4</span>, <span class="dt">lty =</span> <span class="dv">1</span>)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">survRate</span>(<span class="kw">Surv</span>(surv_mm<span class="op">/</span><span class="dv">12</span><span class="op">/</span><span class="dv">1000</span>,death_cancer)<span class="op">~</span>year8594, <span class="dt">data=</span>melanoma)</code></pre></div>
+<!-- ```{r e_crudeRates1000_agegrp, results="hide", fig.show="hide"} -->
+<!-- ``` -->
 </div>
 <div id="f" class="section level2">
 <h2>(f)</h2>
 <p>Study whether there is evidence of a difference in patient survival between males and females. Estimate both the hazard and survival function and use the log rank test to test for a difference.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))
-mfit_sex &lt;-<span class="st"> </span><span class="kw">survfit</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>sex, <span class="dt">data =</span> melanoma)
-<span class="kw">plot</span>(mfit_sex, <span class="dt">col =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>,
-     <span class="dt">xlab =</span> <span class="st">&quot;Follow-up Time&quot;</span>,
-     <span class="dt">ylab =</span> <span class="st">&quot;Survival&quot;</span>,
-     <span class="dt">main =</span> <span class="st">&quot;Kaplan-Meier survival estimates&quot;</span>)
-<span class="kw">plot</span>(<span class="kw">muhaz2</span>(<span class="kw">Surv</span>(surv_mm,death_cancer)<span class="op">~</span>sex, <span class="dt">data=</span>melanoma))</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Log-rank test for equality of survivor functions
-<span class="kw">survdiff</span>(<span class="kw">Surv</span>(surv_mm, death_cancer<span class="op">==</span><span class="dv">1</span>) <span class="op">~</span><span class="st"> </span>sex, <span class="dt">data=</span>melanoma)</code></pre></div>
+<!-- ```{r f_sexDiff, results="hide", fig.show="hide"} -->
+<!-- ``` -->
 </div>
 </div>
 </section>

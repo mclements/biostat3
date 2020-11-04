@@ -109,8 +109,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>You may have to install the required packages the first time you use them. You can install a package by <code>install.packages(&quot;package_of_interest&quot;)</code> for each package you require.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(biostat3) </code></pre></div>
 <p>Load the melanoma data and explore it.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(melanoma)
-melanoma &lt;-<span class="st"> </span><span class="kw">transform</span>(melanoma,
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">melanoma.l &lt;-<span class="st"> </span><span class="kw">transform</span>(biostat3<span class="op">::</span>melanoma,
                       <span class="dt">death_cancer =</span> <span class="kw">ifelse</span>( status <span class="op">==</span><span class="st"> &quot;Dead: cancer&quot;</span>, <span class="dv">1</span>, <span class="dv">0</span>))</code></pre></div>
 <div id="a" class="section level2">
 <h2>(a)</h2>
@@ -118,38 +117,38 @@ melanoma &lt;-<span class="st"> </span><span class="kw">transform</span>(melanom
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Cox regression with time-since-entry as the timescale</span>
 <span class="co"># Note that R uses the Efron method for approximating the likelihood in the presence of ties,</span>
 <span class="co"># whereas Stata (and some other software) uses the Breslow method</span>
-cox1 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>sex, <span class="dt">data=</span>melanoma)
+cox1 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>sex, <span class="dt">data=</span>melanoma.l)
 <span class="kw">summary</span>(cox1)</code></pre></div>
 </div>
 <div id="b" class="section level2">
 <h2>(b)</h2>
-<p>Is the effect of sex confounded by other factors (e.g. age, stage, subsite, period)? After controlling for potential confounders, does there still appear to a difference in survival between males and females?</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cox2 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>sex <span class="op">+</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>stage <span class="op">+</span><span class="st"> </span>subsite <span class="op">+</span><span class="st"> </span>year8594, <span class="dt">data=</span>melanoma)
+<p>Is the effect of sex confounded by other factors (e.g. age, stage, subsite, period)? After controlling for potential confounders, does there still appear to a difference in survival between males and females?</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cox2 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>sex <span class="op">+</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>stage <span class="op">+</span><span class="st"> </span>subsite <span class="op">+</span><span class="st"> </span>year8594, <span class="dt">data=</span>melanoma.l)
 <span class="kw">summary</span>(cox2)</code></pre></div>
 </div>
 <div id="c" class="section level2">
 <h2>(c)</h2>
 <p>Consider the hypothesis that there exists a class of melanomas where female sex hormones play a large role in the etiology. These hormone related cancers are diagnosed primarily in women and are, on average, less aggressive (i.e., prognosis is good). If such a hypothesis were true we might expect the effect of sex to be modified by age at diagnosis (e.g., pre versus post menopausal). Test whether this is the case.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cox3 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>agegrp <span class="op">*</span><span class="st"> </span>sex, <span class="dt">data=</span>melanoma)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cox3 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>agegrp <span class="op">*</span><span class="st"> </span>sex, <span class="dt">data=</span>melanoma.l)
 <span class="kw">summary</span>(cox3)</code></pre></div>
 </div>
 <div id="d" class="section level2">
 <h2>(d)</h2>
 <p>Decide on a ‘most appropriate’ model for these data. Be sure to evaluate the proportional hazards assumption.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cox4 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>sex <span class="op">+</span><span class="st"> </span>year8594 <span class="op">+</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>subsite <span class="op">+</span><span class="st"> </span>stage, <span class="dt">data=</span>melanoma)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cox4 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>sex <span class="op">+</span><span class="st"> </span>year8594 <span class="op">+</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>subsite <span class="op">+</span><span class="st"> </span>stage, <span class="dt">data=</span>melanoma.l)
 <span class="kw">summary</span>(cox4)
 
 ## Test proportional hazards assumption
 <span class="kw">cox.zph</span>(cox4, <span class="dt">transform=</span><span class="st">&quot;log&quot;</span>) 
 <span class="kw">cox.zph</span>(cox4, <span class="dt">transform=</span><span class="st">&quot;identity&quot;</span>) <span class="co"># Stata default</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Stratified Cox model; separate baseline hazard functions are fit for each strata.
-cox5 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>sex <span class="op">+</span><span class="st"> </span>year8594 <span class="op">+</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>subsite <span class="op">+</span><span class="st"> </span><span class="kw">strata</span>(stage), <span class="dt">data=</span>melanoma)
+cox5 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>sex <span class="op">+</span><span class="st"> </span>year8594 <span class="op">+</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>subsite <span class="op">+</span><span class="st"> </span><span class="kw">strata</span>(stage), <span class="dt">data=</span>melanoma.l)
 <span class="kw">summary</span>(cox5)
 
 ## Test proportional hazards assumption
 <span class="kw">cox.zph</span>(cox5, <span class="dt">transform=</span><span class="st">&quot;log&quot;</span>) 
 <span class="kw">cox.zph</span>(cox5, <span class="dt">transform=</span><span class="st">&quot;identity&quot;</span>) </code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cox5 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>sex <span class="op">*</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>year8594 <span class="op">+</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>subsite <span class="op">+</span><span class="st"> </span><span class="kw">strata</span>(stage), <span class="dt">data=</span>melanoma)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cox5 &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>sex <span class="op">*</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>year8594 <span class="op">+</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>subsite <span class="op">+</span><span class="st"> </span><span class="kw">strata</span>(stage), <span class="dt">data=</span>melanoma.l)
 <span class="kw">summary</span>(cox5)
 <span class="kw">anova</span>(cox5)</code></pre></div>
 </div>

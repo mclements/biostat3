@@ -105,7 +105,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div id="exercise-13.-modelling-the-diet-data-using-cox-regression" class="section level1">
 <h1>Exercise 13. Modelling the diet data using Cox regression</h1>
 <hr />
-<p>Now fit a model to the localised melanoma data where the outcome is observed survival (i.e. all deaths are considered to be events).</p>
+<p>Now fit a model to the localised melanoma data where the outcome is observed survival (i.e. all deaths are considered to be events).</p>
 <p>You may have to install the required packages the first time you use them. You can install a package by <code>install.packages(&quot;package_of_interest&quot;)</code> for each package you require.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(biostat3) <span class="co"># for Surv and survfit</span></code></pre></div>
 <p>Load the melanoma data and explore it.</p>
@@ -158,7 +158,6 @@ poisson13a &lt;-<span class="st"> </span><span class="kw">glm</span>( chd <span 
 ## hienghigh    0.5234      1.911    0.2895    0.9462
 ## 
 ## Concordance= 0.581  (se = 0.037 )
-## Rsquare= 0.014   (max possible= 0.781 )
 ## Likelihood ratio test= 4.73  on 1 df,   p=0.03
 ## Wald test            = 4.59  on 1 df,   p=0.03
 ## Score (logrank) test = 4.75  on 1 df,   p=0.03</code></pre>
@@ -186,7 +185,6 @@ cox13b &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="
 ## hienghigh    0.5426      1.843    0.2997    0.9823
 ## 
 ## Concordance= 0.584  (se = 0.037 )
-## Rsquare= 0.012   (max possible= 0.755 )
 ## Likelihood ratio test= 4.2  on 1 df,   p=0.04
 ## Wald test            = 4.08  on 1 df,   p=0.04
 ## Score (logrank) test = 4.2  on 1 df,   p=0.04</code></pre>

@@ -76,18 +76,18 @@ param <- rbind (summary(out_coh)$coef[c(1:5),2], param)
 colnames(param) <- names(coef(out_coh))
 rownames(param) <- c("cohort", c(1:M))
 param
-mean_param <- apply(param[c(2:M),], 2, mean)  # compute the mean of the HR for the M loops
-sd_param <-  apply(param[c(2:M),], 2, sd)     # compute the sd of the HR for the M loops
-par_sum <- rbind (summary(out_coh)$coef[c(1:5),2], mean_param, sd_param)
-rownames(par_sum) <- c("cohort HR","mean HR NCC","sd HR NCC")
+mean_param <- apply(param[c(2:M),], 2, mean)  # compute the mean of the log HR for the M loops
+sd_param <-  apply(param[c(2:M),], 2, sd)     # compute the sd of the log HR for the M loops
+par_sum <- rbind (summary(out_coh)$coef[c(1:5),1], mean_param, sd_param)
+rownames(par_sum) <- c("cohort log HR","mean log HR NCC","sd log HR NCC")
 colnames(par_sum) <- names(coef(out_coh))
 par_sum
 
 par(mfrow=c(2,3) )                                   # allow 2*3 graphs on the same page
 for (i in 1:5) {
-    hist(param[,i], main=colnames(par_sum)[i], xlab="HR value")  # histogram of HR for variable sex (female vs male)
+    hist(param[,i], main=colnames(par_sum)[i], xlab="log HR value")  # histogram of HR for variable sex (female vs male)
     abline(v=summary(out_coh)$coef[i,2], col="green")
     abline(v=mean_param[i], col="red")
 }
 plot.new()
-legend(0, 0.5, c("Cox HR value","Mean NCC"),lty=1,col=c("green","red"),bty="n")
+legend(0, 0.5, c("Cox","Mean NCC"),lty=1,col=c("green","red"),bty="n")

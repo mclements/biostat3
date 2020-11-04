@@ -181,17 +181,19 @@ mel.split2 &lt;-<span class="st"> </span><span class="kw">survSplit</span>(mel.s
 <p>To calculate the expected cases for a cohort, using reference mortality rates classified by age and calendar period, it is first necessary to merge the population rates with the observed person-time. Then the expected number of cases are calculated by multiplying the follow-up time for each record by the reference rate for that record. The SMR is the ratio of the total observed cases to the total number expected.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pt &lt;-<span class="st"> </span><span class="kw">mutate</span>(mel.split2,<span class="dt">sex=</span><span class="kw">unclass</span>(sex)) <span class="op">%&gt;%</span>
 <span class="st">    </span><span class="kw">group_by</span>(sex, age, year) <span class="op">%&gt;%</span>
-<span class="st">    </span><span class="kw">summarise</span>(<span class="dt">pt=</span><span class="kw">sum</span>(pt))
-expected &lt;-<span class="st"> </span><span class="kw">inner_join</span>(popmort, pt) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">summarise</span>(<span class="dt">pt=</span><span class="kw">sum</span>(pt))</code></pre></div>
+<pre><code>## `summarise()` regrouping output by 'sex', 'age' (override with `.groups` argument)</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">expected &lt;-<span class="st"> </span><span class="kw">inner_join</span>(popmort, pt) <span class="op">%&gt;%</span>
 <span class="st">    </span><span class="kw">mutate</span>(<span class="dt">pt=</span><span class="kw">ifelse</span>(<span class="kw">is.na</span>(pt),<span class="dv">0</span>,pt)) <span class="op">%&gt;%</span>
 <span class="st">    </span><span class="kw">group_by</span>(sex,year) <span class="op">%&gt;%</span>
 <span class="st">    </span><span class="kw">summarise</span>(<span class="dt">E=</span><span class="kw">sum</span>(rate<span class="op">*</span>pt)) <span class="op">%&gt;%</span><span class="st"> </span>ungroup</code></pre></div>
 <pre><code>## Joining, by = c(&quot;sex&quot;, &quot;age&quot;, &quot;year&quot;)</code></pre>
-<pre><code>## Warning: Column `sex` has different attributes on LHS and RHS of join</code></pre>
+<pre><code>## `summarise()` regrouping output by 'sex' (override with `.groups` argument)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">observed &lt;-<span class="st"> </span><span class="kw">mutate</span>(mel.split2, <span class="dt">sex=</span><span class="kw">as.numeric</span>(<span class="kw">unclass</span>(sex))) <span class="op">%&gt;%</span>
 <span class="st">    </span><span class="kw">group_by</span>(sex, year) <span class="op">%&gt;%</span>
-<span class="st">    </span><span class="kw">summarise</span>(<span class="dt">O=</span><span class="kw">sum</span>(dead)) <span class="op">%&gt;%</span><span class="st"> </span>ungroup
-joint &lt;-<span class="st"> </span><span class="kw">inner_join</span>(observed,expected) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">summarise</span>(<span class="dt">O=</span><span class="kw">sum</span>(dead)) <span class="op">%&gt;%</span><span class="st"> </span>ungroup</code></pre></div>
+<pre><code>## `summarise()` regrouping output by 'sex' (override with `.groups` argument)</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">joint &lt;-<span class="st"> </span><span class="kw">inner_join</span>(observed,expected) <span class="op">%&gt;%</span>
 <span class="st">    </span><span class="kw">mutate</span>(<span class="dt">SMR =</span> O<span class="op">/</span>E)</code></pre></div>
 <pre><code>## Joining, by = c(&quot;sex&quot;, &quot;year&quot;)</code></pre>
 </div>

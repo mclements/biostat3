@@ -106,7 +106,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h2>Exercise 4. Localised melanoma: Comparing actuarial and Kaplan-Meier approaches with discrete time data</h2>
 <p>The aim of this exercise is to examine the effect of heavily grouped data (i.e., data with lots of ties) on estimates of survival made using the Kaplan-Meier method and the actuarial method.</p>
 <p>For the patients diagnosed with localised skin melanoma, estimate the 10-year cause-specific survival proportion. Use both the Kaplan-Meier method and the actuarial method. Do this both with survival time recorded in completed years and survival time recorded in completed months. That is, you should obtain 4 separate estimates of the 10-year cause-specific survival proportion to complete the cells of the following table. The purpose of this exercise is to illustrate small differences between the two methods when there are large numbers of ties.</p>
-<p>In order to reproduce the results in the printed solutions you’ll need to restrict to localised stage and estimate cause-specific survival (“Dead: cancer” indicates an event). Look at the code in the previous questions if you are unsure.</p>
+<p>In order to reproduce the results in the printed solutions you’ll need to restrict to localised stage and estimate cause-specific survival (&quot;Dead: cancer&quot; indicates an event). Look at the code in the previous questions if you are unsure.</p>
 <p>You may have to install the required packages the first time you use them. You can install a package by <code>install.packages(&quot;package_of_interest&quot;)</code> for each package you require.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(biostat3) </code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(melanoma)
@@ -139,12 +139,12 @@ localised &lt;-<span class="st"> </span><span class="kw">transform</span>(locali
      <span class="dt">ylim=</span><span class="kw">c</span>(<span class="fl">0.7</span>,<span class="dv">1</span>), <span class="dt">cex=</span><span class="dv">5</span>,
      <span class="dt">xlab=</span><span class="st">&quot;Time from cancer diagnosis (months)&quot;</span>,
      <span class="dt">ylab=</span><span class="st">&quot;Survival&quot;</span>)
-lty &lt;-<span class="st"> </span><span class="kw">lifetab2</span>(<span class="kw">Surv</span>(<span class="kw">floor</span>(surv_yy),death_cancer)<span class="op">~</span><span class="dv">1</span>, <span class="dt">data =</span> localised)
+lty &lt;-<span class="st"> </span><span class="kw">lifetab2</span>(<span class="kw">Surv</span>(<span class="kw">floor</span>(surv_yy)<span class="op">*</span><span class="dv">12</span>,death_cancer)<span class="op">~</span><span class="dv">1</span>, <span class="dt">data =</span> localised)
 ltm &lt;-<span class="st"> </span><span class="kw">lifetab2</span>(<span class="kw">Surv</span>(<span class="kw">floor</span>(surv_mm),death_cancer)<span class="op">~</span><span class="dv">1</span>, <span class="dt">data =</span> localised)
-kmy &lt;-<span class="st"> </span><span class="kw">summary</span>(mfit_years, <span class="dt">times=</span><span class="dv">0</span><span class="op">:</span><span class="dv">20</span>)
-<span class="kw">lines</span>((<span class="dv">0</span><span class="op">:</span><span class="dv">20</span>)<span class="op">*</span><span class="dv">12</span>, lty<span class="op">$</span>surv, <span class="dt">col=</span><span class="st">&quot;green&quot;</span>)
-<span class="kw">lines</span>(<span class="dv">0</span><span class="op">:</span><span class="dv">251</span>, ltm<span class="op">$</span>surv, <span class="dt">col=</span><span class="st">&quot;orange&quot;</span>)
-<span class="kw">lines</span>((<span class="dv">0</span><span class="op">:</span><span class="dv">20</span>)<span class="op">*</span><span class="dv">12</span>, kmy<span class="op">$</span>surv, <span class="dt">col=</span><span class="st">&quot;red&quot;</span>, <span class="dt">type=</span><span class="st">&quot;s&quot;</span>)
+mfit_years &lt;-<span class="st"> </span><span class="kw">survfit</span>(<span class="kw">Surv</span>(surv_yy<span class="op">*</span><span class="dv">12</span>, death_cancer) <span class="op">~</span><span class="st"> </span><span class="dv">1</span>, <span class="dt">data =</span> localised)
+<span class="kw">lines</span>(lty, <span class="dt">col=</span><span class="st">&quot;green&quot;</span>)
+<span class="kw">lines</span>(ltm, <span class="dt">col=</span><span class="st">&quot;orange&quot;</span>)
+<span class="kw">lines</span>(mfit_years, <span class="dt">col=</span><span class="st">&quot;red&quot;</span>, <span class="dt">conf.int=</span><span class="ot">FALSE</span>)
 <span class="kw">legend</span>(<span class="st">&quot;topright&quot;</span>,
        <span class="dt">legend=</span><span class="kw">c</span>(<span class="st">&quot;KM (months)&quot;</span>, <span class="st">&quot;KM (years)&quot;</span>, <span class="st">&quot;Actuarial (months)&quot;</span>, <span class="st">&quot;Actuarial (years)&quot;</span>),
        <span class="dt">lty=</span><span class="dv">1</span>,

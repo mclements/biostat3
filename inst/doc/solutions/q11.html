@@ -104,15 +104,14 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <section class="main-content">
 <div id="exercise-11.-cox-regression-with-all-cause-mortality-as-the-outcome" class="section level1">
 <h1>Exercise 11. Cox regression with all-cause mortality as the outcome</h1>
-<p>Now fit a model to the localised melanoma data where the outcome is observed survival (i.e. all deaths are considered to be events).</p>
+<p>Now fit a model to the localised melanoma data where the outcome is observed survival (i.e. all deaths are considered to be events).</p>
 <p>You may have to install the required packages the first time you use them. You can install a package by <code>install.packages(&quot;package_of_interest&quot;)</code> for each package you require.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(biostat3) <span class="co"># </span>
 <span class="kw">library</span>(dplyr)    <span class="co"># for data manipulation</span></code></pre></div>
 <p>Load the melanoma data and explore it.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Read melanoma data
 ## and select subcohorts
-<span class="kw">data</span>(melanoma)
-melanoma.l &lt;-<span class="st"> </span>melanoma <span class="op">%&gt;%</span>
+melanoma.l &lt;-<span class="st"> </span>biostat3<span class="op">::</span>melanoma <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">filter</span>(stage<span class="op">==</span><span class="st">&quot;Localised&quot;</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">mutate</span>(
     ## Create a death indicator
@@ -156,7 +155,6 @@ melanoma.l2 &lt;-
 ## agegrp75+                  8.4846     0.1179    7.2155    9.9769
 ## 
 ## Concordance= 0.709  (se = 0.006 )
-## Rsquare= 0.155   (max possible= 0.992 )
 ## Likelihood ratio test= 895.5  on 5 df,   p=&lt;2e-16
 ## Wald test            = 943.1  on 5 df,   p=&lt;2e-16
 ## Score (logrank) test = 1130  on 5 df,   p=&lt;2e-16</code></pre>
@@ -189,7 +187,6 @@ melanoma.l2 &lt;-
 ## agegrp75+                  3.3804     0.2958    2.7547    4.1483
 ## 
 ## Concordance= 0.646  (se = 0.009 )
-## Rsquare= 0.039   (max possible= 0.949 )
 ## Likelihood ratio test= 212.7  on 5 df,   p=&lt;2e-16
 ## Wald test            = 217.9  on 5 df,   p=&lt;2e-16
 ## Score (logrank) test = 226.8  on 5 df,   p=&lt;2e-16</code></pre>

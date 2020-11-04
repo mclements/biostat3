@@ -169,7 +169,7 @@ brvSplit <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"
 </div>
 <div id="e" class="section level2">
 <h2>(e)</h2>
-<p>Since there is a strong possibility that the effect of bereavement is not the same for men as for women, use streg to estimate the effect of bereavement separately for men and women. Do this both by fitting separate models for males and females (e.g. streg brv if sex==1) as well as by using a single model with an interaction term (you may need to create dummy variables). Confirm that the estimates are identical for these two approaches.</p>
+<p>Since there is a strong possibility that the effect of bereavement is not the same for men as for women, use streg to estimate the effect of bereavement separately for men and women. Do this both by fitting separate models for males and females (e.g. streg brv if sex==1) as well as by using a single model with an interaction term (you may need to create dummy variables). Confirm that the estimates are identical for these two approaches.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Poisson regression for sex==1
 poisson22e1 &lt;-<span class="st"> </span><span class="kw">glm</span>( fail <span class="op">~</span><span class="st"> </span>brv <span class="op">+</span><span class="st"> </span><span class="kw">offset</span>( <span class="kw">log</span>(t_sp_at_risk) ), <span class="dt">family=</span>poisson, <span class="dt">data=</span><span class="kw">filter</span>(brvSplit, sex<span class="op">==</span><span class="dv">1</span>))
 <span class="kw">summary</span>(poisson22e1)

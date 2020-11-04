@@ -54,13 +54,16 @@ plot(sfit7a1,
      col=c("blue","red"),
      lty=c("solid","dashed"))
 ## Add legend too
-legend("bottomleft",legend=levels(melanoma.l$year8594),col=c("blue","red"),lty=c("solid","dashed"))
+legend("bottomleft",legend=levels(melanoma.l$year8594),col=c("blue","red"),lty=c("solid","dashed"), bty="n")
 
 ### TRY IF YOU WANT ###
-## install.packages("survMisc")
-## require(survMisc)
-## autoplot(sfit7a1)
-
+if (FALSE) {
+    library(survMisc)
+    ## Note: `autoplot(sfit7a1)` was broken; I have submitted a pull request to fix this
+    ## autoplot(sfit7a1)
+    ## alternatively:
+    autoplot(sfit7a1, timeTicks = "custom", times= seq(0, 20*12, 5*12))
+}
 
 ## @knitr 7.a.ii
 
@@ -98,10 +101,13 @@ survRate(Surv(surv_mm, death_cancer) ~ year8594, data=melanoma.l)
 ## Calculate the incidence rate by time of diagnosis
 ## but with new variables
 melanoma.l2 <- mutate(melanoma.l,
-                       ## Update the death indicator (only count deaths within 120 months)
-                       death_cancer = death_cancer * as.numeric(surv_mm<=120),
-                       ## Create a new time variable
-                       surv_mm = pmin(surv_mm, 120) )
+                      ## Update the death indicator (only count deaths within 120 months)
+                      ## death_cancer = death_cancer * as.numeric(surv_mm<=120),
+                      death_cancer = ifelse(surv_mm<=120 & status == "Dead: cancer",1,0),
+                      ## Create a new time variable
+                      ## surv_mm = pmin(surv_mm, 120)
+                      surv_mm = ifelse(surv_mm<=120, surv_mm, 120)
+                      )
 
 ## Calculate the rates on the truncated data
 rates_by_diag_yr2 <- survRate(Surv(surv_mm, death_cancer) ~ year8594, data=melanoma.l2)
@@ -281,3 +287,79 @@ summary(poisson7l2 <- glm( death_cancer ~ fu + fu:year8594 + agegrp + agegrp:yea
                           + sex*year8594 + offset( log(pt) ),
                           family=poisson, data=melanoma.spl ))
 eform(poisson7l2)
+
+## @knitr 7.m
+## Split follow up by month
+library(splines)
+time.cut <- seq(0,10,by=1/12)
+nrow(biostat3::melanoma)
+melanoma.spl <- survSplit(Surv(surv_mm/12,status=="Dead: cancer")~., data=biostat3::melanoma,
+                          cut=time.cut,
+                          subset=stage=="Localised")
+nrow(melanoma.spl)
+melanoma.spl <- transform(melanoma.spl, mid=(tstop+tstart)/2, risk_time=tstop-tstart)
+poisson7m <- glm(event ~ ns(mid,df=6) + agegrp + year8594 +
+                     offset(log(risk_time)),
+                 family=poisson,
+                 data=melanoma.spl)
+df <- data.frame(agegrp="0-44", year8594="Diagnosed 75-84",
+                 mid=time.cut[-1], risk_time=1)
+## plot the rate at the baseline values
+plot(df$mid, predict(poisson7m, newdata=df, type="response"),
+     type="l", ylab="Rate", xlab="Time since diagnosis (years)",
+     ylim=c(0,0.05))
+
+## @knitr 7.n
+## using melanoma.spl and df from previous chunk
+poisson7n <- glm(event ~ ns(mid,df=4) + agegrp + year8594 +
+                     ifelse(year8594=="Diagnosed 85-94",1,0):ns(mid,df=3) +
+                     offset(log(risk_time)),
+                 family=poisson,
+                 data=melanoma.spl)
+library(rstpm2)
+## get log(RR) confidence interval using predictnl (delta method)
+pred <- predictnl(poisson7n, function(object)
+    log(predict(object, newdata=transform(df, year8594="Diagnosed 85-94"),
+                type="response") /
+        predict(object, newdata=df, type="response")))
+gpred2 <- transform(pred, time = df$mid, rr = exp(fit), ci = exp(confint(pred)))
+ggplot(pred2, aes(x=time, y=rr, ymin=ci.2.5.., ymax=ci.97.5..)) +
+    ggplot2::geom_line() + ggplot2::geom_ribbon(alpha=0.6) +
+    xlab("Time since diagnosis (years)") +
+    ylab("Rate ratio")
+    
+## Calculate the rate difference
+band <- function(x,yy,col="grey")
+    polygon(c(x,rev(x)), c(yy[,1], rev(yy[,2])), col=col, border=col)
+pred <- predictnl(poisson7n, function(object)
+    predict(object, newdata=transform(df, year8594="Diagnosed 85-94"),
+                type="response") -
+    predict(object, newdata=df, type="response"))
+rd <- pred$fit
+ci <- confint(pred)
+matplot(df$mid,
+        ci,
+        type="n", # blank plot area
+        xlab="Time since diagnosis (years)",
+        ylab="Rate difference") 
+band(df$mid,ci) # add confidence band
+lines(df$mid, rd) # add rate difference
+
+## @knitr 7.o
+## Calculate survival from a smooth Poisson regression model 
+twoState <- function(object, ...) {
+    out <- as.data.frame(markov_msm(list(object),matrix(c(NA,1,NA,NA),2,byrow=TRUE), ...))
+    transform(subset(out, state==1),
+              S=P,
+              S.lower=P.lower,
+              S.upper=P.upper)
+}
+df2 <- expand.grid(agegrp=levels(biostat3::melanoma$agegrp),
+                   year8594=levels(biostat3::melanoma$year8594))
+df2 <- transform(df2,risk_time=1)
+pred <- twoState(poisson7n, t=c(0,df$mid), newdata = df2, tmvar = "mid")
+ggplot(pred, aes(x=time,y=S,ymin=S.lower,ymax=S.upper,fill=year8594)) +
+    ggplot2::geom_line() + ggplot2::geom_ribbon(alpha=0.6) +
+    facet_grid(~agegrp) +
+    xlab("Time since diagnosis (years)") +
+    ylab("Survival")

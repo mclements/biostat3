@@ -111,7 +111,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">library</span>(dplyr)    <span class="co"># for data manipulation</span>
 <span class="kw">library</span>(ggplot2)</code></pre></div>
 <p>Load melanoma data and explore it.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">localised &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">filter</span>(melanoma, stage <span class="op">==</span><span class="st"> &quot;Localised&quot;</span>) <span class="op">%&gt;%</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">localised &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">filter</span>(biostat3<span class="op">::</span>melanoma, stage <span class="op">==</span><span class="st"> &quot;Localised&quot;</span>) <span class="op">%&gt;%</span>
 <span class="st">    </span>dplyr<span class="op">::</span><span class="kw">mutate</span>(<span class="dt">death_cancer =</span> <span class="kw">ifelse</span>( status <span class="op">==</span><span class="st"> &quot;Dead: cancer&quot;</span> <span class="op">&amp;</span><span class="st"> </span>surv_mm <span class="op">&lt;=</span><span class="st"> </span><span class="dv">120</span>, <span class="dv">1</span>, <span class="dv">0</span>), <span class="co">#censoring for &gt; 120 months</span>
            <span class="dt">trunc_yy =</span> <span class="kw">pmin</span>(surv_mm<span class="op">/</span><span class="dv">12</span>,<span class="dv">10</span>))  <span class="co">#scale to years and truncate to 10 years</span></code></pre></div>
 <div id="a" class="section level2">
@@ -218,18 +218,18 @@ cox2p8Split1b &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span 
 </tr>
 <tr class="even">
 <td>Agegrp45-59</td>
-<td align="left">–</td>
-<td align="left">–</td>
+<td align="left">--</td>
+<td align="left">--</td>
 </tr>
 <tr class="odd">
 <td>Agegrp60-74</td>
-<td align="left">–</td>
-<td align="left">–</td>
+<td align="left">--</td>
+<td align="left">--</td>
 </tr>
 <tr class="even">
 <td>Agegrp75+</td>
-<td align="left">–</td>
-<td align="left">–</td>
+<td align="left">--</td>
+<td align="left">--</td>
 </tr>
 </tbody>
 </table>
@@ -265,9 +265,9 @@ melanoma2p8Split2 &lt;-<span class="st"> </span><span class="kw">survSplit</span
            <span class="dt">mid=</span>time.cuts[<span class="kw">unclass</span>(fu)]<span class="op">+</span>delta<span class="op">/</span><span class="dv">2</span>) <span class="op">%&gt;%</span>
 <span class="st">    </span><span class="kw">group_by</span>(mid,sex,year8594,agegrp) <span class="op">%&gt;%</span>
 <span class="st">    </span><span class="kw">summarise</span>(<span class="dt">pt=</span><span class="kw">sum</span>(tstop<span class="op">-</span>tstart), <span class="dt">death_cancer=</span><span class="kw">sum</span>(death_cancer)) <span class="op">%&gt;%</span>
-<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">age75 =</span> (agegrp<span class="op">==</span><span class="st">&quot;75+&quot;</span>)<span class="op">+</span><span class="dv">0</span>)
-
-poisson2p8tvc &lt;-<span class="st"> </span><span class="kw">glm</span>(death_cancer <span class="op">~</span><span class="st"> </span>sex <span class="op">+</span><span class="st"> </span>year8594 <span class="op">+</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span><span class="kw">ns</span>(mid,<span class="dt">df=</span><span class="dv">3</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">age75 =</span> (agegrp<span class="op">==</span><span class="st">&quot;75+&quot;</span>)<span class="op">+</span><span class="dv">0</span>)</code></pre></div>
+<pre><code>## `summarise()` regrouping output by 'mid', 'sex', 'year8594' (override with `.groups` argument)</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">poisson2p8tvc &lt;-<span class="st"> </span><span class="kw">glm</span>(death_cancer <span class="op">~</span><span class="st"> </span>sex <span class="op">+</span><span class="st"> </span>year8594 <span class="op">+</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span><span class="kw">ns</span>(mid,<span class="dt">df=</span><span class="dv">3</span>) <span class="op">+</span>
 <span class="st">                         </span>age75<span class="op">:</span><span class="kw">ns</span>(mid,<span class="dt">df=</span><span class="dv">3</span>) <span class="op">+</span><span class="st"> </span><span class="kw">offset</span>(<span class="kw">log</span>(pt)),
     <span class="dt">data=</span>melanoma2p8Split2, <span class="dt">family=</span>poisson)
 
@@ -278,8 +278,16 @@ polygon.ci &lt;-<span class="st"> </span><span class="cf">function</span>(time, 
 newdata &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">mid=</span><span class="kw">seq</span>(<span class="dv">0</span>,<span class="kw">max</span>(time.cuts),<span class="dt">length=</span><span class="dv">100</span>), <span class="dt">year8594=</span><span class="st">&quot;Diagnosed 85-94&quot;</span>,
                       <span class="dt">sex=</span><span class="st">&quot;Male&quot;</span>, <span class="dt">agegrp=</span><span class="st">&quot;75+&quot;</span>, <span class="dt">age75=</span><span class="dv">1</span>, <span class="dt">pt=</span><span class="dv">1</span>)
 
-<span class="kw">library</span>(rstpm2)
-logirr &lt;-<span class="st"> </span>rstpm2<span class="op">::</span><span class="kw">predictnl</span>(poisson2p8tvc,
+<span class="kw">library</span>(rstpm2)</code></pre></div>
+<pre><code>## 
+## Attaching package: 'rstpm2'</code></pre>
+<pre><code>## The following objects are masked from 'package:biostat3':
+## 
+##     colon, eform, popmort</code></pre>
+<pre><code>## The following object is masked from 'package:survival':
+## 
+##     colon</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">logirr &lt;-<span class="st"> </span>rstpm2<span class="op">::</span><span class="kw">predictnl</span>(poisson2p8tvc,
           <span class="dt">fun=</span><span class="cf">function</span>(fit,newdata) <span class="kw">predict</span>(fit, newdata) <span class="op">-</span>
 <span class="st">                        </span><span class="kw">predict</span>(fit, <span class="kw">transform</span>(newdata, <span class="dt">agegrp=</span><span class="st">'0-44'</span>, <span class="dt">age75=</span><span class="dv">0</span>)),
           <span class="dt">newdata=</span>newdata)

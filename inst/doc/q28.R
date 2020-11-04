@@ -18,7 +18,7 @@ library(ggplot2)
 data(melanoma)
 
 ## Extract subset and create 0/1 outcome variables
-melanoma0 <- melanoma %>% filter(stage=="Localised") %>%
+melanoma0 <- biostat3::melanoma %>% filter(stage=="Localised") %>%
              mutate(event = ifelse(status=="Dead: cancer" & surv_mm<120, 1, 0),
                     time = pmin(120, surv_mm)/12,
                     agegrp1 = (agegrp=="0-44")+0,  # used by time-dependent effect
@@ -41,7 +41,9 @@ summary(cox)
 ## (b) Prediction and plots of survival and hazard by calendar period
 years <- levels(melanoma0$year8594)
 
-s <- predict(fpma,newdata=data.frame(year8594=years),grid=TRUE,full=TRUE,se.fit=TRUE)
+s <- predict(fpma,newdata=data.frame(year8594=years),grid=TRUE,full=TRUE,se.fit=TRUE,
+             type="surv")
+head(s)
 ggplot(s, aes(x=time,y=Estimate,fill=year8594,ymin=lower,ymax=upper)) +
     xlab("Time since diagnosis (years)") +
     ylab("Survival") +
@@ -58,7 +60,8 @@ legend("topright", legend=years, col=1:2, lty=1, bty="n")
 ## @knitr c_haz_log
 ## (c) hazards on log scale, adding log="y"
 plot(fpma,newdata=data.frame(year8594=years[1]), type="haz",
-     xlab="Time since diagnosis (years)", 
+     xlab="Time since diagnosis (years)",
+     ci=FALSE,
      ylab="Hazard (log scale)",main=years[1], log="y", ylim=c(0.01,0.07))
 lines(fpma,newdata=data.frame(year8594=years[2]), type="haz", col=2)
 legend("topright", legend=years, col=1:2, lty=1, bty="n")

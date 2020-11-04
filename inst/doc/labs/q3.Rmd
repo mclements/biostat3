@@ -35,14 +35,15 @@ Estimate the cause-specific survivor function, using the Kaplan-Meier method wit
 ```
 
 There seems to be a clear difference in survival between the
-        two periods. Patients diagnosed during 1985–94 have superior
-        survival to those diagnosed 1975–84.
+two periods. Patients diagnosed during 1985–94 have superior
+survival to those diagnosed 1975–84.
 
 ## (b) ##
 
-The following commands can be used to plot the hazard function (instantaneous mortality rate):
-	i.  At what point in the follow-up is mortality highest?
-	ii. Does this pattern seem reasonable from a clinicial/biological perspective? [HINT:Consider the disease with which these patients were classified as being diagnosed along with the expected fatality of the disease as a function of time since diagnosis.]
+Plot the hazard function (instantaneous mortality rate):
+
+i.  At what point in the follow-up is mortality highest?
+ii. Does this pattern seem reasonable from a clinicial/biological perspective? [HINT:Consider the disease with       which these patients were classified as being diagnosed along with the expected fatality of the disease as       a function of time since diagnosis.]
 
 <!-- ```{r b_hazDiaDate, results="hide", fig.show="hide"} -->
 <!-- ``` -->

@@ -21,7 +21,7 @@ summary(diet)
 
 ## @knitr 8a1_Haz_att_age
 scale <- 365.24
-plot.bshazard(bshazard(Surv((doe - dob)/scale, (dox - dob)/scale, chd) ~ 1, data=subset(diet,hieng=="low")),
+plot(bshazard(Surv((doe - dob)/scale, (dox - dob)/scale, chd) ~ 1, data=subset(diet,hieng=="low")),
                          ylim=c(0,0.03), conf.int=FALSE, xlab="Attained age (years)")
 lines(bshazard(Surv((doe - dob)/scale, (dox - dob)/scale, chd) ~ 1, data=subset(diet,hieng=="high")),
       col="red", conf.int=FALSE)
@@ -132,3 +132,5 @@ poisson8e2 <- glm( chd ~ fu + hieng + job + bmi + offset( log( risk_time) ),
 
 summary(poisson8e2)
 eform(poisson8e2)
+
+

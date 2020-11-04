@@ -133,7 +133,8 @@ melanoma.l2 &lt;-<span class="st">    </span><span class="kw">mutate</span>(mela
 <p>R reports a Wald test of the null hypothesis that survival is independent of calendar period. The test statistic (and associated P-value), is reported in the table of parameter estimates. Under the null hypothesis, the test statistic has a standard normal (Z) distribution, so the square of the test statistic will have a chi square distribution with one degree of freedom.</p>
 <p>R also reports a likelihood ratio test statistic of the null hypothesis that none of the parameters in the model are associated with survival. In general, this test statistic will have a chi-square distribution with degrees of freedom equal to the number of parameters in the model. For the current model, with only one parameter, the test statistic has a chi square distribution with one degree of freedom.</p>
 <p>Compare these two test statistics with each other and with the log rank test statistic (which also has a chi square distribution) calculated in question 3c (you should, however, recalculate the log rank test since we have restricted follow-up to the first 10 years in this exercise). Would you expect these test statistics to be similar? Consider the null and alternative hypotheses of each test and the assumptions involved with each test.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>( coxfit3c &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>year8594,
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">survdiff</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>year8594, <span class="dt">data =</span> melanoma.l)
+<span class="kw">summary</span>( coxfit9b &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>year8594,
                            <span class="dt">data =</span> melanoma.l) )</code></pre></div>
 </div>
 <div id="c" class="section level2">
@@ -155,13 +156,8 @@ melanoma.l2 &lt;-<span class="st">    </span><span class="kw">mutate</span>(mela
 <div id="d" class="section level2">
 <h2>(d)</h2>
 <p>Perform a likelihood ratio test of the overall effect of age and interpret the results.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Test if the effect of age is significant
-## Use an LR test with the anova function
-## The model without agegrp
-<span class="kw">summary</span>( coxfit9d &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>year8594 <span class="op">+</span><span class="st"> </span>sex,
-                           <span class="dt">data =</span> melanoma.l2) )
-## LR test
-<span class="kw">anova</span>(coxfit9c, coxfit9d)</code></pre></div>
+<!-- ```{r 9.d, warning=FALSE, results='hide', fig.show='hide', eval=FALSE} -->
+<!-- ``` -->
 <p>Compare your findings to those obtained using the Wald test. Are the findings similar? Would you expect them to be similar?</p>
 </div>
 <div id="e" class="section level2">
@@ -203,7 +199,7 @@ melanoma.spl &lt;-<span class="st"> </span><span class="kw">mutate</span>(melano
 
 <span class="kw">head</span>(sfit9f<span class="op">$</span>time)
 
-## Split follow up by year
+## Split follow up by event times
 melanoma.spl2 &lt;-<span class="st"> </span><span class="kw">survSplit</span>(melanoma.l2, <span class="dt">cut=</span>sfit9f<span class="op">$</span>time, <span class="dt">end=</span><span class="st">&quot;surv_mm&quot;</span>, <span class="dt">start=</span><span class="st">&quot;start&quot;</span>,
                            <span class="dt">event=</span><span class="st">&quot;death_cancer&quot;</span>)
 
@@ -243,7 +239,7 @@ melanoma.spl4 &lt;-
 <span class="st">    </span><span class="kw">survSplit</span>(<span class="kw">Surv</span>(surv_mm,death_cancer)<span class="op">~</span>., <span class="dt">data=</span>melanoma.l2, <span class="dt">cut=</span>cuts.splines,
               <span class="dt">start=</span><span class="st">&quot;tstart&quot;</span>, <span class="dt">end=</span><span class="st">&quot;tstop&quot;</span>) <span class="op">%&gt;%</span>
 <span class="st">    </span><span class="kw">mutate</span>(<span class="dt">cut=</span><span class="kw">cut</span>(tstop,cuts.splines),
-           <span class="dt">mid=</span>mid.splines[<span class="kw">unclass</span>(cut)]<span class="op">+</span><span class="fl">1.5</span>) <span class="op">%&gt;%</span>
+           <span class="dt">mid=</span>mid.splines[<span class="kw">unclass</span>(cut)]) <span class="op">%&gt;%</span>
 <span class="st">    </span><span class="kw">group_by</span>(mid,year8594,sex,agegrp) <span class="op">%&gt;%</span>
 <span class="st">    </span><span class="kw">summarise</span>(<span class="dt">pt=</span><span class="kw">sum</span>(tstop<span class="op">-</span>tstart), <span class="dt">death_cancer=</span><span class="kw">sum</span>(death_cancer))
 
@@ -254,17 +250,10 @@ poisson9g &lt;-<span class="st"> </span><span class="kw">glm</span>( death_cance
 <span class="kw">eform</span>(poisson9g)
 
 ## quick approach: use the effects package
-<span class="kw">library</span>(effects)</code></pre></div>
-<pre><code>## Registered S3 methods overwritten by 'lme4':
-##   method                          from
-##   cooks.distance.influence.merMod car 
-##   influence.merMod                car 
-##   dfbeta.influence.merMod         car 
-##   dfbetas.influence.merMod        car</code></pre>
-<pre><code>## lattice theme set by effectsTheme()
-## See ?effectsTheme for details.</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="kw">Effect</span>(<span class="st">&quot;mid&quot;</span>, poisson9g))</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## utility function to draw a confidence interval
+<span class="kw">library</span>(effects)
+<span class="kw">plot</span>(<span class="kw">Effect</span>(<span class="st">&quot;mid&quot;</span>, poisson9g))
+
+## utility function to draw a confidence interval
 polygon.ci &lt;-<span class="st"> </span><span class="cf">function</span>(time, interval, <span class="dt">col=</span><span class="st">&quot;lightgrey&quot;</span>) 
     <span class="kw">polygon</span>(<span class="kw">c</span>(time,<span class="kw">rev</span>(time)), <span class="kw">c</span>(interval[,<span class="dv">1</span>],<span class="kw">rev</span>(interval[,<span class="dv">2</span>])), <span class="dt">col=</span>col, <span class="dt">border=</span>col)
 
@@ -282,18 +271,11 @@ ci &lt;-<span class="st"> </span><span class="kw">with</span>(pred, <span class=
 <span class="kw">matplot</span>(newdata<span class="op">$</span>mid, ci, <span class="dt">type=</span><span class="st">&quot;n&quot;</span>, <span class="dt">xlab=</span><span class="st">&quot;Time since diagnosis (months)&quot;</span>,
         <span class="dt">ylab=</span><span class="st">&quot;Rate&quot;</span>, <span class="dt">main=</span><span class="st">&quot;Males aged 45-59 years diagnosed 1985-94&quot;</span>)
 <span class="kw">polygon.ci</span>(newdata<span class="op">$</span>mid, ci) 
-<span class="kw">lines</span>(newdata<span class="op">$</span>mid, predrate)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## predict survival and 95% CI
-<span class="kw">library</span>(rstpm2)</code></pre></div>
-<pre><code>## 
-## Attaching package: 'rstpm2'</code></pre>
-<pre><code>## The following objects are masked from 'package:biostat3':
-## 
-##     colon, eform, popmort</code></pre>
-<pre><code>## The following object is masked from 'package:survival':
-## 
-##     colon</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">logcumhaz &lt;-<span class="st"> </span>rstpm2<span class="op">::</span><span class="kw">predictnl</span>(poisson9g,
+<span class="kw">lines</span>(newdata<span class="op">$</span>mid, predrate)
+
+## predict survival and 95% CI
+<span class="kw">library</span>(rstpm2)
+logcumhaz &lt;-<span class="st"> </span>rstpm2<span class="op">::</span><span class="kw">predictnl</span>(poisson9g,
           <span class="dt">fun=</span><span class="cf">function</span>(fit,newdata) <span class="kw">log</span>(<span class="kw">cumsum</span>(delta<span class="op">*</span><span class="kw">predict</span>(fit, newdata, <span class="dt">type=</span><span class="st">&quot;response&quot;</span>))),
           <span class="dt">newdata=</span>newdata)
 surv &lt;-<span class="st"> </span><span class="kw">exp</span>(<span class="op">-</span><span class="kw">exp</span>(logcumhaz<span class="op">$</span>Estimate))

@@ -151,11 +151,16 @@ sfit7a1 &lt;-<span class="st"> </span><span class="kw">survfit</span>(<span clas
      <span class="dt">col=</span><span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>,<span class="st">&quot;red&quot;</span>),
      <span class="dt">lty=</span><span class="kw">c</span>(<span class="st">&quot;solid&quot;</span>,<span class="st">&quot;dashed&quot;</span>))
 ## Add legend too
-<span class="kw">legend</span>(<span class="st">&quot;bottomleft&quot;</span>,<span class="dt">legend=</span><span class="kw">levels</span>(melanoma.l<span class="op">$</span>year8594),<span class="dt">col=</span><span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>,<span class="st">&quot;red&quot;</span>),<span class="dt">lty=</span><span class="kw">c</span>(<span class="st">&quot;solid&quot;</span>,<span class="st">&quot;dashed&quot;</span>))</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">### TRY IF YOU WANT <span class="al">###</span>
-## install.packages(&quot;survMisc&quot;)
-## require(survMisc)
-## autoplot(sfit7a1)</code></pre></div>
+<span class="kw">legend</span>(<span class="st">&quot;bottomleft&quot;</span>,<span class="dt">legend=</span><span class="kw">levels</span>(melanoma.l<span class="op">$</span>year8594),<span class="dt">col=</span><span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>,<span class="st">&quot;red&quot;</span>),<span class="dt">lty=</span><span class="kw">c</span>(<span class="st">&quot;solid&quot;</span>,<span class="st">&quot;dashed&quot;</span>), <span class="dt">bty=</span><span class="st">&quot;n&quot;</span>)
+
+### TRY IF YOU WANT <span class="al">###</span>
+<span class="cf">if</span> (<span class="ot">FALSE</span>) {
+    <span class="kw">library</span>(survMisc)
+    ## Note: `autoplot(sfit7a1)` was broken; I have submitted a pull request to fix this
+    ## autoplot(sfit7a1)
+    ## alternatively:
+    <span class="kw">autoplot</span>(sfit7a1, <span class="dt">timeTicks =</span> <span class="st">&quot;custom&quot;</span>, <span class="dt">times=</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">20</span><span class="op">*</span><span class="dv">12</span>, <span class="dv">5</span><span class="op">*</span><span class="dv">12</span>))
+}</code></pre></div>
 </div>
 <div id="ii." class="section level3">
 <h3>ii.</h3>
@@ -203,10 +208,13 @@ sfit7a1 &lt;-<span class="st"> </span><span class="kw">survfit</span>(<span clas
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Calculate the incidence rate by time of diagnosis
 ## but with new variables
 melanoma.l2 &lt;-<span class="st"> </span><span class="kw">mutate</span>(melanoma.l,
-                       ## Update the death indicator (only count deaths within 120 months)
-                       <span class="dt">death_cancer =</span> death_cancer <span class="op">*</span><span class="st"> </span><span class="kw">as.numeric</span>(surv_mm<span class="op">&lt;=</span><span class="dv">120</span>),
-                       ## Create a new time variable
-                       <span class="dt">surv_mm =</span> <span class="kw">pmin</span>(surv_mm, <span class="dv">120</span>) )
+                      ## Update the death indicator (only count deaths within 120 months)
+                      ## death_cancer = death_cancer * as.numeric(surv_mm&lt;=120),
+                      <span class="dt">death_cancer =</span> <span class="kw">ifelse</span>(surv_mm<span class="op">&lt;=</span><span class="dv">120</span> <span class="op">&amp;</span><span class="st"> </span>status <span class="op">==</span><span class="st"> &quot;Dead: cancer&quot;</span>,<span class="dv">1</span>,<span class="dv">0</span>),
+                      ## Create a new time variable
+                      ## surv_mm = pmin(surv_mm, 120)
+                      <span class="dt">surv_mm =</span> <span class="kw">ifelse</span>(surv_mm<span class="op">&lt;=</span><span class="dv">120</span>, surv_mm, <span class="dv">120</span>)
+                      )
 
 ## Calculate the rates on the truncated data
 rates_by_diag_yr2 &lt;-<span class="st"> </span><span class="kw">survRate</span>(<span class="kw">Surv</span>(surv_mm, death_cancer) <span class="op">~</span><span class="st"> </span>year8594, <span class="dt">data=</span>melanoma.l2)
@@ -426,6 +434,67 @@ melanoma.spl &lt;-<span class="st"> </span>melanoma.spl <span class="op">%&gt;%<
                           <span class="dt">family=</span>poisson, <span class="dt">data=</span>melanoma.spl ))
 <span class="kw">eform</span>(poisson7l2)</code></pre></div>
 <p>Can you fit a single model that reproduces the estimates you obtained from the stratified models?</p>
+</div>
+<div id="m" class="section level2">
+<h2>(m)</h2>
+<p>Split by month and fit a model to smooth for time using natural splines, adjusting for age group and calendar period. Plot the baseline hazard.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Split follow up by month
+<span class="kw">library</span>(splines)
+time.cut &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dv">0</span>,<span class="dv">10</span>,<span class="dt">by=</span><span class="dv">1</span><span class="op">/</span><span class="dv">12</span>)
+<span class="kw">nrow</span>(biostat3<span class="op">::</span>melanoma)
+melanoma.spl &lt;-<span class="st"> </span><span class="kw">survSplit</span>(<span class="kw">Surv</span>(surv_mm<span class="op">/</span><span class="dv">12</span>,status<span class="op">==</span><span class="st">&quot;Dead: cancer&quot;</span>)<span class="op">~</span>., <span class="dt">data=</span>biostat3<span class="op">::</span>melanoma,
+                          <span class="dt">cut=</span>time.cut,
+                          <span class="dt">subset=</span>stage<span class="op">==</span><span class="st">&quot;Localised&quot;</span>)
+<span class="kw">nrow</span>(melanoma.spl)
+melanoma.spl &lt;-<span class="st"> </span><span class="kw">transform</span>(melanoma.spl, <span class="dt">mid=</span>(tstop<span class="op">+</span>tstart)<span class="op">/</span><span class="dv">2</span>, <span class="dt">risk_time=</span>tstop<span class="op">-</span>tstart)
+poisson7m &lt;-<span class="st"> </span><span class="kw">glm</span>(event <span class="op">~</span><span class="st"> </span><span class="kw">ns</span>(mid,<span class="dt">df=</span><span class="dv">6</span>) <span class="op">+</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>year8594 <span class="op">+</span>
+<span class="st">                     </span><span class="kw">offset</span>(<span class="kw">log</span>(risk_time)),
+                 <span class="dt">family=</span>poisson,
+                 <span class="dt">data=</span>melanoma.spl)
+df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">agegrp=</span><span class="st">&quot;0-44&quot;</span>, <span class="dt">year8594=</span><span class="st">&quot;Diagnosed 75-84&quot;</span>,
+                 <span class="dt">mid=</span>time.cut[<span class="op">-</span><span class="dv">1</span>], <span class="dt">risk_time=</span><span class="dv">1</span>)
+## plot the rate at the baseline values
+<span class="kw">plot</span>(df<span class="op">$</span>mid, <span class="kw">predict</span>(poisson7m, <span class="dt">newdata=</span>df, <span class="dt">type=</span><span class="st">&quot;response&quot;</span>),
+     <span class="dt">type=</span><span class="st">&quot;l&quot;</span>, <span class="dt">ylab=</span><span class="st">&quot;Rate&quot;</span>, <span class="dt">xlab=</span><span class="st">&quot;Time since diagnosis (years)&quot;</span>,
+     <span class="dt">ylim=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="fl">0.05</span>))</code></pre></div>
+</div>
+<div id="n" class="section level2">
+<h2>(n)</h2>
+<p>Split by month and fit a model to smooth for time using natural splines, adjusting for age group and calendar period, with a time-varying hazard ratio for calendar period. Plot the time-varying hazard ratio.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## using melanoma.spl and df from previous chunk
+poisson7n &lt;-<span class="st"> </span><span class="kw">glm</span>(event <span class="op">~</span><span class="st"> </span><span class="kw">ns</span>(mid,<span class="dt">df=</span><span class="dv">4</span>) <span class="op">+</span><span class="st"> </span>agegrp <span class="op">+</span><span class="st"> </span>year8594 <span class="op">+</span>
+<span class="st">                     </span><span class="kw">ifelse</span>(year8594<span class="op">==</span><span class="st">&quot;Diagnosed 85-94&quot;</span>,<span class="dv">1</span>,<span class="dv">0</span>)<span class="op">:</span><span class="kw">ns</span>(mid,<span class="dt">df=</span><span class="dv">3</span>) <span class="op">+</span>
+<span class="st">                     </span><span class="kw">offset</span>(<span class="kw">log</span>(risk_time)),
+                 <span class="dt">family=</span>poisson,
+                 <span class="dt">data=</span>melanoma.spl)
+<span class="kw">library</span>(rstpm2)
+## get log(RR) confidence interval using predictnl (delta method)
+pred &lt;-<span class="st"> </span><span class="kw">predictnl</span>(poisson7n, <span class="cf">function</span>(object)
+    <span class="kw">log</span>(<span class="kw">predict</span>(object, <span class="dt">newdata=</span><span class="kw">transform</span>(df, <span class="dt">year8594=</span><span class="st">&quot;Diagnosed 85-94&quot;</span>),
+                <span class="dt">type=</span><span class="st">&quot;response&quot;</span>) <span class="op">/</span>
+<span class="st">        </span><span class="kw">predict</span>(object, <span class="dt">newdata=</span>df, <span class="dt">type=</span><span class="st">&quot;response&quot;</span>)))
+gpred2 &lt;-<span class="st"> </span><span class="kw">transform</span>(pred, <span class="dt">time =</span> df<span class="op">$</span>mid, <span class="dt">rr =</span> <span class="kw">exp</span>(fit), <span class="dt">ci =</span> <span class="kw">exp</span>(<span class="kw">confint</span>(pred)))
+<span class="kw">ggplot</span>(pred2, <span class="kw">aes</span>(<span class="dt">x=</span>time, <span class="dt">y=</span>rr, <span class="dt">ymin=</span>ci.<span class="dv">2</span>.<span class="dv">5</span>.., <span class="dt">ymax=</span>ci.<span class="dv">97</span>.<span class="dv">5</span>..)) <span class="op">+</span>
+<span class="st">    </span>ggplot2<span class="op">::</span><span class="kw">geom_line</span>() <span class="op">+</span><span class="st"> </span>ggplot2<span class="op">::</span><span class="kw">geom_ribbon</span>(<span class="dt">alpha=</span><span class="fl">0.6</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">xlab</span>(<span class="st">&quot;Time since diagnosis (years)&quot;</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">ylab</span>(<span class="st">&quot;Rate ratio&quot;</span>)
+    
+## Calculate the rate difference
+band &lt;-<span class="st"> </span><span class="cf">function</span>(x,yy,<span class="dt">col=</span><span class="st">&quot;grey&quot;</span>)
+    <span class="kw">polygon</span>(<span class="kw">c</span>(x,<span class="kw">rev</span>(x)), <span class="kw">c</span>(yy[,<span class="dv">1</span>], <span class="kw">rev</span>(yy[,<span class="dv">2</span>])), <span class="dt">col=</span>col, <span class="dt">border=</span>col)
+pred &lt;-<span class="st"> </span><span class="kw">predictnl</span>(poisson7n, <span class="cf">function</span>(object)
+    <span class="kw">predict</span>(object, <span class="dt">newdata=</span><span class="kw">transform</span>(df, <span class="dt">year8594=</span><span class="st">&quot;Diagnosed 85-94&quot;</span>),
+                <span class="dt">type=</span><span class="st">&quot;response&quot;</span>) <span class="op">-</span>
+<span class="st">    </span><span class="kw">predict</span>(object, <span class="dt">newdata=</span>df, <span class="dt">type=</span><span class="st">&quot;response&quot;</span>))
+rd &lt;-<span class="st"> </span>pred<span class="op">$</span>fit
+ci &lt;-<span class="st"> </span><span class="kw">confint</span>(pred)
+<span class="kw">matplot</span>(df<span class="op">$</span>mid,
+        ci,
+        <span class="dt">type=</span><span class="st">&quot;n&quot;</span>, <span class="co"># blank plot area</span>
+        <span class="dt">xlab=</span><span class="st">&quot;Time since diagnosis (years)&quot;</span>,
+        <span class="dt">ylab=</span><span class="st">&quot;Rate difference&quot;</span>) 
+<span class="kw">band</span>(df<span class="op">$</span>mid,ci) <span class="co"># add confidence band</span>
+<span class="kw">lines</span>(df<span class="op">$</span>mid, rd) <span class="co"># add rate difference</span></code></pre></div>
 </div>
 </div>
 </section>

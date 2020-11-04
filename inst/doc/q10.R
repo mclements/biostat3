@@ -13,7 +13,7 @@ library(ggplot2)
 
 
 ## @knitr loadPreprocess
-localised <- dplyr::filter(melanoma, stage == "Localised") %>%
+localised <- dplyr::filter(biostat3::melanoma, stage == "Localised") %>%
     dplyr::mutate(death_cancer = ifelse( status == "Dead: cancer" & surv_mm <= 120, 1, 0), #censoring for > 120 months
            trunc_yy = pmin(surv_mm/12,10))  #scale to years and truncate to 10 years
 

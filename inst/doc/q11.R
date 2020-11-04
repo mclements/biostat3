@@ -21,8 +21,7 @@ library(dplyr)    # for data manipulation
 
 ## Read melanoma data
 ## and select subcohorts
-data(melanoma)
-melanoma.l <- melanoma %>%
+melanoma.l <- biostat3::melanoma %>%
   filter(stage=="Localised") %>%
   mutate(
     ## Create a death indicator

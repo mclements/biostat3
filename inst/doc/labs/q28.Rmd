@@ -85,6 +85,9 @@ Adapt the above code to work with hazards.
 
 ##(f) Adjust for sex and age (in categories) ##
 
+```{r f_sex_age, results='hide'}
+```
+
 Fit a flexible parametric survival model that adjusts for calendar period, sex and age group, with four degrees of freedom for the baseline. How do you interpret the fitted parameters?
 
 Use a likelihod ratio test to assess whether age group contributes significantly to the model fit. How do you interpret the test?

@@ -37,7 +37,8 @@ summary( coxfit9a <- coxph(Surv(surv_mm, death_cancer) ~ year8594,
 
 ## @knitr 9.b
 
-summary( coxfit3c <- coxph(Surv(surv_mm, death_cancer) ~ year8594,
+survdiff(Surv(surv_mm, death_cancer) ~ year8594, data = melanoma.l)
+summary( coxfit9b <- coxph(Surv(surv_mm, death_cancer) ~ year8594,
                            data = melanoma.l) )
 
 ## @knitr 9.c
@@ -59,7 +60,7 @@ summary( coxfit9d <- coxph(Surv(surv_mm, death_cancer) ~ year8594 + sex,
                            data = melanoma.l2) )
 ## LR test
 anova(coxfit9c, coxfit9d)
-
+anova(coxfit9c)
 ## @knitr 9.e
 
 summary( coxfit9e <- coxph(Surv(surv_mm, death_cancer) ~ year8594 + sex + agegrp,
@@ -92,7 +93,7 @@ str(sfit9f, 1)
 
 head(sfit9f$time)
 
-## Split follow up by year
+## Split follow up by event times
 melanoma.spl2 <- survSplit(melanoma.l2, cut=sfit9f$time, end="surv_mm", start="start",
                            event="death_cancer")
 
@@ -131,7 +132,7 @@ melanoma.spl4 <-
     survSplit(Surv(surv_mm,death_cancer)~., data=melanoma.l2, cut=cuts.splines,
               start="tstart", end="tstop") %>%
     mutate(cut=cut(tstop,cuts.splines),
-           mid=mid.splines[unclass(cut)]+1.5) %>%
+           mid=mid.splines[unclass(cut)]) %>%
     group_by(mid,year8594,sex,agegrp) %>%
     summarise(pt=sum(tstop-tstart), death_cancer=sum(death_cancer))
 

@@ -1,3 +1,11 @@
+## https://stackoverflow.com/questions/10959521/how-to-write-to-clipboard-on-ubuntu-linux-in-r
+clipboard <- function(x, sep="\t", row.names=FALSE, col.names=TRUE){
+     con <- pipe("xclip -selection clipboard -i", open="w")
+     write.table(x, con, sep=sep, row.names=row.names, col.names=col.names)
+     close(con)
+}
+library(biostat3)
+clipboard(colon_sample)
 
 library(foreign)
 getData <- function(name) {

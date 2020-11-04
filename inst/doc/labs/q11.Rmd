@@ -25,20 +25,20 @@ You may have to install the required packages the first time you use them. You c
 ```
 Load the melanoma data and explore it.
 
-```{r loadPreprocess, results='hide'}
+```{r loadPreprocess, results='hide', eval=FALSE}
 ```
 
 ## (a) ## 
 
-Interpret the estimated hazard ratio for the parameter labelled 2.agegrp, including a comment on statistical significance.
+Interpret the estimated hazard ratio for the parameter labelled `agegrp60-74`, including a comment on statistical significance.
 
 
-```{r 11.a, warning=FALSE, results='hide'}
+```{r 11.a, warning=FALSE, results='hide', eval=FALSE}
 ```
 
 ## (b) ## 
 
 On comparing the estimates between the observed and cause-specific survival models it appears that only the parameters for age have changed substantially. Can you explain why the estimates for the effect of age would be expected to change more than the estimates of the effect of sex and period?
 
-```{r 11.b, warning=FALSE, results='hide'}
+```{r 11.b, warning=FALSE, results='hide', eval=FALSE}
 ```

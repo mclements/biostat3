@@ -25,17 +25,17 @@ opts_chunk$set(cache=FALSE)
 
 You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
 
-```{r loadDependencies, message=FALSE}
+```{r loadDependencies, message=FALSE, eval=FALSE}
 ```
 
-```{r loadPreprocess, results='hide', fig.show='hide'}
+```{r loadPreprocess, results='hide', fig.show='hide', eval=FALSE}
 ```
 
 ## (a) ##  
 Interpret the estimated hazard ratio, including a comment on statistical significance. Write the linear predictor using pen and paper. Draw a graph showing the shape of the fitted hazard rates for the two calendar periods, also indicating the distance between the curves (HINT: draw on the log hazard scale if you find it easier). Compare this to how you drew the graph in exercise 7h.
 
 
-```{r 9.a, results='hide', fig.show='hide'}
+```{r 9.a, results='hide', fig.show='hide', eval=FALSE}
 ```
 
 ## (b) ##  
@@ -49,7 +49,7 @@ R also reports a likelihood ratio test statistic of the null hypothesis that non
 Compare these two test statistics with each other and with the log rank test statistic (which also has a chi square distribution) calculated in question 3c (you should, however, recalculate the log rank test since we have restricted follow-up to the first 10 years in this exercise). Would you expect these test statistics to be similar? Consider the null and alternative hypotheses of each test and the assumptions involved with each test.
 
 
-```{r 9.b, results='hide', fig.show='hide'}
+```{r 9.b, results='hide', fig.show='hide', eval=FALSE}
 ```
 
 ## (c) ##  
@@ -60,15 +60,15 @@ Now include sex and age (in categories) in the model. Write the linear predictor
   iii. Perform a Wald test of the overall effect of age and interpret the results.
 
 
-```{r  9.c, results='hide', fig.show='hide'}
+```{r  9.c, results='hide', fig.show='hide', eval=FALSE}
 ```
 
 ## (d) ##
 Perform a likelihood ratio test of the overall effect of age and interpret the results.
 
 
-```{r 9.d, warning=FALSE, results='hide', fig.show='hide'}
-```
+<!-- ```{r 9.d, warning=FALSE, results='hide', fig.show='hide', eval=FALSE} -->
+<!-- ``` -->
 
 Compare your findings to those obtained using the Wald test. Are the findings similar? Would you expect them to be similar?
 
@@ -80,14 +80,14 @@ The model estimated in question 9c is similar to the model estimated in question
   iii. Do both models assume proportional hazards? Explain.
 
 
-```{r 9.e, results='hide', fig.show='hide'}
+```{r 9.e, results='hide', fig.show='hide', eval=FALSE}
 ```
 
 ## (f) ##  
 
 ADVANCED: By splitting at each failure time we can estimate a Poisson regression model that is identical to the Cox model.
 
-```{r 9.f, results='hide', fig.show='hide'}
+```{r 9.f, results='hide', fig.show='hide', eval=FALSE}
 
 ```
 
@@ -97,6 +97,6 @@ ADVANCED: By splitting at each failure time we can estimate a Poisson regression
 ADVANCED: Split the data finely (e.g., 3-month intervals) and
         model the effect of time using a restricted cubic spline with Poisson regression. Also plot the rate and survival.
 
-```{r 9.g, results='hide', fig.show='hide'}
+```{r 9.g, results='hide', fig.show='hide', eval=FALSE}
 ```
 
