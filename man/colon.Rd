@@ -27,8 +27,6 @@ Colon cancer dataset
     \item{\code{id}}{a numeric vector}
     \item{\code{ydx}}{a numeric vector for continuous year of diagnosis}
     \item{\code{yexit}}{a numeric vector for continuous year of exit}
-    \item{\code{bdate}}{a Date vector for year of birth}
-    \item{\code{ybdate}}{a numeric vector for continuous year of birth}
   }
 }
 %% \details{

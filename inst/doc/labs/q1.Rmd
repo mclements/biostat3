@@ -46,21 +46,21 @@ construct a life table with the following structure.
 
 
 
-| time  | $l$ | $d$ | $w$ | $l'$ | $p$ | $S(t)$ |
-|-------|-----|-----|-----|------|-----|--------|
-| [0-1) | 35  |     |     |      |     |        |
-| [1-2) |     |     |     |      |     |        |
-| [2-3) |     |     |     |      |     |        |
-| [3-4) |     |     |     |      |     |        |
-| [4-5) |     |     |     |      |     |        |
-| [5-6) |     |     |     |      |     |        |
+| interval $[u,v)$ | $l$ | $d$ | $w$ | $l'$ | $p$ | $S(u)$ | $S(v)$ |
+|------------------|-----|-----|-----|------|-----|--------|--------|
+| [0-1)            | 35  |     |     |      |     | 1.000  |        |
+| [1-2)            |     |     |     |      |     |        |        |
+| [2-3)            |     |     |     |      |     |        |        |
+| [3-4)            |     |     |     |      |     |        |        |
+| [4-5)            |     |     |     |      |     |        |        |
+| [5-6)            |     |     |     |      |     |        |        |
 
 
-We have already entered $l_1$ (number of people alive at the start
-of interval 1). The next step is to add the number who experienced
-the event ($d$) and the number censored ($w$) during the first year.
+We have already entered $l$ (the number of people alive) at the start
+of the first interval. The next step is to add the number who experienced
+the event  ($d$) and the number censored ($w$) during the interval.
 From $l$, $d$, and $w$ you will then be able to calculate $l'$
-(effective number at risk), followed by $p$ (conditional probability
+(the effective number at risk), followed by $p$ (conditional probability
 of surviving the interval) and finally $S(t)$, the cumulative
 probability of surviving from time zero until the end of
 the interval.
@@ -75,7 +75,7 @@ time at which there is an event or censoring is time equal to
 2 months. The trick is what to do when there are both events and
 censorings at the same time.
 
-| time     | # at risk | $d$ | $w$ | $p$ | $S(t)$ |
+| time $t$ | # at risk | $d$ | $w$ | $p$ | $S(t)$ |
 |----------|-----------|-----|-----|-----|--------|
 | 2        | 35        |     |     |     |        |
 | 3        |           |     |     |     |        |
