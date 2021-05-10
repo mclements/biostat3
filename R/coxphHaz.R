@@ -9,14 +9,20 @@ coxphHaz <-
                              newdata=newdata,
                              class="coxphHazList"))
         x <- survival::survfit(object, conf.type = "none")
-        index <- x$n.risk > 0
+        index <- x$n.risk > 0 & x$n.event > 0
         time <- x$time[index]
-        weights <- x$n.event[index]/x$n.risk[index]
+        weights <- diff(c(0,x$cumhaz[index]))
+        Sh0 <- x$n.event[index]/weights
+        weights.var <- weights/Sh0
         if (is.null(from)) from <- min(x$time)
         if (is.null(to)) to <- max(x$time)
         newobject <- suppressWarnings(stats::density(time, weight = weights, kernel = kernel,
                                                      n=n.grid, from = from, to = to, ...))
-        newobject$y <- newobject$y*exp(predict(object, newdata))
+        newobject$y = newobject$y*exp(predict(object, newdata))
+        ## variance only correct for X=0 and for kernel="epanechnikov"
+        newobject.var <- suppressWarnings(stats::density(time, weight = weights.var, kernel = "biweight",
+                                                         n=n.grid, from = from, to = to, ...))
+        newobject$var = 3/5/newobject$bw*newobject.var$y
         structure(newobject, newdata=newdata, n.grid=n.grid, call=match.call(),
                   class=c("coxphHaz","density"))
     }
@@ -32,7 +38,7 @@ plot.coxphHazList <- function(x, xlab="Time", ylab="Hazard", type="l", col=1:len
     plot <- matplot(x[[1]]$x, do.call("cbind", lapply(x, function(item) item$y)),
                     xlab=xlab, ylab=ylab, type=type, col=col, lty=lty, ...)
     base.legend.args <- list(x="topright",legend=strata(attr(x,"newdata")),col=col,lty=lty)
-    legend.args <- do.call("updateList",c(list(base.legend.args), legend.args))
+    legend.args <- modifyList(base.legend.args, legend.args)
     do.call("legend", legend.args)
     invisible(plot)
 }
@@ -40,14 +46,17 @@ lines.coxphHazList <- function(x, ...)
     matlines(x[[1]]$x, do.call("cbind", lapply(x, function(item) item$y)), 
              ...)
 
-as.data.frame.coxphHaz <- function(x, row.names=NULL, optional = FALSE, ...) {
+as.data.frame.coxphHaz <- function(x, row.names=NULL, optional = FALSE, level=0.95, ...) {
     newdata = attr(x,"newdata")
     ## To avoid "row names were found from a short variable and have been discarded":
-    rownames(newdata) = NULL 
-    data.frame(newdata, x=x$x, y=x$y)
+    rownames(newdata) = NULL
+    alpha <- (1-level)/2
+    transform(data.frame(newdata, x=x$x, y=x$y, var=x$var),
+              y.lower = y*exp(qnorm(alpha)*sqrt(var)/y),
+              y.upper = y*exp(qnorm(1-alpha)*sqrt(var)/y))
 }
 as.data.frame.coxphHazList <- function(x, row.names=NULL, optional = FALSE, ...) {
-    do.call(rbind, lapply(x, as.data.frame))
+    do.call(rbind, lapply(x, as.data.frame, rownames, optional, ...))
 }
 
 
