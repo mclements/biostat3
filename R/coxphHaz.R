@@ -40,6 +40,16 @@ lines.coxphHazList <- function(x, ...)
     matlines(x[[1]]$x, do.call("cbind", lapply(x, function(item) item$y)), 
              ...)
 
+as.data.frame.coxphHaz <- function(x, row.names=NULL, optional = FALSE, ...) {
+    newdata = attr(x,"newdata")
+    ## To avoid "row names were found from a short variable and have been discarded":
+    rownames(newdata) = NULL 
+    data.frame(newdata, x=x$x, y=x$y)
+}
+as.data.frame.coxphHazList <- function(x, row.names=NULL, optional = FALSE, ...) {
+    do.call(rbind, lapply(x, as.data.frame))
+}
+
 
 ## ## adjusted muhaz (not used)
 ## library(dplyr)

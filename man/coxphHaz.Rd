@@ -4,6 +4,8 @@
 \alias{plot.coxphHaz}
 \alias{plot.coxphHazList}
 \alias{lines.coxphHazList}
+\alias{as.data.frame.coxphHaz}
+\alias{as.data.frame.coxphHazList}
 \title{
 Smoothed hazard estimates for \code{coxph}
 }
@@ -18,6 +20,8 @@ to, ...)
 \method{plot}{coxphHazList}(x, xlab="Time", ylab="Hazard", type="l",
                   col=1:length(x), lty=1, legend.args=list(), ...)
 \method{lines}{coxphHazList}(x, ...)
+\method{as.data.frame}{coxphHaz}(x, row.names=NULL, optional=FALSE, ...)
+\method{as.data.frame}{coxphHazList}(x, row.names=NULL, optional=FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -98,7 +102,6 @@ fit <- coxph(Surv(surv_mm/12,status=="Dead: cancer")~agegrp, data=colon)
 newdata <- data.frame(agegrp=levels(colon$agegrp))
 haz <- suppressWarnings(coxphHaz(fit,newdata))
 plot(haz, xlab="Time since diagnosis (years)")
-legend("topright", legend=newdata$agegrp, lty=1:4, col=1:4, bty="n")
 }
 \keyword{ survival }
 
