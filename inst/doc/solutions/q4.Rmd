@@ -17,21 +17,28 @@ read_chunk('../q4.R')
 opts_chunk$set(cache=FALSE)
 ```
 
+We load the dependencies:
+
 ```{r loadDependencies, message=FALSE}
 ```
 
+Then load the data and define an indicator:
 ```{r loadPreprocess}
 ```
 
+Then we show the results using the actuarial estimator with years:
 ```{r actuarialYears}
 ```
 
+Similarly, we use the actuarial estimator using months:
 ```{r actuarialMonths}
 ```
 
+Then the code using the Kaplan-Meier estimator with years:
 ```{r kmYears}
 ```
 
+And the Kaplan-Meier estimator with data in months:
 ```{r kmMonths}
 ```
 

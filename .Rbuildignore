@@ -11,3 +11,5 @@ inst/doc/labs/q.*_files/*
 inst/doc/solutions/markdown*
 inst/doc/solutions/q.*_files
 ^.*\.log$
+inst/doc/tmp
+inst/doc/labs/tmp

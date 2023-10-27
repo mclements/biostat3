@@ -23,6 +23,7 @@ using two alternative measures --- survival proportions and
 mortality rates. A second purpose is to study the difference between
 cause-specific and all-cause survival.
 
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
 
 Load dependencies
 

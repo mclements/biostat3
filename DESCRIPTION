@@ -1,8 +1,8 @@
 Package: biostat3
 Type: Package
 Title: Utility Functions, Datasets and Extended Examples for Survival Analysis
-Version: 0.1.6
-Date: 2021-05-10
+Version: 0.1.9
+Date: 2023-10-27
 Authors@R: c(person("Annika","Tillander", role="ctb"),
 	  person("Andreas","Karlsson", role="aut"),
 	  person("Johan","Zetterqvist", role="ctb"),
@@ -11,9 +11,9 @@ Authors@R: c(person("Annika","Tillander", role="ctb"),
 	  person("Mark","Clements", role=c("aut","cre"), email="mark.clements@ki.se")
 	  )
 Description: Utility functions, datasets and extended examples for survival analysis. This extends a range of other packages, some simple wrappers for time-to-event analyses, datasets, and extensive examples in HTML with R scripts. The package also supports the course Biostatistics III entitled "Survival analysis for epidemiologists in R".
-Depends: survival, R (>= 3.5), MASS
-Imports: muhaz, car, graphics, stats
-Suggests: bshazard, rstpm2, Epi, dplyr
+Depends: survival, R (>= 3.5), MASS, methods
+Imports: muhaz, graphics, stats
+Suggests: car, bshazard, rstpm2, Epi, dplyr
 License: GPL (>=2)
 LazyData: yes
 LazyLoad: yes

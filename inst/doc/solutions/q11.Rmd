@@ -31,9 +31,23 @@ Load the melanoma data and explore it.
 ## (a) ## 
 
 For patients of the same sex diagnosed in the same period, those
-        aged 60–74 at diagnosis have a 2.9 times higher risk of death
-        *due to any causes* than those aged 0–44
-        at diagnosis. This difference is statistically significant.
+aged 60–74 at diagnosis have a 2.94 times higher risk of death
+*due to any causes* than those aged 0-–44
+at diagnosis. The 95% confidence interval is (2.52, 3.44). This difference is statistically significant.
+
+The regression equation is 
+\begin{align*}
+h(t|\text{year8594},\text{sex},\text{agegrp}) &= h_0(t) \exp(\beta_1 I(\text{sex}=\text{"Female"})+\beta_2 I(\text{year8594}=\text{"Diagnosed 85-94"})+\\
+&\qquad\beta_3 I(\text{agegrp}=\text{"45-59"})+\beta_4 I(\text{agegrp}=\text{"60-64"}) + \beta_5 I(\text{agegrp}=\text{"75+"}) 
+\end{align*}
+where $h(t|\text{year8594},\text{sex},\text{agegrp},\text{agegrp})$ is the hazard at time $t$ given covariates $\text{year8594}$, $\text{sex}$ and $\text{agegrp}$ and $\text{agegrp}$, with baseline hazard $h_0(t)$ and regression coefficients representing log hazard ratios for $\beta_1$ for the calendar period 1985--1994, $\beta_2$ for females, with log hazard ratios at time 0 for those aged 45--59 years, 60--74 years and 75 years and over are $\beta_3$, $\beta_4$ and $\beta_5$, respectively.
+
+From the regression equation, a formula for the hazard ratio comparing a male aged 60--74 years with a female aged 75 years and over is
+\begin{align*}
+\frac{h(t|\text{year8594},\text{sex}=\text{"Male"},\text{agegrp}=\text{"60-74"})}{h(t|\text{year8594},\text{sex}=\text{"Female"},\text{agegrp}=\text{"75+"})} &= 
+\frac{h_0(t) \exp(\beta_2 I(\text{year8594}=\text{"Diagnosed 85-94"})+ \beta_4)}{h_0(t)\exp(\beta_1}+\beta_2 I(\text{year8594}=\text{"Diagnosed 85-94"}+\beta_5))} \\
+&= \exp(\beta_4 - \beta_1 - \beta_5)
+\end{align*}
 
 ```{r 11.a, warning=FALSE}
 ```
@@ -41,12 +55,12 @@ For patients of the same sex diagnosed in the same period, those
 ## (b) ## 
 
 Note that the previous model estimated cause-specific hazard
-        ratios whereas the current model estimates all-cause
-        hazard ratios. The estimated hazard ratios for sex and period
-        are similar, whereas the estimated hazard ratios for age are
-        markedly different. This is because non-cancer mortality is
-        heavily dependent on age, but only lightly dependent on sex and
-        calendar period.
+ratios whereas the current model estimates all-cause
+hazard ratios. The estimated hazard ratios for sex and period
+are similar, whereas the estimated hazard ratios for age are
+markedly different. This is because non-cancer mortality is
+heavily dependent on age, but only lightly dependent on sex and
+calendar period.
 		
 ```{r 11.b, warning=FALSE}
 ```

@@ -1,14 +1,15 @@
 exportPattern("^[[:alpha:]]+") # export names that start with a letter 
 
-import(survival)
+import(survival, methods)
 import(MASS)
 importFrom(muhaz, muhaz, plot.muhaz, lines.muhaz)
-importFrom(car, linearHypothesis)
+## importFrom(car, linearHypothesis)
 importFrom(graphics, lines, plot, matlines, matplot, plot.default,
            points)
 importFrom(stats, model.extract, terms, qnorm, approx,
            profile, fitted, qt, spline, coef, confint,
            predict)
+importFrom("utils", "modifyList")
 
 ## importFrom(KMsurv,lifetab)
 ## importFrom(MASS, confint, profile)

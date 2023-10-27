@@ -16,8 +16,7 @@
 ## @knitr loadDependencies
 library(biostat3)
 library(dplyr)    # for data manipulation
-library(car)      # for linearHypothesis
-
+library(car)      # for car::linearHypothesis -> biostat3::lincom
 
 ## @knitr loadPreprocess
 ## Read melanoma data
@@ -238,7 +237,9 @@ hz7k["sexFemale"]
 hz7k["sexFemale"]*hz7k["year8594Diagnosed 85-94:sexFemale"]
 
 ## @knitr 7.k.ii
-biostat3::lincom(poisson7j,c("sexFemale + year8594Diagnosed 85-94:sexFemale"),eform=TRUE)
+## You will need the "car" package to use lincom. If it is not already installed:
+## install.packages("car")
+lincom(poisson7j,c("sexFemale + year8594Diagnosed 85-94:sexFemale"),eform=TRUE)
 
 
 ## @knitr 7.k.iii
@@ -317,12 +318,13 @@ poisson7n <- glm(event ~ ns(mid,df=4) + agegrp + year8594 +
                  family=poisson,
                  data=melanoma.spl)
 library(rstpm2)
+library(ggplot2)
 ## get log(RR) confidence interval using predictnl (delta method)
 pred <- predictnl(poisson7n, function(object)
     log(predict(object, newdata=transform(df, year8594="Diagnosed 85-94"),
                 type="response") /
         predict(object, newdata=df, type="response")))
-gpred2 <- transform(pred, time = df$mid, rr = exp(fit), ci = exp(confint(pred)))
+pred2 <- transform(pred, time = df$mid, rr = exp(fit), ci = exp(confint(pred)))
 ggplot(pred2, aes(x=time, y=rr, ymin=ci.2.5.., ymax=ci.97.5..)) +
     ggplot2::geom_line() + ggplot2::geom_ribbon(alpha=0.6) +
     xlab("Time since diagnosis (years)") +

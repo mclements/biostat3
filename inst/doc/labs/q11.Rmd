@@ -36,6 +36,8 @@ Interpret the estimated hazard ratio for the parameter labelled `agegrp60-74`, i
 ```{r 11.a, warning=FALSE, results='hide', eval=FALSE}
 ```
 
+Write out the regression equation. Using the regression equation, write out a formula for the hazard ratio for a male aged 60--74 years compared with a female aged 75 years or over.
+
 ## (b) ## 
 
 On comparing the estimates between the observed and cause-specific survival models it appears that only the parameters for age have changed substantially. Can you explain why the estimates for the effect of age would be expected to change more than the estimates of the effect of sex and period?

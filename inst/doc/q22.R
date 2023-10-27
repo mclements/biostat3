@@ -15,7 +15,7 @@
 ## @knitr loadDependencies
 library(biostat3) # for Surv and survfit
 library(dplyr)    # for data manipulation
-
+library(rstpm2)
 
 ## @knitr loadPreprocess
 

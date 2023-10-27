@@ -32,7 +32,7 @@ You may have to install the required packages the first time you use them. You c
 ```
 
 ## (a) ##  
-Interpret the estimated hazard ratio, including a comment on statistical significance. Write the linear predictor using pen and paper. Draw a graph showing the shape of the fitted hazard rates for the two calendar periods, also indicating the distance between the curves (HINT: draw on the log hazard scale if you find it easier). Compare this to how you drew the graph in exercise 7h.
+Interpret the estimated hazard ratio, including a comment on statistical significance. Write the regression equation. Draw a graph showing the shape of the fitted hazard rates for the two calendar periods, also indicating the distance between the curves (HINT: draw on the log hazard scale if you find it easier). Compare this to how you drew the graph in exercise 7h.
 
 
 ```{r 9.a, results='hide', fig.show='hide', eval=FALSE}
@@ -53,7 +53,7 @@ Compare these two test statistics with each other and with the log rank test sta
 ```
 
 ## (c) ##  
-Now include sex and age (in categories) in the model. Write the linear predictor using pen and paper.
+Now include sex and age (in categories) in the model. Write out the regression equation.
 
   i. Interpret the estimated hazard ratio for the parameter labelled agegrp45-59, including a comment on its statistical significance.
   ii. Is the effect of calendar period strongly confounded by age and sex? That is, does the inclusion of sex and age in the model change the estimate for the effect of calendar period?

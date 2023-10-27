@@ -1,4 +1,6 @@
 lincom <- function(model, specification, level = 0.95, eform=FALSE, ...) {
+    if(!requireNamespace("car"))
+        stop("Install the 'car' package to use the lincom function")
     if (length(specification)>1)
         return(t(sapply(specification, function(spec) lincom(model, spec, level, eform, ...))))
     x <- car::linearHypothesis(model, specification, ...)

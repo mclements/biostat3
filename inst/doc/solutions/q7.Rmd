@@ -68,15 +68,14 @@ The two graphs both show that prognosis is better during the
 ```{r 7.b,  message=FALSE}
 ```
 
-The estimated mortality rate is lower for patients diagnosed
-        during the early period. This is not consistent with what we saw
-        in previous analyses. The inconsistency is due to the fact that
-        we have not controlled for time since diagnosis. look at the
-        graph of the estimated hazards (on the previous page) and try
-        and estimate the overall average value for each group. We see
-        that the average hazard for patients diagnosed in the early
-        period is drawn down by the low mortality experienced by
-        patients 10 years subsequent to diagnosis.
+The estimated mortality rate is lower for patients diagnosed during
+the early period. This is not consistent with what we saw in previous
+analyses. The inconsistency is due to the fact that we have not
+controlled for time since diagnosis. look at the graph of the
+estimated hazards (on the previous page) and try and estimate the
+overall average value for each group. We see that the average hazard
+for patients diagnosed in the early period is drawn down by the low
+mortality experienced by patients 10 years subsequent to diagnosis.
 
 ## (c) ##
 
@@ -85,11 +84,10 @@ The estimated mortality rate is lower for patients diagnosed
 ```{r 7.c.i,  message=FALSE}
 ```
 
-Now that we have restricted follow-up to a maximum of 10
-            years we see that the average mortality rate for patients
-            diagnosed in the early period is higher than for the
-            latter period. This is consistent with the graphs we
-            examined in part (a).
+Now that we have restricted follow-up to a maximum of 10 years we see
+that the average mortality rate for patients diagnosed in the early
+period is higher than for the latter period. This is consistent with
+the graphs we examined in part (a).
 
 ### ii. ###  
 
@@ -101,12 +99,25 @@ Now that we have restricted follow-up to a maximum of 10
 ```{r 7.c.iii,  message=FALSE}
 ```
 
-We see that Poisson regression is estimating the mortality
-            rate ratio which, in this simple example, is the ratio of
-            the two mortality rates.
+We see that Poisson regression is estimating the mortality rate ratio
+which, in this simple example, is the ratio of the two mortality
+rates.
+
+The regression equation is:
+
+\begin{align*}
+E(\text{death_cancer}) &= \frac{\text{surv_mm}}{12 \times 1000}\exp\left(\beta_0 + \beta_1 I(\text{year8594}="\text{Diagnosed 85-94}")\right) \\
+&= \exp\left(\beta_0 + \beta_1 I(\text{year8594}="\text{Diagnosed 85-94}") + \log(\text{surv_mm}/1000/12) \right)
+\end{align*}
+
+where \(E(\text{death_cancer})\) is the expected number of cancer deaths, $\beta_0$ is the intercept term for the log rate, $\beta_1$ is the log rate ratio for the later calendar period, and $\text{surv_mm}/1000/12$ is the period-time.
+
 
 ## (d) ##
-In order to adjust for time since diagnosis (i.e., adjust for the fact that we expect mortality to depend on time since diagnosis) we need to split the data by this timescale. We will restrict our analysis to mortality up to 10 years following diagnosis.
+In order to adjust for time since diagnosis (i.e., adjust for the fact
+that we expect mortality to depend on time since diagnosis) we need to
+split the data by this timescale. We will restrict our analysis to
+mortality up to 10 years following diagnosis.
 
 ```{r 7.d,  message=FALSE}
 ```
@@ -132,12 +143,12 @@ It seems reasonable (at least to me) that melanoma-specific
 ```
 
 The pattern is similar. The plot of the mortality
-        rates could be considered an
-        approximation to the ‘true’ functional form depicted
-        in the hazard plot. By estimating the rates for each year
-        of follow-up we are essentially approximating the hazard using a step function. It would probably
-        be more informative to use narrower intervals (e.g.,
-        6-month intervals) for the first 6 months of follow-up.
+rates could be considered an
+approximation to the ‘true’ functional form depicted
+in the hazard plot. By estimating the rates for each year
+of follow-up we are essentially approximating the hazard using a step function. It would probably
+be more informative to use narrower intervals (e.g.,
+6-month intervals) for the first 6 months of follow-up.
 		
 ## (g) ##  
 
@@ -145,63 +156,80 @@ The pattern is similar. The plot of the mortality
 ```
 
 The pattern of the estimated mortality rate ratios mirrors the
-        pattern we saw in the plot of the rates. Note that the first
-        year of follow-up is the reference so the estimated rate ratio
-        labelled `1` for `fu` is the rate ratio for the second year
-        compared to the first year.
+pattern we saw in the plot of the rates. Note that the first
+year of follow-up is the reference so the estimated rate ratio
+labelled `1` for `fu` is the rate ratio for the second year
+compared to the first year.
 
-## (h) ##  
+The regression equation is:
 
-```{r 7.h,  message=FALSE}
-```
-The estimated mortality rate ratio is $0.7791$ compared to
-        $0.8832$ (part c) and a value greater than 1 in part (b). The
-        estimate we obtained in part (b) was subject to confounding
-        by time-since-diagnosis. In part (c) we restricted to the first
-        10 years of follow-up subsequent to diagnosis. This did not,
-        however, completely remove the confounding effect of time
-        since diagnosis. There was still some confounding within the
-        first 10 years of follow-up (if this is not clear to you then
-        look in the data to see if there are associations between the
-        confounder and the exposure and the confounder and the outcome)
-        so the estimate was subject to residual confounding. Now, when
-        we adjust for time since diagnosis we see that the estimate
-        changes further.
+\begin{align*}
+E(\text{death_cancer}) &= \text{pt}\exp\left(\beta_0 + \beta_1 I(\text{fu}=1) + \beta_2 I(\text{fu}=2) + \beta_3 I(\text{fu}=3) + \beta_4 I(\text{fu}=4) + \beta_5 I(\text{fu}=5) + \beta_6 I(\text{fu}=6) + \beta_7 I(\text{fu}=7) + \beta_8 I(\text{fu}=8) + \beta_9 I(\text{fu}=9)\right) \\
+&= \exp\left(\beta_0 + \beta_1 I(\text{fu}=1) + \beta_2 I(\text{fu}=2) + \beta_3 I(\text{fu}=3) + \beta_4 I(\text{fu}=4) + \beta_5 I(\text{fu}=5) + \beta_6 I(\text{fu}=6) + \beta_7 I(\text{fu}=7) + \beta_8 I(\text{fu}=8) + \beta_9 I(\text{fu}=9) + \log(\text{pt})\right)
+\end{align*}
+
+
+
+## (h) ##
+
+```{r 7.h, message=FALSE} 
+``` 
+
+The estimated mortality rate ratio is
+$0.7791$ compared to $0.8832$ (part c) and a value greater than 1 in
+part (b). The estimate we obtained in part (b) was subject to
+confounding by time-since-diagnosis. In part (c) we restricted to the
+first 10 years of follow-up subsequent to diagnosis. This did not,
+however, completely remove the confounding effect of time since
+diagnosis. There was still some confounding within the first 10 years
+of follow-up (if this is not clear to you then look in the data to see
+if there are associations between the confounder and the exposure and
+the confounder and the outcome) so the estimate was subject to
+residual confounding. Now, when we adjust for time since diagnosis we
+see that the estimate changes further.
 
 
 ## (i) ##  
-Now control for age, sex, and calendar period. Write the linear predictor using pen and paper.
+Now control for age, sex, and calendar period. Write out the regression equation.
 
-### i. ###  
+The regression equation is:
+\begin{align*}
+E(\text{death_cancer}) &= \text{pt}\exp\left(\beta_0 + \beta_1 I(\text{fu}=1) + \beta_2 I(\text{fu}=2) + \beta_3 I(\text{fu}=3) + \beta_4 I(\text{fu}=4) + \beta_5 I(\text{fu}=5) + \beta_6 I(\text{fu}=6) + \beta_7 I(\text{fu}=7) + \beta_8 I(\text{fu}=8) + \beta_9 I(\text{fu}=9) + \right. \\
+                                             &\qquad \left.\beta_{10} x + \beta_{11} I(\text{fu}=1) x + \beta_{12} I(\text{fu}=2) x + \beta_{13} I(\text{fu}=3) x + \beta_{14} I(\text{fu}=4) x + \beta_{15} I(\text{fu}=5) x + \beta_{16} I(\text{fu}=6) x + \beta_{17} I(\text{fu}=7) x + \beta_{18} I(\text{fu}=8) x + \beta_{19} I(\text{fu}=9) x \right)
+\end{align*}
+where $x$ is the indicator variable when year8594="Diagnosed 85-94". 
+
+
+### i. ###
+
 For patients of the same sex diagnosed in the same calendar
-            period, those aged 60–74 at diagnosis have an estimated 86%
-            higher risk of death due to skin melanoma than those aged
-            0–44 at diagnosis. The difference is
-            statistically significant.
+period, those aged 60–74 at diagnosis have an estimated 86% higher
+risk of death due to skin melanoma than those aged 0–44 at
+diagnosis. The difference is statistically significant.
 
-### ii. ###  
-The parameter estimate for period changes from 0.78 to 0.72
-            when age and sex are added to the model. Whether this is
-            ‘strong confounding’, or even ‘confounding’ is a matter
-            of judgement. I would consider this confounding but not
-            strong confounding but there is no correct answer.
+### ii. ### 
+
+The parameter estimate for period changes from 0.78 to
+0.72 when age and sex are added to the model. Whether this is ‘strong
+confounding’, or even ‘confounding’ is a matter of judgement. I would
+consider this confounding but not strong confounding but there is no
+correct answer.
 
 ### iii. ###
 
 ```{r 7.i,  message=FALSE, warning=FALSE}
 ```
 
-Age (modelled as a categorical variable with 4 levels) is
-            highly significant in the model.
+Age (modelled as a categorical variable with 4 levels) is highly
+significant in the model.
 
 ## (j) ##
 
 ```{r 7.j,  message=FALSE}
 ```
 
-The interaction term is not statistically significant indicating
-        that there is no evidence that the effect of sex is modified
-        by period.
+The interaction term is not statistically significant indicating that
+there is no evidence that the effect of sex is modified by period.
 
 ## (k) ##
 Based on the interaction model you fitted in exercise 7j, estimate the hazard ratio for the effect of sex (with 95% confidence interval) for each calendar period.
@@ -213,20 +241,20 @@ ADVANCED: Do this with each of the following methods and confirm that the result
 ```{r 7.k.i,  message=FALSE}
 ```
 The effect of sex for patients diagnosed 1975–84 is
-            $0.6031338$ and the effect of sex for patients diagnosed
-            1985–94 is $0.6031338 \times 0.9437245=0.56919214$.
+$0.6031338$ and the effect of sex for patients diagnosed
+1985–94 is $0.6031338 \times 0.9437245=0.56919214$.
 
 ### ii. ###  
-We can use `lincom` to get the estimated effect for patients
-            diagnosed 1985–94.
+We can use `lincom` to get the estimated effect for patients diagnosed
+1985–94.
 
 
 ```{r 7.k.ii,  message=FALSE}
 ```
 
 The advantage of `lincom` is that we also get a confidence
-            interval (not easy to calculate by hand since the SE is a
-            function of variances and covariances).
+interval (not easy to calculate by hand since the SE is a
+function of variances and covariances).
 			
 ### iii. ###
 

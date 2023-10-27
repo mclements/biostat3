@@ -5,7 +5,7 @@
 Linear combination of regression parameters.
 }
 \description{
-Using results calculated by the \code{\link{linearHypothesis}} function in
+Using results calculated by the \code{linearHypothesis} function in
 the \code{car} package, calculate a linear combination of regression parameters.
 }
 \usage{
@@ -14,11 +14,11 @@ lincom(model, specification, level = 0.95, eform = FALSE, ...)
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{model}{
-regression model object (as per the \code{model} argument in \code{\link{linearHypothesis}})
+regression model object (as per the \code{model} argument in \code{linearHypothesis})
 }
   \item{specification}{
     specification of the linear combination. This is the same as a
-    single component of the \code{hypothesis.matrix} argument in \code{\link{linearHypothesis}}.
+    single component of the \code{hypothesis.matrix} argument in \code{linearHypothesis}.
 }
   \item{level}{
 the confidence level required
@@ -27,7 +27,7 @@ the confidence level required
 logical for whether to exponentiate the confidence interval (default=FALSE)
 }
   \item{\dots}{
-other arguments to the \code{\link{linearHypothesis}} function.
+other arguments to the \code{linearHypothesis} function.
 }
 }
 \details{
@@ -50,7 +50,7 @@ Multiple specifications of linear combinations are called individually.
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-See Also \code{\link{linearHypothesis}}.
+See Also \code{linearHypothesis}.
 }
 \examples{
   fit <- glm(chd ~ hieng*job + offset(log(y)), data=diet, family=poisson)

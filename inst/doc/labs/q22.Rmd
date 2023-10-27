@@ -62,7 +62,7 @@ Now find the (crude) effect of bereavement.
 ```
 
 ## (e) ## 
-Since there is a strong possibility that the effect of bereavement is not the same for men as for women, use streg to estimate the effect of bereavement separately for men and women. Do this both by fitting separate models for males and females (e.g. streg brv if sex==1) as well as by using a single model with an interaction term (you may need to create dummy variables). Confirm that the estimates are identical for these two approaches.
+Since there is a strong possibility that the effect of bereavement is not the same for men as for women, use streg to estimate the effect of bereavement separately for men and women. Do this both by fitting separate models for males and females as well as by using a single model with an interaction term (you may need to create dummy variables). Confirm that the estimates are identical for these two approaches.
 
 ```{r 22.e, warning=FALSE, message=FALSE, results='hide'}
 ```

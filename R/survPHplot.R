@@ -5,7 +5,7 @@ survPHplot <- function(formula, data, subset, contrasts, weights,
                        log="x",
                        legend.args=list(),
                        ...) {
-    if (class(formula)=="survfit") {
+    if (inherits(formula, "survfit")) {
         fit <- formula
     } else {
         Call <- match.call()

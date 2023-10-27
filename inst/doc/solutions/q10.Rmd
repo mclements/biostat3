@@ -33,17 +33,17 @@ Load melanoma data and explore it.
 ## (a) ## 
 
 If we look at the hazard curves, at their peak the ratio is
-        approximately $0.038/0.048\approx0.79$. The ratio is similar at
-        other follow-up times.
+approximately $0.038/0.048\approx0.79$. The ratio is similar at
+other follow-up times.
 
 ```{r 10.a, message=FALSE}
 ```
 
 ## (b) ## 
 There is no strong evidence against an assumption of
-        proportional hazards since we see (close to) parallel curves
-        when plotting the instantaneous cause-specific hazard on the
-        log scale.
+proportional hazards since we see (close to) parallel curves
+when plotting the instantaneous cause-specific hazard on the
+log scale.
 
 ```{r 10.b, message=FALSE}
 ```
@@ -51,14 +51,14 @@ There is no strong evidence against an assumption of
 ## (c) ## 
 
 If the proportional hazards assumption is appropriate then we
-        should see parallel lines. This looks
-        okay; we shouldn’t put too much weight on the fact that the
-        curves cross early in the follow-up since there are so few
-        deaths there. The difference between the two log-cumulative
-        hazard curves is similar during the part of the follow-up where
-        we have the most information (most deaths). Note that these
-        curves are not based on the estimated Cox model (i.e., they
-        are unadjusted).
+should see parallel lines. This looks
+okay; we shouldn’t put too much weight on the fact that the
+curves cross early in the follow-up since there are so few
+deaths there. The difference between the two log-cumulative
+hazard curves is similar during the part of the follow-up where
+we have the most information (most deaths). Note that these
+curves are not based on the estimated Cox model (i.e., they
+are unadjusted).
 		
 
 ```{r 10.c, message=FALSE}
@@ -66,18 +66,18 @@ If the proportional hazards assumption is appropriate then we
 
 ## (d) ## 
 The estimated hazard ratio from the Cox model is $0.78$ which is
-        similar (as it should be) to the estimate made by looking at the
-        hazard function plot.
+similar (as it should be) to the estimate made by looking at the
+hazard function plot.
 
 ```{r 10.d}
 ```
 
 ## (e) ## 
 The plot of the scaled
-        Schoenfeld residuals for the effect of period. Under
-        proportional hazards, the smoother will be a horizontal line.
-        The line is not, however, perfectly horizontal; it appears that
-        the effect of period is greater earlier in the follow-up.
+Schoenfeld residuals for the effect of period. Under
+proportional hazards, the smoother will be a horizontal line.
+The line is not, however, perfectly horizontal; it appears that
+the effect of period is greater earlier in the follow-up.
 
 ```{r 10.e}
 ```
@@ -88,10 +88,10 @@ No solution written for this part.
 
 ## (g) ## 
 It seems that there is evidence of non-proportional hazards by
-        age (particularly for the comparison of the oldest to youngest)
-        but not for calendar period. The plot of Schoenfeld residuals
-        suggested non-proportionality for period but this was not
-        statistically significant.
+age (particularly for the comparison of the oldest to youngest)
+but not for calendar period. The plot of Schoenfeld residuals
+suggested non-proportionality for period but this was not
+statistically significant.
 
 ```{r 10.g}
 ```
@@ -99,21 +99,30 @@ It seems that there is evidence of non-proportional hazards by
 ## (h) ## 
 
 The hazard ratios for age in the top panel are for the first two
-        years subsequent to diagnosis. To obtain the hazard ratios for
-        the period two years or more following diagnosis we multiply the
-        hazard ratios in the top and bottom panel. That is, during the
-        first two years following diagnosis patients aged 75 years or
-        more at diagnosis have 5.4 times higher cancer-specific
-        mortality than patients aged 0–44 at diagnosis. During the
-        period two years or more following diagnosis the corresponding
-        hazard ratio is $5.4 \times 0.49=2.66$.\
-        Using `survSplit` to split on time will give you the same results
-        as above. We see that the age:follow up interaction is
-        statistically significant.
+years subsequent to diagnosis. To obtain the hazard ratios for
+the period two years or more following diagnosis we multiply the
+hazard ratios in the top and bottom panel. That is, during the
+first two years following diagnosis patients aged 75 years or
+more at diagnosis have 5.4 times higher cancer-specific
+mortality than patients aged 0–44 at diagnosis. During the
+period two years or more following diagnosis the corresponding
+hazard ratio is $5.4 \times 0.49=2.66$.\
+Using `survSplit` to split on time will give you the same results
+as above. We see that the age:follow up interaction is
+statistically significant.
 
 
 ```{r 10.h}
 ```
+
+
+The regression equation for the cox2p8Split1 model is 
+\begin{align*}
+h(t|\text{year8594},\text{sex},\text{agegrp},\text{fu}) &= h_0(t) \exp(\beta_1 I(\text{sex}=\text{"Female"})+\beta_2 I(\text{year8594}=\text{"Diagnosed 85-94"})+\\
+&\qquad\beta_3 I(\text{agegrp}=\text{"45-59"})+\beta_4 I(\text{agegrp}=\text{"60-74"})+\beta_5 I(\text{agegrp}=\text{"75+"}) + \\
+&\qquad \beta_6 I(\text{agegrp}=\text{"45-59"} \&\ \text{fu}=2)+\beta_7 I(\text{agegrp}=\text{"60-74"}  \&\ \text{fu}=2)+\beta_8 I(\text{agegrp}=\text{"75+"} \&\ \text{fu}=2))
+\end{align*}
+where $h(t|\text{year8594},\text{sex},\text{agegrp},\text{fu})$ is the hazard at time $t$ given covariates $\text{year8594}$, $\text{sex}$, $\text{agegrp}$ and $\text{fu}$, with baseline hazard $h_0(t)$ and regression coefficients representing log hazard ratios for $\beta_1$ for females, $\beta_2$ for the calendar period 1985--1994, $\beta_3$ for those aged 45--59 years at diagnosis, $\beta_4$ for those aged 60--74 years and $\beta_5$ for those aged 75 years and over, with interaction terms for the change in log hazard ratio for the second follow-up period being $\beta_6$ for those aged 45--59 years at diagnosis, $\beta_7$ for those aged 60--74 years and $\beta_8$ for those aged 75 years and over.
 
 
 ## (i) ## 
@@ -129,7 +138,35 @@ The hazard ratios for age in the top panel are for the first two
 ```{r 10.i}
 ```
 
-Note that the `tt` functionality only works for a single variable (in our case, `agegrp75+`). We have used the `lincom` function to estimate the hazard ratio for `agegrp75+`. We will later describe a more flexible approach to modelling time-dependent effects using `stpm2`.
+The regression equation for the `cox2p8Split2` model is 
+\begin{align*}
+h(t|\text{year8594},\text{sex},\text{agegrp},\text{fu}) &= h_0(t) \exp(\beta_1 I(\text{sex}=\text{"Female"})+\beta_2 I(\text{year8594}=\text{"Diagnosed 85-94"})+\\
+&\qquad\beta_3 I(\text{agegrp}=\text{"45-59"} \&\ \text{fu}=1)+\beta_4 I(\text{agegrp}=\text{"45-59"} \&\ \text{fu}=2)+\beta_5 I(\text{agegrp}=\text{"60-74"} \&\ \text{fu}=1) + \\
+&\qquad \beta_6 I(\text{agegrp}=\text{"60-74"} \&\ \text{fu}=2)+\beta_7 I(\text{agegrp}=\text{"75+"}  \&\ \text{fu}=1)+\beta_8 I(\text{agegrp}=\text{"75+"} \&\ \text{fu}=2))
+\end{align*}
+where $h(t|\text{year8594},\text{sex},\text{agegrp},\text{agegrp},\text{fu})$ is the hazard at time $t$ given covariates $\text{year8594}$, $\text{sex}$ and $\text{agegrp}$, $\text{agegrp}$ and $\text{fu}$, with baseline hazard $h_0(t)$ and regression coefficients representing log hazard ratios for $\beta_1$ for the calendar period 1985--1994, $\beta_2$ for females, with log hazard ratios for the first and second follow-up period being $\beta_3$ and $\beta_4$ for those aged 45--59 years at diagnosis, $\beta_5$ and $\beta_6$ for those aged 60--74 years and $\beta_7$ and $\beta_8$ for those aged 75 years and over.
+
+We can also use the `tt` argument in `coxph` for modelling for time-varying effects:
+
+```{r 10.ib}
+```
+
+The regression equation for the `cox2p8tvct` model is 
+\begin{align*}
+h(t|\text{year8594},\text{sex},\text{agegrp}) &= h_0(t) \exp(\beta_1 I(\text{sex}=\text{"Female"})+\beta_2 I(\text{year8594}=\text{"Diagnosed 85-94"})+\\
+&\qquad\beta_3 I(\text{agegrp}=\text{"45-59"})+\beta_4 I(\text{agegrp}=\text{"60-64"}) + \beta_5 I(\text{agegrp}=\text{"75+"}) + \\
+&\qquad \beta_6 I(\text{agegrp}=\text{"45-59"}) t +\beta_7 I(\text{agegrp}=\text{"60-74"})t + \beta_8 I(\text{agegrp}=\text{"75+"}) t)
+\end{align*}
+where $h(t|\text{year8594},\text{sex},\text{agegrp},\text{agegrp})$ is the hazard at time $t$ given covariates $\text{year8594}$, $\text{sex}$ and $\text{agegrp}$ and $\text{agegrp}$, with baseline hazard $h_0(t)$ and regression coefficients representing log hazard ratios for $\beta_1$ for the calendar period 1985--1994, $\beta_2$ for females, with log hazard ratios at time 0 for those aged 45--59 years, 60--74 years and 75 years and over are $\beta_3$, $\beta_4$ and $\beta_5$, respectively, while the change in log hazard ratios per year for those aged those aged 45--59 years, 60--74 years and 75 years and over are $\beta_3$, $\beta_4$ and $\beta_5$, respectively.
+
+The hazard ratio for model `cox2p8tvct` for the those aged 75 years and over compared with those aged less than 45 years is 
+\begin{align*}
+\frac{h(t|\text{year8594},\text{sex},\text{agegrp}=\text{"75+"})}{h(t|\text{year8594},\text{sex},\text{agegrp}=\text{"0-44"})} &= 
+\frac{h_0(t) \exp(\beta_1 I(\text{sex}=\text{"Female"})+\beta_2 I(\text{year8594}=\text{"Diagnosed 85-94"})+ \beta_5 + \beta_8 t)}{h_0(t)\exp(\beta_1 I(\text{sex}=\text{"Female"})+\beta_2 I(\text{year8594}=\text{"Diagnosed 85-94"}))} \\
+&= \exp(\beta_5 + \beta_8 t)
+\end{align*}
+
+We have shown several ways to use the `tt` functionality for a factor variable, including using different tt arguments for each factor level (as per model `cox2p8tvc2`) and using a `tt` term that returns a set of columns (as per model `cox2p8tvct`). We have used the `lincom` function to estimate the hazard ratio for `agegrp75+`. We will later describe a more flexible approach to modelling time-dependent effects using `stpm2`.
 
 ## (j) ## 
 

@@ -51,9 +51,14 @@ as.data.frame.coxphHaz <- function(x, row.names=NULL, optional = FALSE, level=0.
     ## To avoid "row names were found from a short variable and have been discarded":
     rownames(newdata) = NULL
     alpha <- (1-level)/2
-    transform(data.frame(newdata, x=x$x, y=x$y, var=x$var),
-              y.lower = y*exp(qnorm(alpha)*sqrt(var)/y),
-              y.upper = y*exp(qnorm(1-alpha)*sqrt(var)/y))
+    newdata$x = x$x
+    newdata$y = x$y
+    newdata$var = x$var
+    newdata$y.lower = x$y*exp(qnorm(alpha)*sqrt(x$var)/x$y)
+    newdata$y.upper = x$y*exp(qnorm(1-alpha)*sqrt(x$var)/x$y)
+    ## transform(data.frame(newdata, x=x$x, y=x$y, var=x$var),
+    ##           y.lower = y*exp(qnorm(alpha)*sqrt(var)/y),
+    ##           y.upper = y*exp(qnorm(1-alpha)*sqrt(var)/y))
 }
 as.data.frame.coxphHazList <- function(x, row.names=NULL, optional = FALSE, ...) {
     do.call(rbind, lapply(x, as.data.frame, rownames, optional, ...))

@@ -37,6 +37,8 @@ Fit a poisson model to find the incidence rate ratio for the high energy group c
 ```{r 6b_ir, results='hide', fig.show='hide'}
 ```
 
+Also write out the regression equation, defining your notation.
+
 ## (c) ##
 Grouping the values of total energy into just two groups does not tell us much about how the CHD rate changes with total energy. It is a useful exploratory device, but to look more closely we need to group the total energy into perhaps 3 or 4 groups.
 
@@ -83,6 +85,8 @@ Create a new variable eng3 coded 1500 for values of energy in the range 1500–2
 ```
 
 Compare your estimates with those you obtained in part 6e. Write the linear predictor using pen and paper.
+
+Also write out the regression equation, defining your notation.
 
 ## (i) ##
 

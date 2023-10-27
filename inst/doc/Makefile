@@ -5,9 +5,16 @@ all: run
 run:
 	R --vanilla < Rmd-run.R
 
+EXERCISE = 7
+EXPR = 'library(rmarkdown); library(prettydoc); rmarkdown::render("q$(EXERCISE).Rmd", html_pretty())'
+
+file:
+	cd labs && Rscript -e $(EXPR)
+	cd solutions && Rscript -e $(EXPR)
+
 copy:
 	cp q*.R /run/user/1000/gvfs/ftp\:host\=ftp.biostat3.net/download/R/
-	cp index.html /run/user/1000/gvfs/ftp\:host\=ftp.biostat3.net/download/R/
+	cp index.html /run/user/1000/gvfs/ftp\:host\=ftp.biostat3.net/download/R/readme.html
 	# cp installation.html /run/user/1000/gvfs/ftp\:host\=ftp.biostat3.net/download/R/
 	cp labs/q*.html /run/user/1000/gvfs/ftp\:host\=ftp.biostat3.net/download/R/labs/
 	cp solutions/q*.html /run/user/1000/gvfs/ftp\:host\=ftp.biostat3.net/download/R/solutions/

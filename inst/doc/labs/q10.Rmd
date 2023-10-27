@@ -64,7 +64,7 @@ Now fit a more complex model and use graphical methods to explore the assumption
 What do you conclude?
 
 ## (f) ## 
-Do part (a)–(e) but now for the variable agegrp. What are your conclusions regarding the assumption of proportional hazards? No written solutions for this part. No written solutions for this part.
+Do part (a)–(e) but now for the variable agegrp. What are your conclusions regarding the assumption of proportional hazards? No written solutions for this part.
 
 ## (g) ## 
 Now formally test the assumption of proportional hazards.
@@ -75,7 +75,7 @@ Now formally test the assumption of proportional hazards.
 Are your conclusions from the test coherent with your conclusions from the graphical assessments?
 
 ## (h) ## 
-Estimate separate age effects for the first two years of follow-up (and separate estimates for the remainder of the follow-up) while controlling for sex and period. Do the estimates for the effect of age differ between the two periods of follow-up?
+Estimate separate age effects for the first two years of follow-up (and separate estimates for the remainder of the follow-up) while controlling for sex and period. Do the estimates for the effect of age differ between the two periods of follow-up? Write out the regression equation.
 
 ```{r 10.h}
 ```
@@ -96,11 +96,19 @@ Often we wish to see the effects of exposure (age) for each level of the modifie
 ```{r 10.i}
 ```
 
+We can also use the `tt` argument in `coxph` for modelling for time-varying effects:
+
+```{r 10.ib}
+```
+
+Write out the regression equations for models `cox2p8Split2` and `cox2p8tvct`. Based on model `cox2p8tvct`, write out a formula for the hazard ratio for those aged 75 years and over compared with those aged less than 45 years as a function of time.
+
+
 
 ## (j) ## 
 
 ADVANCED: Fit an analogous Poisson regression model. Are the parameter estimates similar? HINT: You will need to split the data by time since diagnosis. Calculate and plot the rates.
 
-```{r 10.j}
-```
+<!-- ```{r 10.j} -->
+<!-- ``` -->
 

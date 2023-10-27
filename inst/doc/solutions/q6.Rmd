@@ -20,7 +20,7 @@ You may have to install the required packages the first time you use them. You c
 
 ```{r loadDependencies, message=FALSE}
 ```
-Load the diet data using time-on-study as the timescale.
+Load the diet data using time-on-study as the timescale. We look at the first six rows of the data using `head` and look at a summary for the variables using `summary`:
 
 ```{r loadPreprocess}
 ```
@@ -36,15 +36,31 @@ We see that individuals with a high energy intake have a lower
 
 ## (b) ##
 
+The code is:
+
 ```{r 6b_ir}
 ```
 
-The point estimate for the IRR calculated by the Poisson regression is the same as the
-        IRR calculated in 6(a). A theoretical observation: if we
-        consider the data as being cross-classified solely by `hieng` then
-        the Poisson regression model with one parameter is a saturated
-        model so the IRR estimated from the model will be identical to
-        the ‘observed’ IRR. That is, the model is a perfect fit.
+The point estimate for the IRR calculated by the Poisson regression is
+the same as the IRR calculated in 6(a). The regression model can be defined by:
+
+\begin{align*}
+E(\text{chd}) &= \frac{y}{1000}\exp\left(\beta_0 + \beta_1I(\text{hieng}="high") \right) \\
+&= \exp\left(\beta_0 + \beta_1I(\text{hieng}="high") + \log(y/1000) \right)
+\end{align*}
+
+where $E(\text{chd})$ is the expected count for CHD, $\beta_0$ is the
+intercept parameter for the log rate and $\beta_1$ is the parameter
+for the log rate ratio for high energy diets. We have also used
+$I(\text{condition})$ as an indicator function, which will take a
+value of 1 when the condition is true and 0 otherwise.
+
+A theoretical observation: if we consider the data as being
+cross-classified solely by `hieng` then the Poisson regression model
+with one parameter is a _saturated model_ (that is, the number of
+observations is equal to the number of parameters) so the IRR
+estimated from the model will be identical to the ‘observed’ IRR. That
+is, the model is a perfect fit.
 
 ## (c) ##
 
@@ -52,8 +68,8 @@ The point estimate for the IRR calculated by the Poisson regression is the same 
 ```
 
 The histogram  gives us an idea of
-        the distribution of energy intake. We can also tabulate moments
-        and percentiles of the distribution.
+the distribution of energy intake. We can also tabulate moments
+and percentiles of the distribution.
 
 ## (d) ##
 
@@ -67,7 +83,7 @@ The histogram  gives us an idea of
 ```
 
 We see that the CHD incidence rate decreases as the level of
-        total energy intake increases.
+total energy intake increases.
 
 ## (f) ##
 
@@ -85,11 +101,17 @@ We see that the CHD incidence rate decreases as the level of
 ```{r 6h,  message=FALSE}
 ```
 
-Level 1 of the categorized total energy is the
-        reference category. The estimated rate ratio comparing level 2
-        to level 1 is 0.6452 and the estimated rate ratio comparing
-        level 3 to level 1 is 0.2886.
+Level 1 of the categorized total energy is the reference category. The
+estimated rate ratio comparing level 2 to level 1 is 0.6452 and the
+estimated rate ratio comparing level 3 to level 1 is 0.2886.
 
+The regression equation can be represented by:
+
+\begin{align*}
+E(\text{chd}) &= \frac{y}{1000}\exp\left(\beta_0 + \beta_2 X_2 + \beta_3 X_3 \right) \\
+&= \exp\left(\beta_0 + \beta_2 X_2 + \beta_3 X_3 + \log(y/1000) \right)
+\end{align*}
+where $\beta_2$ and $\beta_3$ are the log rate ratios for $X_2=\text{X2}$ and $X_3=\text{X3}$, respectively.
 
 ## (i) ##
 

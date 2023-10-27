@@ -12,3 +12,4 @@ eform.default <- function(object, parm, level = 0.95, method=c("Delta","Profile"
 }
 irr <- function(..., name = "IRR") eform(..., name = name)
 or <- function(..., name = "OR") eform(..., name = name)
+methods::setGeneric("eform")

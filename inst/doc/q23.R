@@ -18,87 +18,128 @@ library(dplyr)    # for data manipulation
 
 ## @knitr loadPreprocess
 
-## @knitr 23.a
-data(melanoma)
-scale <- 365.24
-mel <- mutate(melanoma,
-              ydx=biostat3::year(dx),
-              adx=age+0.5, # mid-point approximation
-              dead=(status %in% c("Dead: cancer","Dead: other") & surv_mm<110)+0,
-              surv_mm=pmin(110,surv_mm),
-              astart=adx, 
-              astop=adx+surv_mm/12)
-mel.split <- survSplit(mel,
-                       cut=1:110,
-                       event="dead",start="astart", end="astop")
-subset(mel.split, id<=2, select=c(id,astart,astop,dead))
+## @knitr 23.a1
+data(melanoma) 
+mel <- filter(melanoma, stage == "Localised") %>% 
+        mutate( dead = (status %in% c("Dead: cancer","Dead: other") & surv_mm <= 120)+0, 
+                surv_mm = pmin(120, surv_mm)
+              ) 
+head(mel) 
 
-## @knitr 23.b
-mel.split <- mutate(mel.split,
-                    ystart=year(dx)+astart-adx,
-                    ystop=year(dx)+astop-adx)
-mel.split2 <- survSplit(mel.split,
-                       cut=1970:2000,event="dead",
-                       start="ystart", end="ystop") %>%
-    mutate(astart=adx+ystart-ydx,
-           astop=adx+ystop-ydx,
-           age=floor(astop),
-           year=floor(ystop),
-           pt = ystop - ystart)
-subset(mel.split2, id<=2, select=c(id,ystart,ystop,astart,astop,dead))
+## @knitr 23.a2
+## Define the age at start and end of follow-up 
+mel <- mutate( mel, adx = age+0.5,   # age at diagnosis  (mid-point approximation) 
+               astart = adx, 
+               astop  = adx+surv_mm/12 
+              )
+## Split by age 
+mel.split <- survSplit(mel, cut = 1:105, event = "dead", 
+                       start = "astart", end = "astop")
+## Quick check: the first two ids 
+subset(mel.split, id<=2, select = c(id, astart, astop, dead)) 
 
+## @knitr 23.b1
+# For each age time band from (a), we calculate the start and stop in calendar time 
+# We calculate the time since diagnosis as difference between age at start/stop and 
+# age at diagnosis, and add that interval to year at diagnosis
+mel.split2 <- mutate(mel.split, 
+                    ystart = ydx + astart - adx, 
+                    ystop  = ydx + astop - adx
+                  )
+subset(mel.split2, id<=2, select = c(id, adx, astart,astop,dead, ydx, ystart, ystop))
 
-## @knitr 23.c
-xtabs(pt ~ age+year, data=mel.split2, subset = age>=50 & age<60)
-xtabs(dead ~ age+year, data=mel.split2, subset = age>=50 & age<60)
+## @knitr 23.b2
+## Now we can split along the calendar time 
+## For each of the new age-calendar time bands, we now have to adjust the age at 
+## start and end in the same way as above 
+mel.split2 <- survSplit( mel.split2, cut = 1970:2000, event = "dead", 
+                         start = "ystart", end = "ystop" ) %>%
+              mutate( astart = adx + ystart - ydx, 
+                      astop  = adx + ystop - ydx
+                    )
+## Quick check: this seems ok 
+subset(mel.split2, id<=2, select = c(id, ystart, ystop, astart, astop, dead)) 
 
+## @knitr 23.c1
+## We calculate the total person time at risk for each time band
+mel.split2 <- mutate( mel.split2, 
+                      age  = floor(astart),  # Age at which person time was observed 
+                      year = floor(ystart),  # Calendar year during which person time was observed 
+                      pt  =  ystop - ystart  # ... or astop - astart, works the same
+                    ) 
+subset(mel.split2, id<=2, select = c(id, ystart, ystop, astart, astop, dead, age, year, pt))
+
+## @knitr 23.c2
+## Now tabulate: sum of person time across all combinations of age & year 
+## (for some years, ages) 
+xtabs(pt ~ age + year, data=mel.split2, subset = age>=50 & age<60 & year>=1980 & year<1990)
+
+## @knitr 23.c3
+## Same: sum up 0/1 alive/dead for total count of deaths 
+xtabs(dead ~ age + year, data=mel.split2, subset = age>=50 & age<60 & year>=1980 & year<1990) 
 
 ## @knitr 23.d
-mel.split2 <- mutate(mel.split2,
-                     age10=cut(age,seq(0,110,by=10),right=FALSE),
-                     year10=cut(year,seq(1970,2000,by=5),right=FALSE))
-head(survRate(Surv(pt,dead)~sex+age10+year10, data=mel.split2))
+mel.split2 <- mutate(mel.split2, 
+                     age10  = cut(age, seq(0, 110 ,by=10), right=FALSE), 
+                     year10 = cut(year, seq(1970, 2000, by=5), right=FALSE) 
+                    ) 
+sr <- survRate(Surv(pt, dead) ~ sex + age10 + year10, data=mel.split2) 
+rownames(sr) <-1:nrow(sr) ## Simple rownames for display 
+head(sr, n = 20) 
+
+## @knitr 23.e1
+pt <- mutate(mel.split2, sex = unclass(sex)) %>%    # make sex integer to be in line with popmort 
+      group_by(sex, age, year)               %>%    # aggregate by sex, age, year 
+      summarise(pt = sum(pt), observed = sum(dead)) # sum the person time, deaths 
+pt <- ungroup(pt)  # For convenience
+head(pt) 
+
+## @knitr 23.e2
+head(rstpm2::popmort)
+summary(rstpm2::popmort) 
+
+## @knitr 23.e3
+joint <- left_join(pt, rstpm2::popmort)
+head(joint) 
+
+## @knitr 23.e4
+joint <- mutate(joint, expected = pt * rate) 
+head(joint) 
 
 
-## @knitr 23.e
+## @knitr 23.f1
+SMR_all <- summarise(joint, SMR = sum(observed) / sum(expected) ) 
+SMR_all 
 
-pt <- mutate(mel.split2,sex=unclass(sex)) %>%
-    group_by(sex, age, year) %>%
-    summarise(pt=sum(pt))
-expected <- inner_join(popmort, pt) %>%
-    mutate(pt=ifelse(is.na(pt),0,pt)) %>%
-    group_by(sex,year) %>%
-    summarise(E=sum(rate*pt)) %>% ungroup
-observed <- mutate(mel.split2, sex=as.numeric(unclass(sex))) %>%
-    group_by(sex, year) %>%
-    summarise(O=sum(dead)) %>% ungroup
-joint <- inner_join(observed,expected) %>%
-    mutate(SMR = O/E)
+## @knitr 23.f2
+SMR_bySex <- group_by(joint, sex) %>% summarise( SMR = sum(observed) / sum(expected) ) 
+SMR_bySex 
 
-## @knitr 23.f
+## @knitr 23.f3
+SMR_byYear <- group_by(joint, year) %>% summarise( SMR = sum(observed) / sum(expected) ) 
+SMR_byYear 
+plot( SMR_byYear, type = "o")  # quick & dirty plot 
 
-## overall SMRs
-by(joint, joint$sex, function(data) poisson.test(sum(data$O), sum(data$E)))
+## @knitr 23.f4
+joint <- mutate(joint, age_group = cut(age, seq(0, 110, by=10), right = FALSE))
+SMR_byAge <- group_by(joint, age_group) %>% summarise( SMR = sum(observed) / sum(expected) ) 
+SMR_byAge 
+plot( SMR_byAge)           # quick & dirty plot 
+abline( h = 1:2, lty = 2)  # two reference lines at 1 & 2
 
-## utility function to draw a confidence interval
-polygon.ci <- function(time, interval, col="lightgrey") 
-    polygon(c(time,rev(time)), c(interval[,1],rev(interval[,2])), col=col, border=col)
+## @knitr 23.f5
+by(joint, joint$sex, function(data) poisson.test(sum(data$observed), sum(data$expected)))
 
-## modelling by calendar period
-summary(fit <- glm(O ~ sex*ns(year,df=3)+offset(log(E)), data=joint, family=poisson))
-##
-pred <- predict(fit,type="response",newdata=mutate(joint,E=1),se.fit=TRUE)
-full <- cbind(mutate(joint,fit=pred$fit), confint.predictnl(pred))
-ci.cols <- c("lightgrey", "grey")
-matplot(full$year, full[,c("2.5 %", "97.5 %")], type="n", ylab="SMR", xlab="Calendar year")
-for (i in 1:2) {
-    with(subset(full, sex==i), {
-        polygon.ci(year, cbind(`2.5 %`, `97.5 %`), col=ci.cols[i])
-    })
-}
-for (i in 1:2) {
-    with(subset(full, sex==i), {
-        lines(year,fit,col=i)
-    })
-}
-legend("topright", legend=levels(mel.split2$sex), lty=1, col=1:2, bty="n")
+
+## @knitr 23.g1
+joint2 <- transform(joint,
+                    sex  = factor(sex, levels = 1:2, labels = c("m", "f")),
+                    year =  factor(year) %>% relevel(ref = "1985"),  # mid-study
+                    age_group = relevel(age_group, ref = "[70,80)")  # Close to one already
+                   )
+## Model & parameters
+summary(fit <- glm(observed ~ sex + year + age_group + offset(log(expected)), data=joint2, family=poisson)) 
+eform(fit)
+
+## @knitr 23.g2
+drop1(fit, test = "Chisq")

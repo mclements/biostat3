@@ -123,6 +123,8 @@ Use Poisson regression to estimate incidence rate ratios as a function of follow
 Does the pattern of estimated incident rate ratios mirror the pattern you observed in
 the plots? Draw a graph of the fitted hazard rate using pen and paper.
 
+Write out the regression equation.
+
 ## (h) ##  
 Now estimate the effect of calendar period of diagnosis while adjusting for time since diagnosis. Before fitting this model, predict what you expect the estimated effect to be (i.e., will it be higher, lower, or similar to the value we obtained in part c). Write the linear predictor using pen and paper and draw a graph of the fitted hazard rates.
 

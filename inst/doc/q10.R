@@ -10,7 +10,7 @@
 library(biostat3)
 library(dplyr)    # for data manipulation
 library(ggplot2)
-
+library(car)      # car::linearHypothesis -> biostat3::lincom
 
 ## @knitr loadPreprocess
 localised <- dplyr::filter(biostat3::melanoma, stage == "Localised") %>%
@@ -79,10 +79,13 @@ melanoma2p8Split %>% select(id, start, trunc_yy) %>% filter(id<=3) %>% arrange(i
 
 head(melanoma2p8Split)
 
-cox2p8Split1 <- coxph(Surv(start, trunc_yy, death_cancer) ~ sex + year8594 + agegrp*fu, data=melanoma2p8Split)
+cox2p8Split1 <- coxph(Surv(start, trunc_yy, death_cancer) ~ sex + year8594 + agegrp*fu,
+                      data=melanoma2p8Split)
 summary(cox2p8Split1)
 
-cox2p8Split1b <- coxph(Surv(start, trunc_yy, death_cancer) ~ sex + year8594 + agegrp + I(agegrp=="75+" & fu=="2"), data=melanoma2p8Split)
+cox2p8Split1b <- coxph(Surv(start, trunc_yy, death_cancer) ~ sex + year8594 + agegrp +
+                           I(agegrp=="45-59" & fu=="2") + I(agegrp=="60-74" & fu=="2") +
+                           I(agegrp=="75+" & fu=="2"), data=melanoma2p8Split)
 summary(cox2p8Split1b)
 
 
@@ -90,20 +93,38 @@ summary(cox2p8Split1b)
 cox2p8Split2 <- coxph(Surv(start, trunc_yy, death_cancer) ~ sex + year8594 + fu + fu:agegrp, data=melanoma2p8Split)
 summary(cox2p8Split2)
 
+## @knitr 10.ib
+
 ## Alternative approach using tt():
 ## http://cran.r-project.org/web/packages/survival/vignettes/timedep.pdf
-cox2p8tvc2 <- coxph(Surv(trunc_yy, death_cancer) ~ sex + year8594 + agegrp + tt(agegrp), data=localised,
-                   tt = function(x, t, ...) (x=="75+")*(t>=2))
+cox2p8tvc2 <- coxph(Surv(trunc_yy, death_cancer) ~ sex + year8594 + agegrp +
+                        tt(agegrp=="45-59") + tt(agegrp=="60-74") + tt(agegrp=="75+"),
+                    data=localised,
+                    tt = function(x, t, ...) x*(t>=2))
 summary(cox2p8tvc2)
+## The tt labels do not play nicely with lincom:(
 
-cox2p8tvct <- coxph(Surv(trunc_yy, death_cancer) ~ sex + year8594 + agegrp + tt(agegrp), data=localised,
-                   tt = function(x, t, ...) (x=="75+")*t)
+cox2p8tvct <- coxph(Surv(trunc_yy, death_cancer) ~ sex + year8594 + agegrp + tt(agegrp),
+                    data=localised,
+                    tt = function(x, t, ...) cbind(`45-59`=(x=="45-59")*t,
+                                                   `60-74`=(x=="60-74")*t,
+                                                   `75+`=(x=="75+")*t))
 summary(cox2p8tvct)
-lincom(cox2p8tvct, "agegrp75+ + tt(agegrp)",eform=TRUE)
+lincom(cox2p8tvct, "agegrp75+",eform=TRUE)                   # t=0
+lincom(cox2p8tvct, "agegrp75+ + tt(agegrp)75+",eform=TRUE)   # t=1
+lincom(cox2p8tvct, "agegrp75+ + 2*tt(agegrp)75+",eform=TRUE) # t=2
 
-cox2p8tvclogt <- coxph(Surv(trunc_yy, death_cancer) ~ sex + year8594 + agegrp + tt(agegrp), data=localised,
-                    tt = function(x, t, ...) (x=="75+")*log(t))
+cox2p8tvclogt <- coxph(Surv(trunc_yy, death_cancer) ~ sex + year8594 + agegrp + 
+                           tt(agegrp),
+                       data=localised,
+                    tt = function(x, t, ...) cbind(`45-59`=(x=="45-59")*log(t),
+                                                   `60-74`=(x=="60-74")*log(t),
+                                                   `75+`=(x=="75+")*log(t)))
 summary(cox2p8tvclogt)
+lincom(cox2p8tvclogt, "agegrp75+ - 0.6931472*tt(agegrp)75+",eform=TRUE) # t=0.5 => log(t)=-0.6931472
+lincom(cox2p8tvclogt, "agegrp75+", eform=TRUE) # t=1 => log(t)=0
+lincom(cox2p8tvclogt, "agegrp75+ + 0.6931472*tt(agegrp)75+",eform=TRUE) # t=2 => log(t)=0.6931472
+
 
 
 ## @knitr 10.j
