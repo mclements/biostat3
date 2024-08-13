@@ -1,8 +1,9 @@
 exportPattern("^[[:alpha:]]+") # export names that start with a letter 
 
-import(survival, methods)
+import(survival)
+import(methods)
 import(MASS)
-importFrom(muhaz, muhaz, plot.muhaz, lines.muhaz)
+## importFrom(muhaz, muhaz, plot.muhaz, lines.muhaz)
 ## importFrom(car, linearHypothesis)
 importFrom(graphics, lines, plot, matlines, matplot, plot.default,
            points)
@@ -33,3 +34,5 @@ S3method(print,coxphHaz)
 S3method(summary,muhazList)
 S3method(plot,lifetab2)
 S3method(lines,lifetab2)
+
+## S3method(ggplot,muhazList)

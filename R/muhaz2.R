@@ -1,6 +1,7 @@
 muhaz2 <-
   function (formula, data, subset, max.time, ...) 
-  {
+{
+    stopifnot(requireNamespace("muhaz", quietly=TRUE))
     Call <- match.call()
     Call[[1]] <- as.name("muhaz2")
     indx <- match(c("formula", "data", "subset"), 
@@ -62,6 +63,7 @@ muhaz2 <-
     structure(temp, call=Call)
   }
 plot.muhaz2 <- function(x, haz.scale = 1, ylab="Hazard", ylim=NULL, log="", ...) {
+    stopifnot(requireNamespace("muhaz", quietly=TRUE))
     x$haz.est <- x$haz.est * haz.scale
     if (log %in% c("y","xy","yx")) x$haz.est <- ifelse(x$haz.est==0,NA,x$haz.est)
     if (is.null(ylim)) {
@@ -71,6 +73,7 @@ plot.muhaz2 <- function(x, haz.scale = 1, ylab="Hazard", ylim=NULL, log="", ...)
     muhaz::plot.muhaz(x, ylab=ylab, ylim=ylim, log=log, ...)
 }
 lines.muhaz2 <- function(x, ..., haz.scale = 1) {
+    stopifnot(requireNamespace("muhaz", quietly=TRUE))
     x$haz.est <- x$haz.est * haz.scale
     muhaz::lines.muhaz(x, ...)
 }
@@ -99,8 +102,10 @@ lines.muhazList <- function(x, lty=1, col=1:length(x), ...) {
     lines(x[[i]], lty=lty[i], col=col[i], type="l", ...)
   }
 }
-summary.muhazList <- function(object, ...)
-  lapply(object, muhaz::summary.muhaz)
+summary.muhazList <- function(object, ...) {
+    stopifnot(requireNamespace("muhaz", quietly=TRUE))
+    lapply(object, muhaz::summary.muhaz)
+}
 as.data.frame.muhaz <- function(x, row.names, optional, ...) {
     if ("est.grid" %in% names(x)) {
         data.frame(x=x$est.grid, y=x$haz.est)
@@ -149,3 +154,17 @@ as.data.frame.muhazList <- function(x, row.names, optional, ...) {
 ##         }
 ##     }
 ## }
+
+ggplot.muhazList = function(data, mapping=NULL, 
+                            xlab="Time", ylab="Hazard", ...,
+                            environment = parent.frame()) {
+    if (requireNamespace("ggplot2")) {
+        if (is.null(mapping))
+            mapping = ggplot2::aes(x=x, y=y, color=strata)
+        ggplot2::ggplot(as.data.frame(data), mapping = mapping, ..., 
+                        environment = environment) + 
+            ggplot2::geom_line() +
+            ggplot2::xlab(xlab) +
+            ggplot2::ylab(ylab)
+    } else stop("ggplot2 not available")
+}
