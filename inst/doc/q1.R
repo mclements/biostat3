@@ -10,6 +10,7 @@
 
 ## @knitr loadDependencies
 library(biostat3)
+library(survminer)
 
 ## @knitr printData
 print(biostat3::colon_sample)
@@ -18,9 +19,17 @@ print(biostat3::colon_sample)
 print(lifetab2(Surv(floor(surv_yy), status == "Dead: cancer")~1, colon_sample, breaks=0:10), digits=2)
 
 ## @knitr KaplanMeier
-mfit <- survfit(Surv(surv_mm, status == "Dead: cancer") ~ 1, data = colon_sample) # make Kaplan-Meier estimates
+mfit <- survfit(Surv(surv_mm/12, status == "Dead: cancer") ~ 1, data = colon_sample) # make Kaplan-Meier estimates
 summary(mfit)                                                  # print Kaplan-Meier table
 plot(mfit,                                                     # plot Kaplan-Meier curve
      ylab="S(t)",
-     xlab="Time since diagnosis in months",
+     xlab="Time since diagnosis (years)",
      main = "Kaplan−Meier estimates of cause−specific survival")
+
+ggsurvplot(mfit,                                                     # plot Kaplan-Meier curve
+     ylab="S(t)",
+     xlab="Time since diagnosis (years)",
+     main = "Kaplan−Meier estimates of cause−specific survival",
+     risk.table = TRUE,
+     conf.int = TRUE,
+     ggtheme = theme_minimal())

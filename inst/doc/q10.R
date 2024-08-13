@@ -62,12 +62,13 @@ summary(cox2)
 
 ## Plot of the scaled Schoenfeld residuals for calendar period 1985–94.
 ## The smooth line shows the estimated log hazard ratio as a function of time.
-cox2.phtest <- cox.zph(cox2, transform="identity") #Stata appears to be using 'identity'
-plot(cox2.phtest[2],resid=TRUE, se=TRUE, main="Schoenfeld residuals", ylim=c(-4,4))
+cox2.phtest <- cox.zph(cox2, terms=FALSE) # for separate plots
+print(cox2.phtest)
+plot(cox2.phtest,var=5,resid=TRUE, se=TRUE, main="Schoenfeld residuals", ylim=c(-4,4))
 
 ## @knitr 10.g
 ## The results from the previous proportional hazards assumption test
-print(cox2.phtest)
+print(cox.zph(cox2))
 
 ## @knitr 10.h
 melanoma2p8Split <- survSplit(localised, cut=c(2), end="trunc_yy", start="start",

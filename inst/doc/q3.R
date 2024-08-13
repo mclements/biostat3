@@ -10,6 +10,7 @@
 ## @knitr loadDependencies
 library(biostat3)
 library(dplyr)    # for data manipulation
+library(survminer) # for ggsurvplot
 
 ## @knitr loadPreprocess
 melanoma <- biostat3::melanoma %>%
@@ -19,16 +20,20 @@ melanoma <- biostat3::melanoma %>%
                                status == "Dead: other", 1, 0))
 
 ## @knitr a_survDiaDate
-mfityear8594 <- survfit(Surv(surv_mm, death_cancer==1) ~ year8594, data = melanoma)
+mfityear8594 <- survfit(Surv(surv_mm/12, death_cancer==1) ~ year8594, data = melanoma)
 
 plot(mfityear8594, col = 1:2,
-     xlab = "Follow-up Time",
+     xlab = "Time since diagnosis (years)",
      ylab = "Survival",
      main = "Kaplan-Meier survival estimates")
 legend("bottomleft", levels(melanoma$year8594), col=1:2, lty = 1)
 
 ## @knitr b_hazDiaDate
 plot(muhaz2(Surv(surv_mm,death_cancer)~year8594, data=melanoma))
+
+ggplot.muhazList(muhaz2(Surv(surv_mm/12,death_cancer)~year8594, data=melanoma)) +
+    xlab("Time since diagnosis (years)")
+
 
 ## @knitr c_testDiaDate
 ## Log-rank test for equality of survivor functions

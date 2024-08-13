@@ -136,15 +136,17 @@ melanoma.spl4 <-
     group_by(mid,year8594,sex,agegrp) %>%
     summarise(pt=sum(tstop-tstart), death_cancer=sum(death_cancer))
 
-poisson9g <- glm( death_cancer ~ ns(mid,df=3) + year8594 + sex + agegrp + offset( log(pt) ),
+poisson9g <- glm( death_cancer ~ ns(mid,df=3) + year8594 + sex + agegrp,
+                 offset=log(pt), # for effects::Effect() - rather than in the formula
                  family = poisson,
                  data = melanoma.spl4 )
 summary(poisson9g)
 eform(poisson9g)
 
-## quick approach: use the effects package
+## quick approach: use the effects package (see also the ggeffects package)
 library(effects)
-plot(Effect("mid", poisson9g))
+plot(Effect(c("mid","year8594","agegrp","sex"), poisson9g,
+            fixed.predictors=list(offset=0)))
 
 ## utility function to draw a confidence interval
 polygon.ci <- function(time, interval, col="lightgrey") 
