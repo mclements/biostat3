@@ -1,0 +1,91 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Andreas Karlsson and Mark Clements
+format:
+  html:
+    theme: flatly
+filters:
+  - webr
+execute:
+  echo: true
+  message: false
+  cache: false
+  fig-width: 7
+  fig-height: 6
+---
+
+
+# Cox model for cause-specific mortality for melanoma (all stages) #
+
+
+Use Cox regression to model the cause-specific survival of patients with skin melanoma (including all stages).
+
+-----------
+
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+Load the melanoma data and explore it.
+
+```{webr-r}
+#| autorun: true
+library(biostat3)
+melanoma.l <- transform(biostat3::melanoma,
+                        death_cancer = ifelse( status == "Dead: cancer", 1, 0))
+```
+
+## (a) ## 
+First fit the model with sex as the only explanatory variable. Does there appear to be a difference in survival between males and females?
+
+
+```{webr-r}
+coxph(Surv(surv_mm, death_cancer) ~ sex, data=melanoma.l) |> summary()
+```
+
+## (b) ## 
+Is the effect of sex confounded by other factors (e.g. age, stage, subsite, period)? After controlling for potential confounders, does there still appear to a difference in survival between males and females?
+
+```{webr-r}
+coxph(Surv(surv_mm, death_cancer) ~ sex + agegrp + stage + subsite + year8594,
+      data=melanoma.l) |> summary()
+```
+
+## (c) ## 
+Consider the hypothesis that there exists a class of melanomas where female sex hormones play a large role in the etiology. These hormone related cancers are diagnosed primarily in women and are, on average, less aggressive (i.e., prognosis is good). If such a hypothesis were true we might expect the effect of sex to be modified by age at diagnosis (e.g., pre versus post menopausal). Test whether this is the case.
+
+```{webr-r}
+coxph(Surv(surv_mm, death_cancer) ~ agegrp + agegrp * sex, data=melanoma.l) |>
+    summary()
+```
+
+## (d) ## 
+Decide on a ‘most appropriate’ model for these data. Be sure to evaluate the proportional hazards assumption.
+
+
+```{webr-r}
+cox4 <- coxph(Surv(surv_mm, death_cancer) ~ sex + year8594 + agegrp + subsite + stage,
+              data=melanoma.l)
+summary(cox4)
+
+## Test proportional hazards assumption
+cox.zph(cox4, transform="log") 
+cox.zph(cox4, transform="identity") # Stata default
+```
+
+```{webr-r}
+cox5 <- coxph(Surv(surv_mm, death_cancer) ~ sex + year8594 + agegrp + subsite +
+                  strata(stage), data=melanoma.l)
+summary(cox5)
+
+## Test proportional hazards assumption
+cox.zph(cox5, transform="log") 
+cox.zph(cox5, transform="identity") 
+```
+
+```{webr-r}
+cox6 <- coxph(Surv(surv_mm, death_cancer) ~ sex * agegrp + year8594 + agegrp + subsite +
+                  strata(stage), data=melanoma.l)
+summary(cox6)
+anova(cox6)
+```

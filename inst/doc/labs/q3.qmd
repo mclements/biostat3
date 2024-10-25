@@ -1,0 +1,157 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Annika Tillander, Andreas Karlsson and Mark Clements
+format:
+  html:
+    theme: flatly
+filters:
+  - webr
+execute:
+  echo: true
+  message: false
+  cache: false
+  fig-width: 7
+  fig-height: 6
+---
+
+# Exercise 3. Localised melanoma: Comparing estimates of cause-specific survival between periods; first graphically and then using the log rank test #
+
+We will now analyse the full data set of patients diagnosed with localised skin melanoma. We start by reading the data selecting those with a localised stage and then define a 1/0 varible for the events that we are interested in.
+
+```{webr-r}
+#| autorun: true
+library(biostat3)
+melanoma = biostat3::melanoma |>
+    subset(stage=="Localised") |> 
+    transform(death_cancer = ifelse( status == "Dead: cancer", 1, 0),
+              death_all = ifelse( status == "Dead: cancer" |
+                               status == "Dead: other", 1, 0))
+```
+
+
+## (a) ##
+
+Estimate the cause-specific survivor function, using the Kaplan-Meier method with survival time in months, separately for each of the two calendar periods 1975–1984 and 1985–1994. The variable year8594 indicates whether a patient was diagnosed 1985–1994 or 1975–1984. Without making reference to any formal statistical tests, does it appear that patient survival is superior during the most recent period?
+
+```{webr-r}
+mfityear8594 <- survival::survfit(survival::Surv(surv_mm/12, death_cancer==1) ~ year8594, data = melanoma)
+
+plot(mfityear8594, col = 1:2,
+     xlab = "Time since diagnosis (years)",
+     ylab = "Survival",
+     main = "Kaplan-Meier survival estimates")
+legend("bottomleft", levels(melanoma$year8594), col=1:2, lty = 1)
+```
+
+There seems to be a clear difference in survival between the
+two periods. Patients diagnosed during 1985–94 have superior
+survival to those diagnosed 1975–84.
+
+## (b) ##
+
+Plot the hazard function (instantaneous mortality rate):
+
+i.  At what point in the follow-up is mortality highest?
+ii. Does this pattern seem reasonable from a clinicial/biological perspective? [HINT:Consider the disease with       which these patients were classified as being diagnosed along with the expected fatality of the disease as       a function of time since diagnosis.]
+
+Using the `bshazard` package and base graphics:
+
+```{webr-r}
+library(bshazard)
+par(mfrow=1:2)
+for(level in levels(melanoma$year8594))
+    plot(bshazard(Surv(surv_mm,death_cancer)~1, subset(melanoma,year8594==level),
+                  verbose=FALSE), main=level, xlim=c(0,250), ylim=c(0,0.007),
+         xlab="Time since diagnosis (months)")
+```
+
+Using `ggplot2`:
+
+```{webr-r}
+library(bshazard)
+library(dplyr)
+library(ggplot2)
+library(generics)
+augment.bshazard = function(x, ...)
+    with(x, tibble::tibble(time=time, .fitted=hazard, .lower=lower.ci, .upper=upper.ci))
+group_by(melanoma, year8594) |> 
+    do(augment(bshazard(Surv(surv_mm, death_cancer)~1, data=., verbose=FALSE))) |>
+    ggplot(aes(x=time,y=.fitted,group=year8594)) + 
+    geom_ribbon(aes(ymin=.lower, ymax=.upper, fill=year8594), alpha=0.3) +
+    geom_line(aes(col=year8594)) +
+    ylim(0,0.01) + xlab('Time since diagnosis (months)') + ylab('Hazard')
+```
+
+## (c) ##
+
+Use the log rank and the Wilcoxon test to determine whether there is a statistically significant difference in patient survival between the two periods.
+
+```{webr-r}
+## Log-rank test for equality of survivor functions
+survdiff(Surv(surv_mm, death_cancer) ~ year8594, data=melanoma)
+## Equivalent to the Peto & Peto modfication of the Gehan-Wilcoxon test
+survdiff(Surv(surv_mm, death_cancer) ~ year8594, data=melanoma, rho=1)
+```
+
+Haven’t heard of the log rank test? It’s possible you may reach this exercise before we cover the details of this test during lectures. You should nevertheless do the exercise and try and interpret the results. Both of these tests (the log rank and the generalised Wilcoxon) are used to test for differences between the survivor functions. The null hypothesis is that the survivor functions are equivalent for the two calendar periods (i.e., patient survival does not depend on calendar period of diagnosis).
+
+
+## (d) ##
+
+Estimate cause-specific mortality rates for each age group, and graph Kaplan-Meier estimates of the cause-specific survivor function for each age group. Are there differences between the age groups? Is the interpretation consistent between the mortality rates and the survival proportions?
+
+```{webr-r}
+survRate(Surv(surv_mm/1000,death_cancer)~agegrp, data=melanoma)
+```
+
+```{webr-r}
+mfit_agegrp <- survfit(Surv(surv_mm, death_cancer) ~ agegrp, data = melanoma)
+plot(mfit_agegrp, col = 1:4,
+     xlab = "Months since diagnosis",
+     ylab = "Survival",
+     main = "Kaplan-Meier survival estimates")
+legend("bottomleft", levels(melanoma$agegrp), col=1:4, lty = 1)
+```
+
+What are the units of the estimated hazard rates? HINT: look at how you defined time.
+
+## (e) ##
+
+Repeat some of the previous analyses using years instead of months. This is equivalent to dividing the time variable by 12 so all analyses will be the same except the units of time will be different (e.g., the graphs will have different labels).
+
+```{webr-r}
+survRate(Surv(surv_mm/12/1000,death_cancer)~year8594, data=melanoma)
+
+mfit_agegrp_year <- survfit(Surv(surv_mm/12, death_cancer) ~ agegrp, data = melanoma)
+plot(mfit_agegrp_year, col = 1:4,
+     xlab = "Years since diagnosis",
+     ylab = "Survival",
+     main = "Kaplan-Meier survival estimates")
+legend("bottomleft", levels(melanoma$agegrp), col=1:4, lty = 1)
+```
+
+## (f) ##
+
+Study whether there is evidence of a difference in patient survival between males and females. Estimate both the hazard and survival function and use the log rank test to test for a difference.
+
+```{webr-r}
+mfit_sex <- survfit(Surv(surv_mm, death_cancer) ~ sex, data = melanoma)
+aplot = function() {
+    plot(mfit_sex, col = 1:2,
+         xlab = "Follow-up Time",
+         ylab = "Survival",
+         main = "Kaplan-Meier survival estimates")
+    legend("bottomleft", legend=levels(melanoma$sex), lty=1, col=1:2)
+}
+if (requireNamespace("muhaz", quietly=TRUE)) {
+    par(mfrow=c(1, 2))
+    aplot()
+    plot(muhaz2(Surv(surv_mm,death_cancer)~sex, data=melanoma))
+} else {
+    par(mfrow=c(1, 1))
+    aplot()
+}
+## Log-rank test for equality of survivor functions
+survdiff(Surv(surv_mm, death_cancer==1) ~ sex, data=melanoma)
+```

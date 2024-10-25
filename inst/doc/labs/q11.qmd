@@ -1,0 +1,64 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Johan Zetterqvist and Mark Clements
+format:
+  html:
+    theme: flatly
+filters:
+  - webr
+execute:
+  echo: true
+  message: false
+  cache: false
+  fig-width: 7
+  fig-height: 6
+---
+
+# Exercise 11. Cox regression with all-cause mortality as the outcome #
+
+
+Now fit a model to the localised melanoma data where the outcome is observed survival (i.e. all deaths are considered to be events).
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+Load the melanoma data and explore it.
+
+```{webr-r}
+#| autorun: true
+library(biostat3)
+melanoma.l <- biostat3::melanoma |>
+  subset(stage=="Localised") |>
+  transform(
+    ## Create a death indicator
+    death_cancer = as.numeric(status=="Dead: cancer"),
+    death_any = as.numeric(status=="Dead: cancer" | status=="Dead: other"))
+melanoma.l2 <-
+  transform(melanoma.l,
+            ## Create new death indicators (only count deaths within 120 months)
+            death_cancer = ifelse(surv_mm <= 120, death_cancer, 0),
+            death_any = ifelse(surv_mm <= 120, death_any, 0),
+            ## Create a new time variable
+            surv_mm = pmin(surv_mm, 120))
+```
+
+## (a) ## 
+
+Interpret the estimated hazard ratio for the parameter labelled `agegrp60-74`, including a comment on statistical significance.
+
+
+```{webr-r}
+summary(coxph(Surv(surv_mm, death_any) ~ sex + year8594 + agegrp,
+              data = melanoma.l2))
+```
+
+Write out the regression equation. Using the regression equation, write out a formula for the hazard ratio for a male aged 60--74 years compared with a female aged 75 years or over.
+
+## (b) ## 
+
+On comparing the estimates between the observed and cause-specific survival models it appears that only the parameters for age have changed substantially. Can you explain why the estimates for the effect of age would be expected to change more than the estimates of the effect of sex and period?
+
+```{webr-r}
+summary(coxph(Surv(surv_mm, death_cancer) ~ sex + year8594 + agegrp,
+              data = melanoma.l2))
+```

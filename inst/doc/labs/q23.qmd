@@ -1,0 +1,282 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Mark Clements
+format:
+  html:
+    theme: flatly
+filters:
+  - webr
+execute:
+  echo: true
+  message: false
+  cache: false
+  fig-width: 7
+  fig-height: 6
+---
+
+# Exercise 23. Calculating SMRs/SIRs #
+
+-----------
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+Load the melanoma data. Restrict the data to the localised status of the melanoma and to the 10 firts years of follow-up. Use the time-on-study as the timescale. define the event as death from cancer.
+
+```{r}
+#| autorun: true
+#| results: "asis"
+library(biostat3) # for Surv and survfit
+library(dplyr)
+mel <- filter(melanoma, stage == "Localised") |>
+    mutate(dead = (status %in% c("Dead: cancer","Dead: other") & surv_mm <= 120)+0, 
+           surv_mm = pmin(120, surv_mm)) |>
+    mutate(adx = age+0.5,   # age at diagnosis  (mid-point approximation) 
+           astart = adx, 
+           astop  = adx+surv_mm/12)
+filter(mel, id<=2) |> kable("html")
+```
+
+The _standardized mortality ratio_ (SMR) is the ratio of the observed
+number of deaths in the study population to the number that would be
+expected if the study population experienced the same mortality as
+the standard population. It is an indirectly standardized rate. When
+studying disease incidence the corresponding quantity is called a
+_standardized incidence ratio_ (SIR). These measures are typically
+used when the entire study population is considered ‘exposed’.
+Rather than following-up both the exposed study population and an
+unexposed control population and comparing the two estimated rates
+we instead only estimate the rate (or number of events) in the study
+population and compare this to the expected rate (expected number
+of events) for the standard population. For example, we might study
+disease incidence or mortality among individuals with a certain
+occupation (farmers, painters, airline cabin crew) or cancer
+incidence in a cohort exposed to ionising radiation.
+
+In the analysis of cancer patient survival we typically estimate
+_excess mortality_ (observed - expected deaths). The
+SMR (observed/expected deaths) is a measure of _relative
+mortality_. The estimation of observed and expected numbers
+of deaths are performed in an identical manner for each measure but
+with the SMR we assume that the effect of exposure is multiplicative
+to the baseline rate whereas with excess mortality we assume it
+is additive. Which measure, relative mortality or excess mortality,
+do you think is more homogeneous across age?
+
+The following example illustrates the approach to estimating
+SMRs/SIRs using R. Specifically, we will estimate SMRs for the
+melanoma data using the general population mortality rates
+stratified by age and calendar period (derived from
+`popmort`) to estimate the expected number of deaths.
+The expected mortality rates depend on current age and current year
+so the approach is as follows:
+
+1. Split follow-up into 1-year age bands
+2. Split the resulting data into 1-year calendar period bands
+3. For each age-period band, merge with <span>popmort.dta</span> to
+        obtain the expected mortality rates
+4. Sum the observed and expected numbers of deaths and calculate
+        the SMR (observed/expected) and a 95% CI
+
+## (a) ##
+
+Start by splitting the follow-up into 1 year age bands. We do not have
+a date of birth available, so we can make a mid-point
+approximation for the age at diagnosis.
+
+```{r}
+#| autorun: true
+mel.split <- survSplit(mel, cut = 1:105, event = "dead", 
+                       start = "astart", end = "astop")
+```
+
+Quick check: look at the first two ids.
+
+```{r}
+#| results: 'asis'
+subset(mel.split, id<=2, select = c(id, astart, astop, dead)) |> kable("html")
+```
+
+## (b) ##
+
+Now split these new records into one year calendar period bands. # For each age time band from (a), we calculate the start and stop in calendar time. We calculate the time since diagnosis as difference between age at start/stop and age at diagnosis, and add that interval to year at diagnosis.
+
+
+```{r}
+#| autorun: true
+mel.split2 <- mutate(mel.split, 
+                     ystart = ydx + astart - adx, 
+                     ystop  = ydx + astop - adx)
+```
+
+```{r}
+#| results: 'asis'
+subset(mel.split2, id<=2, select = c(id, adx, astart,astop,dead, ydx, ystart, ystop)) |>
+    kable("html")
+```
+
+Now we can split along the calendar time. For each of the new age-calendar time bands, we now have to adjust the age at start and end in the same way as above 
+
+```{r}
+#| autorun: true
+mel.split2 <- survSplit(mel.split2, cut = 1970:2000, event = "dead", 
+                        start = "ystart", end = "ystop" ) |>
+    mutate(astart = adx + ystart - ydx, 
+           astop  = adx + ystop - ydx)
+```
+
+Look at the first two IDs:
+
+```{r}
+#| results: 'asis'
+subset(mel.split2, id<=2, select = c(id, ystart, ystop, astart, astop, dead)) |>
+    kable("html")
+```
+
+## (c) ##
+
+Descriptives: Each subject’s follow–up is now divided into small pieces
+corresponding to the agebands and calendar periods the subject passes
+through. We can make tables of deaths and person-years by age and
+calendar period with
+
+```{r}
+#| autorun: true
+mel.split2 <-
+    mutate(mel.split2, 
+           age  = floor(astart),  # Age at which person time was observed 
+           year = floor(ystart),  # Calendar year during which person time was observed 
+           pt  =  ystop - ystart)  # ... or astop - astart, works the same
+```
+
+Look at the first two IDs:
+
+```{r}
+#| results: 'asis'
+subset(mel.split2, id<=2,
+       select = c(id, ystart, ystop, astart, astop, dead, age, year, pt)) |>
+    kable("html")
+```
+
+Now tabulate the sum of person time across all combinations of age & year (for some years and some ages):
+
+```{r}
+#| results: 'asis'
+xtabs(pt ~ age + year, data=mel.split2, subset = age>=50 & age<60 & year>=1980 & year<1990) |>
+    kable("html")
+```
+
+Similarly for the number of deaths:
+
+```{r}
+#| results: 'asis'
+xtabs(dead ~ age + year, data=mel.split2,
+      subset = age>=50 & age<60 & year>=1980 & year<1990) |>
+    kable("html")
+```
+
+As the data have been split in one-year intervals on both time
+scales the table created above is not so informative. Grouped
+variables will provide a better overview.
+
+
+## (d) ##
+
+Descriptives: as the data have been split in 1-year intervals on both time scales in the table created above, this takes up a lot of space. Grouped variables will provide a better overview. To make a table of rates by age and calendar period, we can define group variables and use `survRate` as usually: 
+
+```{r}
+#| autorun: true
+mel.split2 <- mutate(mel.split2, 
+                     age10  = cut(age, seq(0, 110 ,by=10), right=FALSE), 
+                     year10 = cut(year, seq(1970, 2000, by=5), right=FALSE))
+sr <- survRate(Surv(pt, dead) ~ sex + age10 + year10, data=mel.split2) 
+rownames(sr) <-1:nrow(sr) ## Simple rownames for display 
+```
+
+```{r}
+#| results: 'asis'
+head(sr, n = 20) |> kable("html")
+```
+
+## (e) ##
+
+To calculate the expected cases for a cohort, using reference
+mortality rates classified by age and calendar period, it is
+first necessary to merge the population rates with the
+observed person-time.  Then the expected number of cases are
+calculated by multiplying the follow-up time for each record
+by the reference rate for that record. The SMR is the ratio of
+the total observed cases to the total number expected.
+		
+First, calculate the total person time at risk and the observed number of deaths for each combination: 
+```{r}
+#| autorun: true
+pt <- mutate(mel.split2, sex = unclass(sex)) |>    # make sex integer to be in line with popmort 
+    group_by(sex, age, year)               |>    # aggregate by sex, age, year 
+    summarise(pt = sum(pt), observed = sum(dead), .groups="keep") |> # sum the person time, deaths
+    ungroup() # For convenience
+```
+
+This is the data set of reference rates: 
+```{r}
+#| results: 'asis'
+head(rstpm2::popmort) |> kable("html")
+summary(rstpm2::popmort) |> kable("html")
+```
+
+We now merge the observed person time and deaths (in the melanoma cohort) with the corresponding reference rates in the `popmort` data set:
+```{r 23.e3, results='hide'}
+```
+
+The expected number of events (assuming the reference mortality rates in the general population) are simply: 
+```{r 23.e4, results='hide'}
+#| autorun: true
+joint <- left_join(pt, rstpm2::popmort) |>
+    mutate(expected = pt * rate)
+head(joint) |> kable("html")
+```
+
+## (f) ##
+
+Calculate the crude overall SMR, as well as the SMR by sex. Plot the SMRs by calendar year and age. 
+
+We can calculate the SMR simply from the data, like so: 
+```{r 23.f1, results='hide', fig.show='hide'}
+kable(SMR_all <- summarise(joint,
+                           Observed = sum(observed),
+                           Expected = sum(expected),
+                           SMR = sum(observed) / sum(expected)), "html")
+```
+
+By sex:
+```{r 23.f2, results='hide', fig.show='hide'}
+```
+
+We can do the same by e.g. calendar year, but there it is easier to plot than show: 
+```{r 23.f3, results='hide', fig.show='hide'}
+```
+
+For the ages, we have two many levels and too few events ot produce reliable estimates. We can either use splines or (simpler) define a grouping variable as above.
+```{r 23.f4, results='hide', fig.show='hide'}
+```
+
+Note that we can use `survRate` to get confidence intervals:
+```{r 23.f5, results='hide', fig.show='hide'}
+```
+
+## (g) ##
+
+Model the SMR as a function of age, sex and calendar period.
+
+We use the observed (nominator in SMR) as the outcome count and the log-expected count (denominator in SMR) as offset in the Poisson regression.
+
+Let's prettify the data for the fit.
+Here, a good choice of reference level for age & year makes a big difference
+in how easy we can interpret the model parameters;
+
+```{r 23.g1, results='hide', fig.show='hide'}
+```
+
+A simple analysis of deviance, which performs a likelihood ratio test for the hypothesis that removing a variable from the model does not improve model fit shows however that all predictors are statistically significantly associated with the SMR:
+```{r 23.g2, results='hide', fig.show='hide'}
+```

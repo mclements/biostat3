@@ -1,0 +1,543 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Johan Zetterqvist and Mark Clements
+format:
+  html:
+    theme: flatly
+filters:
+  - webr
+execute:
+  echo: true
+  message: false
+  cache: false
+  fig-width: 7
+  fig-height: 6
+---
+
+
+# Exercise 7. Model cause-specific mortality with Poisson regression #
+
+In this exercise we model, using Poisson regression, cause-specific mortality of patients diagnosed with localised (stage==1) melanoma.
+
+In exercise 9 we model cause-specific mortality using Cox regression and in exercise 28 we use flexible parametric models. The aim is to illustrate that these three methods are very similar.
+
+The aim of these exercises is to explore the similarities and differences to these three approaches to modelling. We will be comparing the results (and their interpretation) as we proceed through the exercises.
+
+-----------
+
+```{webr-r}
+#| autorun: true
+library(biostat3)
+library(knitr)
+library(broom)
+options(pillar.sigfig = 5) # increase the number of digits printed in tibbles
+```
+
+Load the melanoma dataset, restrict to localised cancer, and explore it.
+
+```{webr-r}
+#| results: "asis"
+#| autorun: true
+melanoma.l = subset(biostat3::melanoma, stage=="Localised") |>
+    transform(death_cancer = as.numeric(status=="Dead: cancer"))
+head( melanoma.l ) |> kable("html")
+summary(melanoma.l) |> kable("html")
+```
+
+Rates can be modelled on different timescales, e.g., attained age, time-since-entry, calendar time. Plot the CHD incidence rates both by attained age and by time-since-entry. Is there a difference? Do the same for CHD hazard by different energy intakes (hieng).
+
+## (a) ## 
+### i. ###  
+Plot Kaplan-Meier estimates of cause-specific survival as a function of calendar period of diagnosis.
+
+```{webr-r}
+sfit7a1 = survfit(Surv(surv_mm, event=death_cancer) ~ year8594,
+                  data = melanoma.l )
+## Have a look at the fitted object
+str(sfit7a1, 1)
+plot(sfit7a1,
+     ## No automatic labelling of the curve (we do that ourselves)
+     mark.time=FALSE,
+     ## Time is measured in months,  but we want to see it in years
+     xscale=12,
+     ## Make the plot prettier
+     xlab="Years since diagnosis",
+     ylab="S(t)",
+     col=c("blue","red"),
+     lty=c("solid","dashed"))
+legend("bottomleft",legend=levels(melanoma.l$year8594),
+       col=c("blue","red"),lty=c("solid","dashed"), bty="n")
+```
+
+### ii. ###  
+Now plot the estimated hazard function (cause-specific mortality rate) as a function of calendar period of diagnosis.
+
+```{webr-r}
+library(bshazard)
+par(mfrow=1:2)
+for(level in levels(melanoma.l$year8594))
+    plot(bshazard(Surv(surv_mm/12, status == "Dead: cancer") ~ 1,
+                  data=subset(melanoma.l, year8594==level)),
+         xlab="Years since diagnosis", main=level, xlim=c(0,20), ylim=c(0,0.08))
+```
+During which calendar period (the early or the latter) is mortality the lowest?
+
+### iii. ###
+Is the interpretation (with respect to how prognosis depends on period) based on the hazard consistent with the interpretation of the survival plot?
+
+```{webr-r}
+layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE))
+plot(sfit7a1,
+     ## No automatic labelling of the curve (we do that ourselves)
+     mark.time=FALSE,
+     ## Time is measured in months,  but we want to see it in years
+     xscale=12,
+     ylim=c(0.6,1),
+     ## Make the plot prettier
+     xlab="Years since diagnosis",
+     ylab="S(t)",
+     col=c("blue","red"),
+     lty=c("solid","dashed"))
+legend("bottomleft",legend=levels(melanoma.l$year8594),
+       col=c("blue","red"),lty=c("solid","dashed"), bty="n")
+cols = c("Diagnosed 75-84"="blue", "Diagnosed 85-94"="red")
+ltys = c("Diagnosed 75-84"="solid", "Diagnosed 85-94"="dashed")
+for(level in levels(melanoma.l$year8594))
+    plot(bshazard(Surv(surv_mm/12, status == "Dead: cancer") ~ 1,
+                  data=subset(melanoma.l, year8594==level)),
+         xlab="Years since diagnosis", main=level,
+         xlim=c(0,22), ylim=c(0,0.08), col=cols[level],
+         lty=ltys[level])
+```
+
+## (b) ##  
+Estimate the cause-specific mortality rate for each calendar period.
+
+```{webr-r}
+#| results: "asis"
+survRate(Surv(surv_mm, death_cancer) ~ year8594, data=melanoma.l) |>
+    kable("html")
+```
+
+During which calendar period (the early or the latter) is mortality the lowest? Is this consistent with what you found earlier? If not, why the inconsistency?
+
+## (c) ##
+The reason for the inconsistency between parts 7a and 7b was confounding by time since diagnosis. The comparison in part 7a was adjusted for time since diagnosis (since we compare the differences between the curves at each point in time) whereas the comparison in part 7b was not. Understanding this concept is central to the remainder of the exercise so please ask for help if you don’t follow.
+
+Two approaches for controlling for confounding are ‘restriction’ and ‘statistical adjustment’. We will first use restriction to control for confounding. We will restrict the potential follow-up time to a maximum of 120 months. Individuals who survive more than 120 months are censored at 120 months.
+
+### i. ###  
+Estimate the cause-specific mortality rate for each calendar period.
+
+```{webr-r}
+#| autorun: true
+melanoma.l2 =
+    transform(melanoma.l,
+              ## Update the death indicator (only count deaths within 120 months)
+              ## death_cancer = death_cancer * as.numeric(surv_mm<=120),
+              death_cancer = ifelse(surv_mm<=120, status == "Dead: cancer",0),
+              ## Create a new time variable
+              surv_mm = pmin(surv_mm,120))
+rates_by_diag_yr2 = survRate(Surv(surv_mm, death_cancer) ~ year8594, data=melanoma.l2)
+```
+
+```{webr-r}
+#| results: "asis"
+kable(rates_by_diag_yr2, "html")
+```
+
+During which calendar period (the early of the latter) is mortality the lowest? Is this consistent with what you found in part 7b?
+
+### ii. ###  
+Calculate by hand the ratio (85–94/75–84) of the two mortality rates (i.e., a mortality rate ratio) and interpret the estimate (i.e., during which period is mortality higher/lower and by how much).
+
+```{webr-r}
+rates_by_diag_yr2[2, "rate"] / rates_by_diag_yr2[1, "rate"]
+with(rates_by_diag_yr2[2:1,], poisson.test(event, tstop)) # reverse the row order:)
+```
+
+### iii. ###  
+Now use Poisson regression to estimate the same mortality rate ratio. Write the linear predictor using pen and paper and draw a graph of the fitted hazard rates.
+
+```{webr-r}
+poisson7c = glm(death_cancer ~ year8594 + offset(log(surv_mm/12/1000 )),
+                family=poisson, data=melanoma.l2)
+summary(poisson7c)
+
+## IRR - using broom::tidy
+tidy(poisson7c, conf.int=TRUE, exponentiate=TRUE)
+## or (less generally)
+biostat3::eform(poisson7c)
+
+## also for collapsed data
+glm(event ~ year8594 + offset(log(tstop/12/1000)), family=poisson,
+    data=rates_by_diag_yr2) |> summary()
+
+## Note that the scaling of the offset term only has an impact on the intercept
+glm(event ~ year8594 + offset(log(tstop)), family=poisson,
+    data=rates_by_diag_yr2) |> summary()
+```
+
+## (7d) ##  
+In order to adjust for time since diagnosis (i.e., adjust for the fact that we expect mortality to depend on time since diagnosis) we need to split the data by this timescale. We will restrict our analysis to mortality up to 10 years following diagnosis.
+
+```{webr-r}
+#| autorun: true
+## Add a new variable for year; split follow-up by year;
+## calculate person-time; recode start time as a factor
+melanoma.spl <- transform( melanoma.l2, surv_yy1 = surv_mm/12) |>
+    survSplit(cut=0:9, end="surv_yy1", start="start",
+              event="death_cancer") |>
+    transform(pt = surv_yy1 - start,
+              fu = as.factor(start))
+```
+
+## (e) ##  
+Now tabulate (and produce a graph of) the rates by follow-up time.
+
+```{webr-r}
+library(tinyplot) # lightweight base graphics extension
+survRate(Surv(pt/1000,death_cancer)~fu, data=melanoma.spl) |>
+    transform(start=as.numeric(levels(fu))[fu]) |>
+    with({
+        plt(rate~start, ymin=lower, ymax=upper, type="ribbon",
+            main="Cancer deaths by years since diagnosis",
+            ylab="Incidence rate per 1000 person-years",
+            xlab="Years since diagnosis")
+    })
+```
+
+Mortality appears to be quite low during the first year of follow-up. Does this seem reasonable considering the disease with which these patients have been diagnosed?
+
+## (f) ##  
+Compare the plot of the estimated rates to a plot of the hazard rate as a function of continuous time.
+
+```{webr-r}
+library(bshazard)
+library(tinyplot)
+par(mfrow=1:2)
+survRate(Surv(pt,death_cancer)~fu, data=melanoma.spl) |>
+    transform(start=as.numeric(levels(fu))[fu]) |>
+    transform(mid=start+0.5) |>
+    with({
+        plt(rate~mid, ymin=lower, ymax=upper,
+            type="ribbon",
+            main="Rates",
+            ylab="Mortality rate per person-year",
+            xlab="Years since diagnosis",
+            xlim=c(0,10))
+    })
+bshazard(Surv(surv_mm/12, status == "Dead: cancer") ~ 1, data = melanoma.l) |>
+    plot(xlab="Years since diagnosis", xlim=c(0,10),
+         main="Smoothed hazard")
+box() # redo the box around the plot
+```
+
+Is the interpretation similar? Do you think it is sufficient to classify follow-up time into annual intervals or might it be preferable to use, for example, narrower intervals?
+
+## (g) ##  
+Use Poisson regression to estimate incidence rate ratios as a function of follow-up time. Write the linear predictor using pen and paper.
+
+
+```{webr-r}
+## Run Poisson regression
+summary(poisson7g <- glm(death_cancer ~ fu + offset(log(pt)),
+                         family = poisson,
+                         data = melanoma.spl))
+## IRR
+eform(poisson7g)
+```
+Does the pattern of estimated incident rate ratios mirror the pattern you observed in
+the plots? Draw a graph of the fitted hazard rate using pen and paper.
+
+Write out the regression equation.
+
+## (h) ##  
+Now estimate the effect of calendar period of diagnosis while adjusting for time since diagnosis. Before fitting this model, predict what you expect the estimated effect to be (i.e., will it be higher, lower, or similar to the value we obtained in part c). Write the linear predictor using pen and paper and draw a graph of the fitted hazard rates.
+
+
+```{webr-r}
+summary(poisson7h <- glm(death_cancer ~ fu + year8594 + offset(log(pt)),
+                         family = poisson,
+                         data = melanoma.spl))
+## IRR
+eform(poisson7h)
+
+summary(poisson7h2 <- glm( death_cancer ~ fu*year8594 + offset( log(pt) ), family=poisson, data=melanoma.spl ))
+## IRR
+eform(poisson7h2)
+
+```
+Is the estimated effect of calendar period of diagnosis consistent with what you expected? Add an interaction between follow-up and calendar period of diagnosis and interpret the results.
+
+## (i) ##  
+Now control for age, sex, and calendar period. Write the linear predictor using pen and paper.
+
+### i. ###  
+Interpret the estimated hazard ratio for the parameter labelled agegrp 2, including a comment on statistical significance.
+### ii. ###  
+Is the effect of calendar period strongly confounded by age and sex? That is, does the inclusion of sex and age in the model change the estimate for the effect of calendar period?
+### iii. ###  
+Perform a Wald test of the overall effect of age and interpret the results.
+
+```{webr-r}
+library(car)
+summary(poisson7i <- glm(death_cancer ~ fu + year8594 + sex + agegrp + offset(log(pt)),
+                         family=poisson, data=melanoma.spl))
+
+## IRR
+eform(poisson7i)
+
+## Test if the effect of age is significant using a likelihood ratio test
+drop1(poisson7i, ~agegrp, test="Chisq")
+## For this we can also use the car package and a Wald test
+linearHypothesis(poisson7i,c("agegrp45-59 = 0","agegrp60-74 = 0","agegrp75+ = 0"))
+## ADVANCED:
+## Alternative approach for the likelihood ratio test
+## poisson7i_2 <- update(poisson7i,. ~ . - agegrp)
+## anova(poisson7i_2,poisson7i,test="Chisq")
+
+```
+
+## (j) ##  
+Is the effect of sex modified by calendar period (whilst adjusting for age and follow-up)? Fit an appropriate interaction term to test this hypothesis. Write the linear predictor using pen and paper.
+
+```{webr-r}
+summary(poisson7j <- glm(death_cancer ~ fu + agegrp + year8594*sex + offset(log(pt)),
+                         family=poisson, data=melanoma.spl))
+eform(poisson7j)
+```
+
+
+## (k) ##  
+Based on the interaction model you fitted in exercise 7j, estimate the hazard ratio for the effect of sex (with 95% confidence interval) for each calendar period.
+
+ADVANCED: Do this with each of the following methods and confirm that the results are the same:
+
+### i. ###  
+Using hand-calculation on the estimates from exercise 7j.
+
+```{webr-r}
+## hand calculations
+hz7k <- exp(coef(poisson7j))
+hz7k["sexFemale"]
+hz7k["sexFemale"]*hz7k["year8594Diagnosed 85-94:sexFemale"]
+```
+
+### ii. ###  
+Using the estimates from exercise 7j.
+
+
+```{webr-r}
+library(car)
+biostat3::lincom(poisson7j,c("sexFemale + year8594Diagnosed 85-94:sexFemale"),eform=TRUE)
+```
+
+### iii. ###  
+Creating appropriate dummy variables that represent the effects of sex for each calendar period.
+
+
+```{webr-r}
+melanoma.spl <- melanoma.spl |>
+    transform(femaleEarly = sex=="Female" & year8594=="Diagnosed 75-84",
+              femaleLate = sex=="Female" & year8594=="Diagnosed 85-94")
+summary(poisson7k <- glm(death_cancer ~ fu + agegrp + year8594 + femaleEarly +
+                         femaleLate + offset(log(pt)), family=poisson,
+                         data=melanoma.spl))
+eform(poisson7k)
+```
+
+Write the linear predictor using pen and paper.
+
+
+### iv. ### 
+Using the formula to specify the interactions to repeat the previous model.
+
+```{webr-r}
+summary(poisson7k2 <- glm(death_cancer ~ fu + agegrp + year8594 + year8594:sex +
+                         offset(log(pt)), family=poisson,
+                         data=melanoma.spl))
+eform(poisson7k2)
+```
+Using the formula to specify the interactions, repeat the previous model.
+
+## (l) ##
+Now fit a separate model for each calendar period in order to estimate the hazard ratio for the effect of sex (with 95% confidence interval) for each calendar period.
+
+Why do the estimates differ from those you obtained in the previous part?
+
+```{webr-r}
+summary(poisson7l.early <- glm(death_cancer ~ fu + agegrp + sex + offset(log(pt)),
+                               family = poisson, data = melanoma.spl,
+                               subset = year8594 == "Diagnosed 75-84"))
+eform(poisson7l.early)
+
+summary(poisson7l.late <- glm(death_cancer ~ fu + agegrp + sex + offset(log(pt)),
+                              family = poisson, data = melanoma.spl,
+                              subset = year8594 == "Diagnosed 85-94"))
+eform(poisson7l.late)
+```
+
+Can you fit a single model that reproduces the estimates you obtained from the stratified models?
+
+```{webr-r}
+summary(poisson7l2 <- glm(death_cancer ~ fu + fu:year8594 + agegrp + agegrp:year8594
+                          + sex*year8594 + offset(log(pt)),
+                          family=poisson, data=melanoma.spl))
+eform(poisson7l2)
+```
+
+## (m) ##  
+Split by month and fit a model to smooth for time using natural splines, adjusting for age group and calendar period. Plot the baseline hazard. 
+
+```{webr-r}
+library(splines)
+library(tinyplot)
+time.cut <- seq(0,10,by=1/12)
+nrow(biostat3::melanoma)
+melanoma.spl2 <- survSplit(Surv(surv_mm/12,status=="Dead: cancer")~.,
+                           data=biostat3::melanoma,
+                           cut=time.cut,
+                           subset=stage=="Localised") |>
+    transform(mid=(tstop+tstart)/2, risk_time=tstop-tstart)
+nrow(melanoma.spl2)
+poisson7m <- glm(event ~ ns(mid,df=6) + agegrp + year8594 +
+                     offset(log(risk_time)),
+                 family=poisson,
+                 data=melanoma.spl2)
+df <- data.frame(agegrp="0-44", year8594="Diagnosed 75-84",
+                 mid=time.cut[-1], risk_time=1)
+pred <- predict(poisson7m, newdata=df, se.fit=TRUE)
+qq <- qnorm(0.975)
+df <- with(pred, transform(df,
+                           fit=exp(fit), # parallel (not sequential:)
+                           conf.low=exp(fit-qq*se.fit),
+                           conf.high=exp(fit+qq*se.fit)))
+## plot the rate at the baseline values
+with(df, plt(fit~mid, ymin=conf.low, ymax=conf.high, type="ribbon",
+     ylab="Rate", xlab="Time since diagnosis (years)",
+     ylim=c(0,0.05)))
+```
+
+
+## (n) ##  
+Split by month and fit a model to smooth for time using natural splines, adjusting for age group and calendar period, with a time-varying hazard ratio for calendar period. Plot the time-varying hazard ratio. 
+
+```{webr-r}
+#| autorun: true
+library(splines)
+library(dplyr)
+time.cut <- seq(0,10,by=1/12)
+melanoma.spl3 <- survSplit(Surv(surv_mm/12,status=="Dead: cancer")~.,
+                           data=biostat3::melanoma,
+                           cut=time.cut,
+                           episode="timeband",
+                           subset=stage=="Localised") |>
+    transform(mid=(tstop+tstart)/2, risk_time=tstop-tstart) |>
+    group_by(sex, agegrp, stage, year8594, timeband) |>
+    summarise(risk_times=sum(risk_time), # sequential - do not replace risk_time
+              events=sum(event),
+              mid=sum(risk_time*mid)/sum(risk_time),
+              .groups="keep")
+poisson7n <- glm(events ~ ns(mid,df=4) + agegrp + year8594 +
+                     ifelse(year8594=="Diagnosed 85-94",1,0):ns(mid,df=3) +
+                     offset(log(risk_times)),
+                 family=poisson,
+                 data=melanoma.spl3)
+```
+
+```{webr-r}
+library(rstpm2) # version >= 1.6.6 for predictnl(..., conf.int=TRUE)
+library(tinyplot)
+df2 <- data.frame(agegrp="0-44", year8594="Diagnosed 75-84",
+                  mid=time.cut[-1], risk_times=1)
+## get log(RR) confidence interval using predictnl (delta method)
+predictnl(poisson7n, function(object)
+    predict(object, newdata=transform(df2, year8594="Diagnosed 85-94"), type="link") -
+    predict(object, newdata=df2, type="link"),
+    conf.int=TRUE) |>
+    cbind(df2) |>
+    transform(fit = exp(fit),
+              conf.low=exp(conf.low),
+              conf.high=exp(conf.high)) |>
+    with(plt(fit~mid, ymin=conf.low, ymax=conf.high, type="ribbon",
+             xlab="Time since diagnosis (years)",
+             ylab="Rate ratio"))
+
+## Calculate the rate difference
+predictnl(poisson7n,
+          function(object)
+              predict(object, newdata=transform(df2, year8594="Diagnosed 85-94"),
+                      type="response") -
+              predict(object, newdata=df2, type="response"),
+          conf.int=TRUE) |>
+    cbind(df2) |>
+    with(plt(fit~mid, ymin=conf.low, ymax=conf.high, type="ribbon",
+             xlab="Time since diagnosis (years)",
+             ylab="Rate difference"))
+```
+
+## (o) ##  
+
+We can estimate survival from a Poisson regression model by integration. This can be done elegantly using ordinary differential equations: if survival $S$ at time 0 is 1, such that $S(0)=1$, then $dS(t)/dt=-S(t)h(t)$, where $h(t)$ is the hazard.
+
+If the `deSolve` package is available (which is not true with WebR:(), then we can use the `rstpm2::markov_msm` function for a two-state Markov multi-state model:
+
+```{webr-r}
+if (require("deSolve")) {
+    twoState <- function(object, ...) {
+        markov_msm(list(object),matrix(c(NA,1,NA,NA),2,byrow=TRUE), ...) |>
+            as.data.frame() |>
+            subset(state==1)
+    }
+    df2 <- expand.grid(agegrp=levels(biostat3::melanoma$agegrp),
+                       year8594=levels(biostat3::melanoma$year8594)) |>
+        transform(risk_times=1)
+    library(tinyplot)
+    twoState(poisson7n, t=c(0,time.cut), newdata = df2, tmvar = "mid") |>
+        with(plt(P~time|year8594, ymin=P.lower,ymax=P.upper,
+                 type="ribbon",facet=agegrp,
+                 xlab="Time since diagnosis (years)",
+                 ylab="Survival"))
+} else cat("To run this example, please install the deSolve package\n")
+```
+
+What pattern do you observe? 
+
+This approach will general quite readily to competing risks and other multi-state models. Alternatively, we can use the `pracma` package (which is available on WebR), which requires more work:
+
+```{webr-r}
+if (require("pracma")) {
+library(tinyplot)
+library(rstpm2)
+library(pracma)
+df2 <- with(biostat3::melanoma,
+            expand.grid(agegrp=levels(agegrp),
+                        year8594=levels(year8594))) |>
+    transform(risk_times=1)
+oneState <- function(object,newdata=df2) {
+    f <- function(t,y)
+        -y*predict(object, newdata=transform(newdata,mid=t), type="response")
+    pracma::ode45(f, t0=0, y0=rep(1,nrow(newdata)), tfinal=10, hmax=0.1)
+}
+out0 = oneState(poisson7n, newdata=df2)
+out = predictnl(poisson7n,
+                function(object, newdata)
+                    log(-log(as.vector(oneState(object, newdata)$y))),
+                newdata=df2, conf.int=TRUE) |> # slow!
+    transform(fit=exp(-exp(fit)),
+              conf.low=exp(-exp(conf.low)),
+              conf.high=exp(-exp(conf.high))) |>
+    cbind(with(biostat3::melanoma,
+               expand.grid(mid=out0$t,
+                           agegrp=levels(agegrp),
+                           year8594=levels(year8594))))
+with(out,plt(fit~mid|year8594,type="ribbon",facet=agegrp,
+             ymin=conf.low, ymax=conf.high,
+             xlab="Time since diagnosis (years)",
+             ylab="Survival"))
+} else cat("To run this example, please install the pracma package\n")
+```
+
+Again, what pattern do you observe? 

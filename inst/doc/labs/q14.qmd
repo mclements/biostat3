@@ -1,0 +1,209 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Mark Clements
+format:
+  html:
+    theme: flatly
+filters:
+  - webr
+execute:
+  echo: true
+  message: false
+  cache: false
+  fig-width: 7
+  fig-height: 6
+---
+
+
+# Exercise 14. Non-collapsibility of proportional hazards models #
+
+-----------
+
+We simulate for time-to-event data assuming _constant hazards_ and then investigate whether we can estimate the underlying parameters. Note that the binary variable $X$ is essentially a coin toss and we have used a large variance for the normally distributed $U$. 
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{webr-r}
+#| autorun: true
+library(survival) # coxph
+library(rstpm2) # stpm2
+```
+
+The assumed causal diagram is reproduced below: 
+
+```{r,engine='tikz',fig.ext='svg',fig.width=3,echo=FALSE}
+    \usetikzlibrary{arrows,decorations.pathmorphing,backgrounds,positioning,fit,petri,matrix}
+    \begin{tikzpicture}[->,bend angle=20,semithick,>=stealth']
+      \matrix [matrix of nodes,row sep=10mm, column sep=15mm]
+      {
+        |(X)| $X$ & |(C)| $C$ \\
+        & |(T)| $T$ & |(Y)| $(Y,\Delta)$ \\
+        |(U)| $U$ \\
+      };
+      \begin{scope}[every node/.style={auto}]
+        \draw (X) to node[anchor=south] {1} (T);
+        \draw (U) to node[anchor=south] {1} (T);
+        \draw (T) to node[anchor=north] {} (Y);
+        \draw (C) to node[anchor=north] {} (Y);
+      \end{scope}
+    \end{tikzpicture}
+```
+
+<!-- We can also use `dagitty` to graph the causal diagram (if this is available): -->
+<!-- ```{webr-r} -->
+<!-- if (requireNamespace("dagitty")) { -->
+<!--     g1 <- dagitty::dagitty( "dag { -->
+<!--     X -> T -> \"(Y,Delta)\" -->
+<!--     U -> T -->
+<!--     C -> \"(Y,Delta)\" -->
+<!-- }") -->
+<!--     plot(graphLayout(g1)) -->
+<!-- } -->
+<!-- ``` -->
+
+
+```{webr-r}
+#| autorun: true
+set.seed(12345)
+d <- local({
+    n <- 1e4
+    x <- rbinom(n, 1, 0.5)
+    u <- rnorm(n, 0, 3)
+    t <- rexp(n, exp(-5+x+u))
+    c <- runif(n, 0, 10)
+    y <- pmin(t, c)
+    delta <- (t < c)
+    data.frame(y,x,u,delta)
+})
+head(d)
+```
+
+## (a) Fitting models with both $X$ and $U$ ## 
+
+For constant hazards, we can fit (i) Poisson regression, (ii) Cox regression and (iii) flexible parametric survival models. 
+
+```{webr-r}
+summary(fit1 <- glm(delta~x+u+offset(log(y)),data=d,family=poisson))
+summary(fit2 <- coxph(Surv(y,delta)~x+u,data=d))
+summary(fit3 <- stpm2(Surv(y,delta)~x+u,data=d,df=4))
+rbind(glm=coef(summary(fit1))["x",c("Estimate","Std. Error")],
+      coxph=coef(summary(fit2))["x",c("coef","se(coef)")],
+      stpm2=coef(summary(fit3))["x",c("Estimate","Std. Error")])
+```
+
+It may be useful to investigate whether the hazard ratio for $X$ is time-varying hazard ratio and the form for survival.
+
+```{webr-r}
+library(ggplot2)
+fit <- stpm2(Surv(y,delta)~x+u,data=d,df=4, tvc=list(x=2)) # slow
+plot(fit, type="hr", newdata=data.frame(x=0,u=0), var="x", ylim=c(1,4))
+predict(fit, type="surv", newdata=data.frame(x=0:1,u=3), grid=TRUE, full=TRUE,
+        se.fit=TRUE) |>
+    ggplot(aes(x=y,y=Estimate,fill=factor(x),ymin=lower,ymax=upper)) +
+    ylab("Survival") +
+    geom_ribbon(alpha=0.6) +
+    geom_line(aes(colour=factor(x)))
+## standardisation: slow
+plot(fit, type="meanhr", newdata=transform(d,x=0), var="x", seqLength=31, ylim=c(1,4))
+plot(fit, type="meansurvdiff", newdata=transform(d,x=0), var="x", seqLength=31)
+plot(fit, type="meansurv", newdata=transform(d,x=0), seqLength=101)
+```
+
+## (b) Fitting models with only $X$ ## 
+
+We now model by excluding the variable $U$. This variable could be excluded when it is not measured or perhaps when the variable is not considered to be a confounding variable -- from the causal diagram, the two variables $X$ and $U$ are not correlated and are only connected through the time variable $T$.
+
+```{webr-r}
+fit1 <- glm(delta~x+offset(log(y)),data=d,family=poisson)
+fit2 <- coxph(Surv(y,delta)~x,data=d)
+fit3 <- stpm2(Surv(y,delta)~x,data=d,df=4)
+rbind(glm=coef(summary(fit1))["x",c("Estimate","Std. Error")],
+      coxph=coef(summary(fit2))["x",c("coef","se(coef)")],
+      stpm2=coef(summary(fit3))["x",c("Estimate","Std. Error")])
+```
+
+Again, we suggest investigating whether the hazard ratio for $X$ is time-varying.
+
+```{webr-r}
+stpm2(Surv(y,delta)~x,data=d,df=4, tvc=list(x=2)) |>
+    plot(type="hr", newdata=data.frame(x=0), var="x", ylim=c(1,4))
+```
+
+What do you see from the time-varing hazard ratio? Is $U$ a potential confounder for $X$?
+
+
+
+## (c) Rarer outcomes ## 
+
+We now simulate for rarer outcomes by changing the censoring distribution:
+
+```{webr-r}
+set.seed(12345)
+d <- local({
+    n <- 1e4*10 # CHANGED N
+    x <- rbinom(n, 1, 0.5)
+    u <- rnorm(n, 0, 3)
+    t <- rexp(n, exp(-5+x+u))
+    c <- runif(n, 0, 10/1000) # CHANGED FROM 10 TO 0.01
+    y <- pmin(t, c)
+    delta <- (t < c)
+    data.frame(y,x,u,delta)
+})
+fit1 <- glm(delta~x+offset(log(y)),data=d,family=poisson)
+fit2 <- coxph(Surv(y,delta)~x,data=d)
+fit3 <- stpm2(Surv(y,delta)~x,data=d,df=4)
+rbind(glm=coef(summary(fit1))["x",c("Estimate","Std. Error")],
+      coxph=coef(summary(fit2))["x",c("coef","se(coef)")],
+      stpm2=coef(summary(fit3))["x",c("Estimate","Std. Error")])
+```
+
+What do you observe?
+
+
+## (d) Less heterogeneity ## 
+
+We now simulate for less heterogeneity by changing the reducing the standard deviation for the random effect $U$ from 3 to 1. 
+
+```{webr-r}
+set.seed(12345)
+d <- local( {
+    n <- 1e4
+    x <- rbinom(n, 1, 0.5)
+    u <- rnorm(n, 0, 1) # CHANGED SD FROM 3 TO 1
+    t <- rexp(n, exp(-5+x+u))
+    c <- runif(n, 0, 10) 
+    y <- pmin(t, c)
+    delta <- (t < c)
+    data.frame(y,x,u,delta)
+})
+fit1 <- glm(delta~x+offset(log(y)),data=d,family=poisson)
+fit2 <- coxph(Surv(y,delta)~x,data=d)
+fit3 <- stpm2(Surv(y,delta)~x,data=d,df=4)
+rbind(glm=coef(summary(fit1))["x",c("Estimate","Std. Error")],
+      coxph=coef(summary(fit2))["x",c("coef","se(coef)")],
+      stpm2=coef(summary(fit3))["x",c("Estimate","Std. Error")])
+```
+
+What do you observe?
+
+
+## (e) Accelerated failure time models ##
+
+As an alternative model class, we can fit _accelerated failure time models_ with a smooth baseline survival function. We can use the *rstpm2::aft* function, which uses splines to model baseline survival. Using the baseline simulation, fit and interpret smooth accelerated failure time models:
+
+```{webr-r}
+set.seed(12345)
+d <- local({
+    n <- 1e4
+    x <- rbinom(n, 1, 0.5)
+    u <- rnorm(n, 0, 3)
+    t <- rexp(n, exp(-5+x+u))
+    c <- runif(n, 0, 10)
+    y <- pmin(t, c)
+    delta <- (t < c)
+    data.frame(y,x,u,delta)
+})
+aft(Surv(y,delta)~x+u,data=d,df=4) |> summary()
+aft(Surv(y,delta)~x,data=d,df=4) |> summary()
+```

@@ -1,0 +1,209 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Johan Zetterqvist, Andreas Karlsson and Mark Clements
+format:
+  html:
+    theme: flatly
+filters:
+  - webr
+execute:
+  echo: true
+  message: false
+  cache: false
+  fig-width: 7
+  fig-height: 6
+---
+
+# Exercise 6. Diet data: tabulating incidence rates and modelling with Poisson regression
+
+```{webr-r}
+#| autorun: true
+library(biostat3) # diet
+library(knitr) # kable
+library(broom) # tidy
+```
+
+Show the first six rows of data and a summary of the data-frame:
+
+```{webr-r}
+#| results: "asis"
+head(diet) |> kable("html")
+summary(diet) |> kable("html")
+```
+
+## (a) ##
+Tabulate CHD incidence rates per 1000 person-years for each category of hieng. Calculate (by hand) the ratio of the two incidence rates.
+
+```{webr-r}
+#| results: "asis"
+survRate(Surv(y/1000,chd) ~ hieng, data=diet) |>
+    kable("html")
+```
+
+We could also calculate the rates using:
+
+```{webr-r}
+#| results: "asis"
+library(dplyr)
+diet |>
+    group_by(hieng) |>
+    summarise(Event = sum(chd), Time = sum(y/1000), Rate = Event/Time,
+              CI_low = poisson.test(Event,Time)$conf.int[1],
+              CI_high = poisson.test(Event,Time)$conf.int[2]) |>
+    kable("html")
+```
+
+Code for the rate ratios:
+
+```{webr-r}
+diet.ir6a <- survRate(Surv(y/1000,chd) ~ hieng, data=diet)
+with(diet.ir6a, poisson.test(event,tstop))
+with(diet.ir6a, poisson.test(rev(event),rev(tstop)))
+```
+
+
+## (b) ##
+Fit a poisson model to find the incidence rate ratio for the high energy group compared to the low energy group and compare the estimate to the one you obtained in the previous question.
+
+```{webr-r}
+glm( chd ~ hieng + offset( log( y/1000 ) ), family=poisson,
+    data=diet) |> summary()
+```
+
+```{webr-r}
+#| results: "asis"
+glm( chd ~ hieng + offset( log( y/1000 ) ), family=poisson,
+    data=diet) |>
+    tidy(conf.int=TRUE,exponentiate=TRUE) |>
+    kable("html",digits=4)
+```
+
+Also write out the regression equation, defining your notation.
+
+## (c) ##
+Grouping the values of total energy into just two groups does not tell us much about how the CHD rate changes with total energy. It is a useful exploratory device, but to look more closely we need to group the total energy into perhaps 3 or 4 groups.
+
+In this example we shall use the cut points 1500, 2500, 3000, 4500. Compare with a normal distribution to check if these cutpoints seem reasonable.
+
+```{webr-r}
+#| results: "asis"
+hist(diet$energy, breaks=25, probability=TRUE, xlab="Energy (units)", main=NULL)
+curve(dnorm(x, mean=mean(diet$energy), sd=sd(diet$energy)), col = "red", add=TRUE)
+lines(density(diet$energy), col = "blue")
+legend("topright", legend=c("Normal density","Smoothed density"),
+       lty=1, col=c("red", "blue"), bty="n")
+quantile(diet$energy, probs=c(0.01,0.05,0.1,0.25,0.5,0.75,0.90,0.95,0.99)) |>
+    kable("html")
+```
+
+## (d) ##
+
+Create a new variable eng3 coded 1500 for values of energy in the range 1500–2499, 2500 for values in the range 2500–2999, and 3000 for values in the range 3000–4500.
+
+```{webr-r}
+#| autorun: true
+diet = transform(diet,
+                 eng3 = cut(energy, breaks=c(1500,2500,3000,4500),
+                            labels=c("low","medium","high"), 
+                            right = FALSE))
+```
+
+```{webr-r}
+with(diet, cbind(Freq=table(eng3),
+                 Prop=table(eng3)/nrow(diet)))
+```
+
+
+## (e) ##
+
+ Estimate the rates for different levels of eng3. Calculate (by hand) the ratio of rates in the second and third levels to the first level.
+
+
+```{webr-r}
+diet.ir6e <- survRate(Surv(y/1000,chd) ~ eng3, data=diet)
+print(diet.ir6e)
+
+# calculate IRR and confidence intervals
+with(diet.ir6e, rate[eng3=="medium"] / rate[eng3=="low"])
+with(diet.ir6e[c(2,1),], { # compare second row with first row
+  poisson.test(event, tstop)
+})
+with(diet.ir6e, rate[eng3=="high"] / rate[eng3=="low"])
+with(diet.ir6e[c(3,1),], { # compare third row with first row
+  poisson.test(event, tstop)
+})
+```
+
+## (f) ##
+
+ Create your own indicator variables for the three levels of eng3.
+
+
+```{webr-r}
+#| autorun: true
+diet = transform(diet, 
+                 X1 = as.numeric(eng3 == "low"),
+                 X2 = as.numeric(eng3 == "medium"),
+                 X3 = as.numeric(eng3 == "high"))
+## or (names eng3low, eng3medium and eng3high)
+diet = cbind(diet, model.matrix(~eng3+0, diet))
+```
+
+## (g) ##
+
+ Check the indicator variables.
+
+```{webr-r}
+#| results: "asis"
+subset(diet, eng3=="low", select=c(energy,eng3,X1,X2,X3)) |> head() |> kable("html")
+subset(diet, eng3=="medium", select=c(energy,eng3,X1,X2,X3)) |> head() |> kable("html")
+subset(diet, eng3=="high", select=c(energy,eng3,X1,X2,X3)) |> head() |> kable("html")
+```
+
+## (h) ##
+
+ Use poisson to compare the second and third levels with the first.
+
+```{webr-r}
+poisson6h <- glm( chd ~ X2 + X3 + offset( log( y/1000 ) ), family=poisson, data=diet )
+summary(poisson6h)
+tidy(poisson6h, conf.int=TRUE, exponentiate=TRUE)
+```
+
+Compare your estimates with those you obtained in part 6e. Write the linear predictor using pen and paper.
+
+Also write out the regression equation, defining your notation.
+
+## (i) ##
+
+ Use a poisson model to compare the first and third levels with the second. Write the linear predictor using pen and paper.
+
+```{webr-r}
+glm( chd ~ X1 + X3 + offset( log( y/1000 ) ), family=poisson, data=diet ) |>
+    summary()
+# or 
+poisson6i = glm( chd ~ I(eng3=="low") + I(eng3=="high") + offset( log( y/1000 ) ),
+                family=poisson, data=diet )
+summary( poisson6i )
+tidy(poisson6i, conf.int=TRUE, exponentiate=TRUE)
+```
+
+## (j) ##
+
+ Repeat the analysis comparing the second and third levels with the first but this time have R create the indicators automatically y using the categorical variable eng3.
+
+
+```{webr-r}
+poisson6j <- glm( chd ~ eng3 + offset( log( y/1000 ) ), family=poisson, data=diet )
+summary( poisson6j )
+tidy(poisson6j, conf.int=TRUE, exponentiate=TRUE)
+```
+
+## (k) ##
+
+ Calculate the total number of events during follow-up, person-time at risk, and the crude incidence rate (per 1000 person-years)
+
+```{webr-r}
+with(diet, sum(chd) / sum(y))
+```

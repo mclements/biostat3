@@ -1,0 +1,56 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Johan Zetterqvist and Mark Clements
+format:
+  html:
+    theme: flatly
+filters:
+  - webr
+execute:
+  echo: true
+  message: false
+  cache: false
+  fig-width: 7
+  fig-height: 6
+---
+
+
+# Exercise 13. Modelling the diet data using Cox regression #
+
+-----------
+
+Now fit a model to the localised melanoma data where the outcome is observed survival (i.e. all deaths are considered to be events).
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{webr-r}
+#| autorun: true
+library(biostat3)
+```
+
+## (a) ## 
+Fit the following Poisson regression model to the diet data (we fitted this same model in question 6). Now fit the following Cox model.
+
+  i. On what scale are we measuring ‘time’ ? That is, what is the timescale?
+  ii. Is it correct to say that both of these models estimate the effect of high energy on CHD without controlling for any potential confounders? If not, how are these models conceptually different?
+  iii. Would you expect the parameter estimates for these two models to be very different? Is there a large difference?
+
+
+```{webr-r}
+poisson13a <- glm( chd ~ hieng + offset( log( y ) ), family=poisson, data=diet)
+summary(poisson13a)
+eform(poisson13a)
+
+coxph(Surv(y, chd) ~ hieng, data=diet) |> summary()
+```
+
+## (b) ## 
+Use the attained age as the timescale and refit the Cox model. Is the estimate of the effect of high energy different? Would we expect it to be different?
+
+```{webr-r}
+## counting process data with coxph
+scale <- 365.24
+coxph(Surv((doe-dob)/scale, (dox-dob)/scale, chd) ~ hieng, data=diet) |>
+    summary()
+```

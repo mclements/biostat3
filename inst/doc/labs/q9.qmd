@@ -1,0 +1,222 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Annika Tillander, Andreas Karlsson, Benedicte Delcoigne, Johan Zetterqvist and Mark Clements
+format:
+  html:
+    theme: flatly
+filters:
+  - webr
+execute:
+  echo: true
+  message: false
+  cache: false
+  fig-width: 7
+  fig-height: 6
+---
+
+# Exercise 9. Localised melanoma: modelling cause-specific mortality using Cox regression #
+
+In exercise 7 we modelled the cause-specific mortality of patients diagnosed with localised melanoma using Poisson regression. We will now model cause-specific mortality using Cox regression and compare the results to those we obtained using the Poisson regression model.
+
+To fit a Cox proportional hazards model (for cause-specific survival) with calendar period as the only explanatory variable, the following commands can be used. Note that we are censoring all survival times at 120 months (10 years) in order to facilitate comparisons with the Poisson regression model in exercise 7.
+
+-----------
+
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{webr-r}
+#| autorun: true
+library(biostat3)
+
+## Read melanoma data, select subcohorts and create a death indicator
+melanoma.l <- biostat3::melanoma |>
+    subset(stage=="Localised") |>
+    transform(death_cancer = as.numeric(status=="Dead: cancer"))
+
+melanoma.l2 <-
+    transform(melanoma.l,
+              ## Create a death indicator (only count deaths within 120 months)
+              death_cancer = ifelse(surv_mm<=120, death_cancer, 0),
+              ## Create a new time variable
+              surv_mm = pmin(surv_mm, 120))
+```
+
+## (a) ##  
+Interpret the estimated hazard ratio, including a comment on statistical significance. Write the regression equation. Draw a graph showing the shape of the fitted hazard rates for the two calendar periods, also indicating the distance between the curves (HINT: draw on the log hazard scale if you find it easier). Compare this to how you drew the graph in exercise 7h.
+
+
+```{webr-r}
+summary( coxfit9a <- coxph(Surv(surv_mm, death_cancer) ~ year8594,
+                           data = melanoma.l2) )
+```
+
+## (b) ##  
+(This part is more theoretical and is not required in order to understand the remaining parts.)
+
+
+R reports a Wald test of the null hypothesis that survival is independent of calendar period. The test statistic (and associated P-value), is reported in the table of parameter estimates. Under the null hypothesis, the test statistic has a standard normal (Z) distribution, so the square of the test statistic will have a chi square distribution with one degree of freedom.
+
+R also reports a likelihood ratio test statistic of the null hypothesis that none of the parameters in the model are associated with survival. In general, this test statistic will have a chi-square distribution with degrees of freedom equal to the number of parameters in the model. For the current model, with only one parameter, the test statistic has a chi square distribution with one degree of freedom.
+
+Compare these two test statistics with each other and with the log rank test statistic (which also has a chi square distribution) calculated in question 3c (you should, however, recalculate the log rank test since we have restricted follow-up to the first 10 years in this exercise). Would you expect these test statistics to be similar? Consider the null and alternative hypotheses of each test and the assumptions involved with each test.
+
+
+```{webr-r}
+survdiff(Surv(surv_mm, death_cancer) ~ year8594, data = melanoma.l)
+summary(coxfit9b <- coxph(Surv(surv_mm, death_cancer) ~ year8594,
+                           data = melanoma.l))
+```
+
+## (c) ##  
+Now include sex and age (in categories) in the model. Write out the regression equation.
+
+  i. Interpret the estimated hazard ratio for the parameter labelled agegrp45-59, including a comment on its statistical significance.
+  ii. Is the effect of calendar period strongly confounded by age and sex? That is, does the inclusion of sex and age in the model change the estimate for the effect of calendar period?
+  iii. Perform a Wald test of the overall effect of age and interpret the results.
+
+
+```{webr-r}
+summary(coxfit9c <- coxph(Surv(surv_mm, death_cancer) ~ year8594 + sex + agegrp,
+              data = melanoma.l2))
+## Test if the effect of age is significant
+## Use a Wald test with the car package
+library(car)
+linearHypothesis(coxfit9c,c("agegrp45-59 = 0","agegrp60-74 = 0","agegrp75+ = 0"))
+```
+
+## (d) ##
+Perform a likelihood ratio test of the overall effect of age and interpret the results.
+
+
+```{webr-r}
+coxfit9c <- coxph(Surv(surv_mm, death_cancer) ~ year8594 + sex + agegrp,
+                  data = melanoma.l2)
+summary(coxfit9d <- coxph(Surv(surv_mm, death_cancer) ~ year8594 + sex,
+                           data = melanoma.l2))
+## LR test
+anova(coxfit9c, coxfit9d)
+anova(coxfit9c)
+```
+
+Compare your findings to those obtained using the Wald test. Are the findings similar? Would you expect them to be similar?
+
+## (e) ##
+The model estimated in question 9c is similar to the model estimated in question 7i.
+
+  i. Both models adjust for sex, year8594, and i.agegrp but the Poisson regression model in question 7i appears to adjust for an additional variable (`fu`). Is the Poisson regression model adjusting for an additional factor? Explain.
+  ii. Would you expect the parameter estimate for sex, period, and age to be similar for the two models? Are they similar?
+  iii. Do both models assume proportional hazards? Explain.
+
+
+```{webr-r}
+#| autoload: true
+summary(coxfit9e <- coxph(Surv(surv_mm, death_cancer) ~ year8594 + sex + agegrp,
+                           data = melanoma.l2))
+
+## Split follow up by year
+melanoma.spl <- survSplit(melanoma.l2, cut=12*(0:10), end="surv_mm", start="start",
+                           event="death_cancer")
+
+## Calculate persontime and
+## recode start time as a factor
+melanoma.spl <- transform(melanoma.spl,
+                          pt = surv_mm - start,
+                          fu = as.factor(start))
+
+## Run Poisson regression
+summary(poisson9e <- glm(death_cancer ~ fu + year8594 + sex + agegrp + offset( log(pt) ),
+                         family = poisson,
+                         data = melanoma.spl))
+
+eform(poisson9e)
+summary(coxfit9e)
+```
+
+## (f) ##  
+
+ADVANCED: By splitting at each failure time we can estimate a Poisson regression model that is identical to the Cox model.
+
+```{webr-r}
+sfit9f <- survfit(Surv(surv_mm, event=death_cancer) ~ 1,
+                  data = melanoma.l2)
+## Split follow up by event times
+melanoma.spl2 <- survSplit(melanoma.l2, cut=sfit9f$time, end="surv_mm", start="start",
+                           event="death_cancer")
+
+## Calculate persontime and
+## recode start time as a factor
+melanoma.spl2 <- transform(melanoma.spl2,
+                           pt = surv_mm - start,
+                           fu = as.factor(start) )
+
+## Collapse
+library(dplyr)
+melanoma.spl3 <- melanoma.spl2 |>
+    group_by(fu,year8594,sex,agegrp) |>
+    summarise(pt=sum(pt), death_cancer=sum(death_cancer), .groups="keep") |>
+    data.frame()
+
+## Run Poisson regression
+poisson9f <- glm(death_cancer ~ fu + year8594 + sex + agegrp + offset( log(pt) ),
+                 family = poisson,
+                 data = melanoma.spl3)
+
+## IRR
+coef9f <- eform(poisson9f)
+## We are not interested in nuisance parameters fu1, fu2, etc
+tail(coef9f,5)
+
+## summary(coxfit9e)
+coxph(Surv(surv_mm, death_cancer) ~ year8594 + sex + agegrp,
+      data = melanoma.l2) |> summary()
+```
+
+
+## (g) ##  
+
+ADVANCED: Split the data finely (e.g., 3-month intervals) and
+        model the effect of time using a restricted cubic spline with Poisson regression. Also plot the rate and survival.
+
+```{webr-r}
+library(dplyr)
+library(splines)
+library(tinyplot)
+sfit9f <- survfit(Surv(surv_mm, event=death_cancer) ~ 1,
+                  data = melanoma.l2)
+cuts.splines <- seq(0,max(sfit9f$time),by=3)
+mid.splines <- cuts.splines + 1.5
+melanoma.spl4 <-
+    survSplit(Surv(surv_mm,death_cancer)~., data=melanoma.l2, cut=cuts.splines,
+              start="tstart", end="tstop") |>
+    transform(cut=cut(tstop,cuts.splines),
+              mid=mid.splines[unclass(cut)]) |>
+    group_by(mid,year8594,sex,agegrp) |>
+    summarise(pt=sum(tstop-tstart), death_cancer=sum(death_cancer), .groups="keep")
+
+poisson9g <- glm(death_cancer ~ ns(mid,df=3) + year8594 + sex + agegrp,
+                 offset=log(pt), # for effects::Effect() - rather than in the formula
+                 family = poisson,
+                 data = melanoma.spl4)
+summary(poisson9g)
+eform(poisson9g)
+
+## define exposures
+times <- seq(0,max(cuts.splines),length=1000)
+newdata <- data.frame(mid=times, year8594="Diagnosed 85-94",
+                      sex="Male", agegrp="45-59",
+                      pt=1)
+## plot predicted rates and 95% CI
+cbind(newdata,
+      predict(poisson9g, newdata=newdata, se.fit=TRUE) |> as.data.frame()) |>
+    transform(rate = exp(fit),
+              lower = exp(fit-1.96*se.fit),
+              upper = exp(fit+1.96*se.fit)) |>
+	with(plt(rate~mid, type="ribbon",
+             ymin=lower, ymax=upper,
+             xlab="Time since diagnosis (months)",
+             ylab="Rate", main="Males aged 45-59 years diagnosed 1985-94"))
+
+```
+

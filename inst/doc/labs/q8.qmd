@@ -1,0 +1,209 @@
+---
+title: "Biostatistics III in R"
+author:
+- Code by Annika Tillander, Andreas Karlsson, Benedicte Delcoigne, Johan Zetterqvist and Mark Clements
+format:
+  html:
+    theme: flatly
+filters:
+  - webr
+execute:
+  echo: true
+  message: false
+  cache: false
+  fig-width: 7
+  fig-height: 6
+---
+
+
+# Exercise 8. Diet data: Using Poisson regression to study the effect of energy intake adjusting for confounders on two different timescales #
+
+Use Poisson regression to study the association between energy intake (`hieng`) and CHD adjusted for potential confounders (`job`, `BMI`). We know that people who expend a lot of energy (i.e., are physically active) require a higher energy intake. We do not have data on physical activity but we are hoping that occupation (`job`) will serve as a surrogate measure of work-time physical activity (conductors on London double-decker busses expend energy walking up and down the stairs all day).
+
+Fit models both without adjusting for ‘time’ and by adjusting for attained age (you will need to split the data) and time-since-entry and compare the results.
+
+-----------
+
+
+You may have to install the required packages the first time you use them. You can install a package by `install.packages("package_of_interest")` for each package you require.
+
+```{webr-r}
+#| autorun: true
+library(biostat3)  # diet, eform
+library(bshazard)  # bshazard
+library(knitr)     # kable
+library(broom)     # tidy
+diet <- transform(biostat3::diet, bmi = weight/((height/100)^2))
+```
+
+Load diet data and explore it.
+
+```{webr-r}
+#| results: "asis"
+head(diet) |> kable("html")
+```
+
+```{webr-r}
+summary(diet)
+```
+
+Rates can be modelled on different timescales, e.g., attained age, time-since-entry, calendar time. Plot the CHD incidence rates both by attained age and by time-since-entry. Is there a difference? Do the same for CHD hazard by different energy intakes (`hieng`).
+
+## (a1) ##  
+Plot the CHD incidence rates by attained age. Do the same for CHD hazard by different energy intakes (`hieng`). 
+
+
+```{webr-r}
+scale <- 365.24
+plot(bshazard(Surv((doe - dob)/scale, (dox - dob)/scale, chd) ~ 1,
+              data=subset(diet,hieng=="low")),
+     ylim=c(0,0.03), conf.int=FALSE, xlab="Attained age (years)")
+lines(bshazard(Surv((doe - dob)/scale, (dox - dob)/scale, chd) ~ 1,
+               data=subset(diet,hieng=="high")),
+      col="red", conf.int=FALSE)
+legend("topleft", legend=c('hieng=="low"','hieng=="high"'), col=1:2, lty=1, bty="n")
+
+par(mfrow=1:2)
+for (level in levels(diet$hieng))
+    plot(bshazard(Surv((doe - dob)/scale, (dox - dob)/scale, chd) ~ 1,
+                  data=subset(diet,hieng==level)),
+         ylim=c(0,0.03), xlab="Attained age (years)",
+         main=sprintf('hieng == "%s"', level))
+```
+
+## (a2) ##  
+Plot the CHD incidence rates by time-since-entry. Do the same for CHD hazard by different energy intakes (`hieng`).
+
+```{webr-r}
+if (requireNamespace("muhaz")) {
+    scale <- 365.24
+    plot(muhaz2(Surv((dox - doe)/scale, chd) ~ hieng, data=diet), lty=2,
+         xlab="Time since study entry (years)", ylim=c(0,0.025),
+         legend=FALSE)
+    lines(bshazard(Surv((dox - doe)/scale, chd) ~ 1, data=subset(diet,hieng=="low")),
+          conf.int=FALSE)
+    lines(bshazard(Surv((dox - doe)/scale, chd) ~ 1, data=subset(diet,hieng=="high")),
+          col="red", conf.int=FALSE)
+    legend("topleft", legend=c('hieng=="low" (bshazard)','hieng=="high" (bshazard)',
+                               'hieng=="low" (muhaz)','hieng=="high" (muhaz)'),
+           col=1:2, lty=c(1,1,2,2), bty="n")
+}
+
+scale <- 365.24
+par(mfrow=1:2)
+for (level in levels(diet$hieng))
+    plot(bshazard(Surv((dox - doe)/scale, chd) ~ 1,
+                  data=subset(diet,hieng==level)),
+         ylim=c(0,0.03), xlab="Time since study entry (years)",
+         main=sprintf('hieng == "%s"', level))
+
+```
+
+## (b) ##  
+Fit a poisson model to find the incidence rate ratio for the high energy group compared to the low energy group without adjusting for any time scale.
+
+```{webr-r}
+poisson8b <- glm( chd ~ hieng + offset( log( y/1000 ) ), family=poisson, data=diet)
+summary(poisson8b)
+tidy(poisson8b, conf.int=TRUE, exponentiate=TRUE) # tidyverse
+eform(poisson8b) # Wald-based CIs
+```
+
+## (c) ##  
+Adjust for BMI and job. Is the effect of energy intake on CHD confounded by BMI and job?
+
+```{webr-r}
+levels(diet$job)
+poisson8c <- glm( chd ~ hieng + job + bmi + offset( log( y/1000 ) ),
+                 family=poisson, data=diet)
+summary(poisson8c)
+eform(poisson8c)
+```
+
+## (d) ##  
+Now fit the model for CHD, both without and with the adjustment for job and bmi. Is the effect of hieng on CHD confounded by age, BMI or job? Write the linear predictors using pen and paper.
+
+Firstly, let’s adjust for the timescale attained age. To do this in Poisson regression you must split the data on timescale age. The risktime variable contains the correct amount of risktime for each timeband.
+
+
+```{webr-r}
+#| autorun: true
+scale <- 365.24
+age.cuts <- c(30,50,60,72)
+diet.spl.dob <- survSplit(Surv((doe - dob)/scale, (dox - dob)/scale, chd) ~ .,
+                          data=diet, cut=age.cuts,start="tstart",end="tstop")
+
+
+## Tabulate ageband
+diet.spl.dob |> subset(id<3, c(id, tstart, tstop, y))
+
+## Create an agespan variable
+diet.spl.dob <- transform(diet.spl.dob,
+                          agespan = cut(tstop, age.cuts))
+
+## Make the numeric variables factors since we want to model them with dummie variables and calculate time at risk
+diet.spl.dob <- transform(diet.spl.dob,
+                          risk_time = (tstop-tstart))
+
+## Tabulate ageband including risk_time
+diet.spl.dob |> subset(id<3, c(id, tstart, tstop, y, risk_time))
+
+## Tabulate number of events per agespan
+xtabs(~agespan+chd,diet.spl.dob)
+```
+
+Fitting the model for CHD, without adjustment for job and bmi.
+
+
+```{webr-r}
+poisson8d <- glm( chd ~ hieng + agespan + offset( log( risk_time) ),
+                 family=poisson,
+                 data=diet.spl.dob)
+
+summary(poisson8d)
+eform(poisson8d)
+```
+
+Fitting the model for CHD, with adjustment for job and bmi.
+
+```{webr-r}
+poisson8d <- glm( chd ~ hieng + agespan + job + bmi + offset( log( risk_time) ),
+                 family=poisson,
+                 data=diet.spl.dob)
+
+summary(poisson8d)
+eform(poisson8d)
+```
+
+The effect of high energy intake is somewhat confounded by age, but also confounded by job and bmi. What assumption is being made about the shape of the baseline hazard (HINT: the baseline hazard takes the shape of the timescale)?
+
+
+## (e) ##
+Secondly, do the same analysis, but now adjust for the timescale time-since-entry.
+
+```{webr-r}
+time.cuts <- c(0, 5, 10, 15, 22)
+diet.spl.t_entry <- survSplit(Surv((dox-doe)/365.24, chd) ~ .,
+                              data=diet, cut=time.cuts, end="tstop", start="tstart",
+                              event="chd")
+
+##Tabulate ageband
+diet.spl.t_entry |> subset(id<=3, c(id, tstart, tstop, y))
+
+diet.spl.t_entry <- transform(diet.spl.t_entry,
+                              fu = cut(tstop, time.cuts),
+                              risk_time = (tstop-tstart))
+
+##Tabulate ageband including risk_time
+diet.spl.t_entry |> subset(id<=3, c(id, fu, tstart, y, risk_time))
+
+poisson8e1 <- glm( chd ~ fu + hieng + offset( log( risk_time) ),
+                 family=poisson,
+                 data=diet.spl.t_entry )
+
+summary(poisson8e1)
+eform(poisson8e1)
+
+```
+Compare the results with the analysis adjusted for attained age. Are there any differences? Why (or why not)? Go back to the graphs at the beginning of the exercise and look for explanations.
+
