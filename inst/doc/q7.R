@@ -74,11 +74,10 @@ plot(muhaz2(Surv(surv_mm/12, status == "Dead: cancer") ~ year8594, data=melanoma
 
 ## @knitr 7.a.iii
 ## Compare with Kaplan-Meier plot
-par(mfrow=c(1,2)) ## Two graphs in the same window
-
+par(mfrow=1:2)
 plot(sfit7a1,
      ## No automatic labelling of the curve (we do that ourselves)
-     mark.time=F,
+     mark.time=FALSE,
      ## Time is measured in months,  but we want to see it in years
      xscale=12,
      ## Make the plot prettier
@@ -147,45 +146,47 @@ melanoma.spl <- survSplit(melanoma.l2, cut=0:9, end="surv_yy1", start="start",
 
 ## Calculate persontime and
 ## recode start time as a factor
-melanoma.spl <- mutate(melanoma.spl,
-                       pt = surv_yy1 - start,
-                       fu = as.factor(start) )
+melanoma.spl <- transform(melanoma.spl,
+                          pt = surv_yy1 - start,
+                          fu = as.factor(start) )
 
 ## @knitr 7.e
 
 ## Calculate the incidence rate by observation year
-yearly_rates <- survRate(Surv(pt/1000,death_cancer)~fu, data=melanoma.spl)
+yearly_rates <- survRate(Surv(pt/1000,death_cancer)~fu, data=melanoma.spl) |>
+    transform(start=as.numeric(levels(fu))[fu]) |>
+    transform(mid=start+0.5)
 
-## Plot by year
-with(yearly_rates, matplot(fu,
-                           cbind(rate, lower,
-                             upper),
-                           lty=c("solid","dashed","dashed"),
-                           col=c("black","gray","gray"),
-                           type="l",
-                           main="Cancer deaths by years since diagnosis",
-                           ylab="Incidence rate per 1000 person-years",
-                           xlab="Years since diagnosis") )
+library(tinyplot) # lightweight base graphics extension
+with(yearly_rates, {
+    plt(rate~start, ymin=lower, ymax=upper, type="ribbon",
+        main="Cancer deaths by years since diagnosis",
+        ylab="Incidence rate per 1000 person-years",
+        xlab="Years since diagnosis")
+})
+
 
 ## @knitr 7.f
 # Plot smoothed hazards
 
-par(mfrow=c(1,2))
-with(yearly_rates, matplot(as.numeric(as.character(fu))+0.5,
-                           cbind(rate, lower,
-                                 upper),
-                           ylim=c(0,max(upper)),
-                           lty=c("solid","dashed","dashed"),
-                           col=c("black","gray","gray"),
-                           type="l",
-                           main="Cancer deaths by time since diagnosis",
-                           ylab="Mortality rate per 1000 person-years",
-                           xlab="Years since diagnosis") )
-
-hazfit7f <- muhaz2(Surv(surv_mm/12, status == "Dead: cancer") ~ 1, data = melanoma.l)
-## scale hazard by 1000
-plot(hazfit7f, xlab="Years since diagnosis",col="blue",lty="solid", haz.scale=1000, xlim=c(0,10))
-
+library(bshazard)
+library(tinyplot)
+par(mfrow=1:2)
+yearly_rates <- survRate(Surv(pt,death_cancer)~fu, data=melanoma.spl) |>
+    transform(start=as.numeric(levels(fu))[fu]) |>
+    transform(mid=start+0.5)
+with(yearly_rates, {
+     plt(rate~mid, ymin=lower, ymax=upper,
+         type="ribbon",
+         main="Rates",
+         ylab="Mortality rate per person-year",
+         xlab="Years since diagnosis",
+         xlim=c(0,10))
+})
+hazfit7f <- bshazard(Surv(surv_mm/12, status == "Dead: cancer") ~ 1, data = melanoma.l)
+plot(hazfit7f, xlab="Years since diagnosis", xlim=c(0,10),
+     main="Smoothed hazard")
+box() # redo the box around the plot
 
 ## @knitr 7.g
 ## Run Poisson regression
@@ -292,76 +293,119 @@ eform(poisson7l2)
 ## @knitr 7.m
 ## Split follow up by month
 library(splines)
+library(dplyr)
+library(rstpm2) # version >= 1.6.6 for predictnl(..., conf.int=TRUE)
+library(tinyplot)
 time.cut <- seq(0,10,by=1/12)
 nrow(biostat3::melanoma)
-melanoma.spl <- survSplit(Surv(surv_mm/12,status=="Dead: cancer")~., data=biostat3::melanoma,
-                          cut=time.cut,
-                          subset=stage=="Localised")
-nrow(melanoma.spl)
-melanoma.spl <- transform(melanoma.spl, mid=(tstop+tstart)/2, risk_time=tstop-tstart)
-poisson7m <- glm(event ~ ns(mid,df=6) + agegrp + year8594 +
-                     offset(log(risk_time)),
+melanoma.spl2 <- survSplit(Surv(surv_mm/12,status=="Dead: cancer")~.,
+                           data=biostat3::melanoma,
+                           cut=time.cut,
+                           episode="timeband",
+                           subset=stage=="Localised") |>
+    transform(risk_time=tstop-tstart, mid=(tstart+tstop)/2)
+nrow(melanoma.spl2)
+melanoma.spl3 <- group_by(melanoma.spl2, sex, agegrp, stage, year8594, timeband) |>
+    summarise(risk_times=sum(risk_time), # sequential - do not replace risk_time
+              events=sum(event),
+              mid=sum(risk_time*mid)/sum(risk_time),
+              .groups="keep")
+nrow(melanoma.spl3)
+poisson7m <- glm(events ~ ns(mid,df=4) + agegrp + year8594 +
+                     offset(log(risk_times)),
                  family=poisson,
-                 data=melanoma.spl)
+                 data=melanoma.spl3)
 df <- data.frame(agegrp="0-44", year8594="Diagnosed 75-84",
-                 mid=time.cut[-1], risk_time=1)
-## plot the rate at the baseline values
-plot(df$mid, predict(poisson7m, newdata=df, type="response"),
-     type="l", ylab="Rate", xlab="Time since diagnosis (years)",
-     ylim=c(0,0.05))
+                 mid=time.cut[-1], risk_times=1)
+## confidence intervals using rstpm2::predictnl (which can do other predictions:)
+predictnl(poisson7m, predict.glm, newdata=df, conf.int=TRUE) |> 
+    cbind(df) |>
+    with(plt(exp(fit)~mid,ymin=exp(conf.low), ymax=exp(conf.high),
+             type="ribbon", ylab="Rate", xlab="Time since diagnosis (years)",
+             ylim=c(0,0.05)))
 
 ## @knitr 7.n
-## using melanoma.spl and df from previous chunk
-poisson7n <- glm(event ~ ns(mid,df=4) + agegrp + year8594 +
+## using melanoma.spl2 and df from previous chunk
+poisson7n <- glm(events ~ ns(mid,df=4) + agegrp + year8594 +
                      ifelse(year8594=="Diagnosed 85-94",1,0):ns(mid,df=3) +
-                     offset(log(risk_time)),
+                     offset(log(risk_times)),
                  family=poisson,
-                 data=melanoma.spl)
+                 data=melanoma.spl3)
 library(rstpm2)
-library(ggplot2)
+library(tinyplot)
 ## get log(RR) confidence interval using predictnl (delta method)
-pred <- predictnl(poisson7n, function(object)
-    log(predict(object, newdata=transform(df, year8594="Diagnosed 85-94"),
-                type="response") /
-        predict(object, newdata=df, type="response")))
-pred2 <- transform(pred, time = df$mid, rr = exp(fit), ci = exp(confint(pred)))
-ggplot(pred2, aes(x=time, y=rr, ymin=ci.2.5.., ymax=ci.97.5..)) +
-    ggplot2::geom_line() + ggplot2::geom_ribbon(alpha=0.6) +
-    xlab("Time since diagnosis (years)") +
-    ylab("Rate ratio")
-    
-## Calculate the rate difference
-band <- function(x,yy,col="grey")
-    polygon(c(x,rev(x)), c(yy[,1], rev(yy[,2])), col=col, border=col)
-pred <- predictnl(poisson7n, function(object)
-    predict(object, newdata=transform(df, year8594="Diagnosed 85-94"),
-                type="response") -
-    predict(object, newdata=df, type="response"))
-rd <- pred$fit
-ci <- confint(pred)
-matplot(df$mid,
-        ci,
-        type="n", # blank plot area
-        xlab="Time since diagnosis (years)",
-        ylab="Rate difference") 
-band(df$mid,ci) # add confidence band
-lines(df$mid, rd) # add rate difference
+predictnl(poisson7n, function(object)
+    predict(object, newdata=transform(df2, year8594="Diagnosed 85-94"), type="link") -
+    predict(object, newdata=df2, type="link"),
+    conf.int=TRUE) |>
+    cbind(df2) |>
+    transform(fit = exp(fit),
+              conf.low=exp(conf.low),
+              conf.high=exp(conf.high)) |>
+    with(plt(fit~mid, ymin=conf.low, ymax=conf.high, type="ribbon",
+             xlab="Time since diagnosis (years)",
+             ylab="Rate ratio"))
+
+predictnl(poisson7n,
+          function(object)
+              predict(object, newdata=transform(df2, year8594="Diagnosed 85-94"),
+                      type="response") -
+              predict(object, newdata=df2, type="response"),
+          conf.int=TRUE) |>
+    cbind(df2) |>
+    with(plt(fit~mid, ymin=conf.low, ymax=conf.high, type="ribbon",
+             xlab="Time since diagnosis (years)",
+             ylab="Rate difference"))
 
 ## @knitr 7.o
 ## Calculate survival from a smooth Poisson regression model 
-twoState <- function(object, ...) {
-    out <- as.data.frame(markov_msm(list(object),matrix(c(NA,1,NA,NA),2,byrow=TRUE), ...))
-    transform(subset(out, state==1),
-              S=P,
-              S.lower=P.lower,
-              S.upper=P.upper)
+if (require("deSolve")) {
+    twoState <- function(object, ...) {
+        markov_msm(list(object),matrix(c(NA,1,NA,NA),2,byrow=TRUE), ...) |>
+            as.data.frame() |>
+            subset(state==1)
+    }
+    df3 <- expand.grid(agegrp=levels(biostat3::melanoma$agegrp),
+                       year8594=levels(biostat3::melanoma$year8594)) |>
+        transform(risk_times=1)
+    library(tinyplot)
+    twoState(poisson7n, t=c(0,time.cut), newdata = df3, tmvar = "mid") |>
+        with(plt(P~time|year8594, ymin=P.lower,ymax=P.upper,
+                 type="ribbon",facet=agegrp,
+                 xlab="Time since diagnosis (years)",
+                 ylab="Survival"))
+} else cat("To run this example, please install the deSolve package\n")
+
+if (require("pracma")) {
+library(tinyplot)
+library(rstpm2)
+library(pracma)
+df3 <- with(biostat3::melanoma,
+            expand.grid(agegrp=levels(agegrp),
+                        year8594=levels(year8594))) |>
+    transform(risk_times=1)
+oneState <- function(object,newdata=df2) {
+    f <- function(t,y)
+        -y*predict(object, newdata=transform(newdata,mid=t), type="response")
+    pracma::ode45(f, t0=0, y0=rep(1,nrow(newdata)), tfinal=10, hmax=0.1)
 }
-df2 <- expand.grid(agegrp=levels(biostat3::melanoma$agegrp),
-                   year8594=levels(biostat3::melanoma$year8594))
-df2 <- transform(df2,risk_time=1)
-pred <- twoState(poisson7n, t=c(0,df$mid), newdata = df2, tmvar = "mid")
-ggplot(pred, aes(x=time,y=S,ymin=S.lower,ymax=S.upper,fill=year8594)) +
-    ggplot2::geom_line() + ggplot2::geom_ribbon(alpha=0.6) +
-    facet_grid(~agegrp) +
-    xlab("Time since diagnosis (years)") +
-    ylab("Survival")
+out0 = oneState(poisson7n, newdata=df3)
+out = predictnl(poisson7n,
+                function(object, newdata)
+                    log(-log(as.vector(oneState(object, newdata)$y))),
+                newdata=df3, conf.int=TRUE) |> # slow
+    transform(fit=exp(-exp(fit)),
+              conf.low=exp(-exp(conf.low)),
+              conf.high=exp(-exp(conf.high))) |>
+    cbind(with(biostat3::melanoma,
+               expand.grid(mid=out0$t,
+                           agegrp=levels(agegrp),
+                           year8594=levels(year8594))))
+with(out,plt(fit~mid|year8594,type="ribbon",facet=agegrp,
+             ymin=conf.low, ymax=conf.high,
+             xlab="Time since diagnosis (years)",
+             ylab="Survival"))
+} else cat("To run this example, please install the pracma package\n")
+
+
+

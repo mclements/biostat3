@@ -19,8 +19,6 @@ The aim of these exercises is to explore the similarities and differences to the
 
 -----------
 
-Load the diet data using time-on-study as the timescale.
-
 ```{r setup, cache=FALSE, message=FALSE, echo=FALSE}
 library('knitr')
 read_chunk('../q7.R')

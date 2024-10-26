@@ -1,8 +1,8 @@
 Package: biostat3
 Type: Package
 Title: Utility Functions, Datasets and Extended Examples for Survival Analysis
-Version: 0.2.1
-Date: 2024-08-13
+Version: 0.2.2
+Date: 2024-10-09
 Authors@R: c(person("Annika","Tillander", role="ctb"),
 	  person("Andreas","Karlsson", role="aut"),
 	  person("Johan","Zetterqvist", role="ctb"),

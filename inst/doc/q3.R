@@ -58,7 +58,7 @@ plot(mfit_agegrp, col = 1:4,
 legend("bottomleft", levels(melanoma$agegrp), col=1:4, lty = 1)
 
 ## @knitr e_crudeRates1000_agegrp
-mfit_agegrp_year <- survfit(Surv(surv_mm/12/1000, death_cancer) ~ agegrp, data = melanoma)
+mfit_agegrp_year <- survfit(Surv(surv_mm/12, death_cancer) ~ agegrp, data = melanoma)
 plot(mfit_agegrp_year, col = 1:4,
      xlab = "Years since diagnosis",
      ylab = "Survival",

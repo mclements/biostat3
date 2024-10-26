@@ -23,8 +23,8 @@ library(rstpm2)
 ## @knitr 22.a
 head(brv)
 
-##Look at the five first couples
-brv %>% select(couple, id, sex, doe, dosp, dox, fail) %>% filter(couple<=5) %>% arrange(couple, id)
+##Look at the first five couples
+brv |> select(couple, id, sex, doe, dosp, dox, fail) |> filter(couple<=5) |> arrange(couple, id)
 
 
 ## @knitr 22.b
@@ -39,13 +39,13 @@ poisson22b <- glm( fail ~ sex + offset( log( t_at_risk) ), family=poisson, data=
 summary( poisson22b )
 eform(poisson22b)
 
-select(brv, sex, age_entry) %>%
-    group_by(sex) %>%
+select(brv, sex, age_entry) |>
+    group_by(sex) |>
     summarise(meanAgeAtEntry = mean(age_entry))
 
 ## @knitr 22.c
 
-## Creating times relativ to spouse death (year=0)
+## Creating times relative to spouse death (year=0)
 brv2 <- mutate(brv,
                id=NULL,
                y_before_sp_dth =  as.numeric(doe -dosp) / 365.24,
@@ -60,7 +60,7 @@ brvSplit <- mutate(brvSplit,
                    brv = ifelse(y_after_sp_dth > 0, 1, 0))
 
 ## Look at the five first couples
-brvSplit %>% select(couple, id, sex, doe, dosp, dox, fail, y_before_sp_dth, y_after_sp_dth, t_sp_at_risk) %>% filter(couple<=5) %>% arrange(couple, id)
+brvSplit |> select(couple, id, sex, doe, dosp, dox, fail, y_before_sp_dth, y_after_sp_dth, t_sp_at_risk) |> filter(couple<=5) |> arrange(couple, id)
 
 ## @knitr 22.d
 poisson22d <- glm( fail ~ brv + offset( log(t_sp_at_risk) ), family=poisson, data=brvSplit)
@@ -88,7 +88,7 @@ eform(poisson22e3)
 
 ## @knitr 22.f
 ## Translate time scale from years from spouse death to ages
-brvSplit3 <- brvSplit2 %>%
+brvSplit3 <- brvSplit2 |>
     mutate(age_sp_dth =  as.numeric(dosp - dob) / 365.24, # Age at spouse death
            age_start = age_sp_dth + y_before_sp_dth,      # Age at start of timeband
            age_end = age_sp_dth + y_after_sp_dth)         # Age at end of timeband

@@ -4,7 +4,7 @@ author:
 - Code by Mark Clements
 format:
   html:
-    theme: flatly
+    minimal: true
 filters:
   - webr
 execute:
@@ -23,11 +23,18 @@ You may have to install the required packages the first time you use them. You c
 
 Load the melanoma data. Restrict the data to the localised status of the melanoma and to the 10 firts years of follow-up. Use the time-on-study as the timescale. define the event as death from cancer.
 
-```{r}
+```{webr-r}
 #| autorun: true
 #| results: "asis"
 library(biostat3) # for Surv and survfit
 library(dplyr)
+library(knitr)
+calculate_smr = function(data)
+    summarise(data,
+              Observed = sum(observed),
+              Expected = sum(expected)) |>
+        mutate(SMR=Observed/Expected,
+               as.data.frame(poisson.ci(Observed,Expected)))
 mel <- filter(melanoma, stage == "Localised") |>
     mutate(dead = (status %in% c("Dead: cancer","Dead: other") & surv_mm <= 120)+0, 
            surv_mm = pmin(120, surv_mm)) |>
@@ -84,7 +91,7 @@ Start by splitting the follow-up into 1 year age bands. We do not have
 a date of birth available, so we can make a mid-point
 approximation for the age at diagnosis.
 
-```{r}
+```{webr-r}
 #| autorun: true
 mel.split <- survSplit(mel, cut = 1:105, event = "dead", 
                        start = "astart", end = "astop")
@@ -92,7 +99,7 @@ mel.split <- survSplit(mel, cut = 1:105, event = "dead",
 
 Quick check: look at the first two ids.
 
-```{r}
+```{webr-r}
 #| results: 'asis'
 subset(mel.split, id<=2, select = c(id, astart, astop, dead)) |> kable("html")
 ```
@@ -102,14 +109,14 @@ subset(mel.split, id<=2, select = c(id, astart, astop, dead)) |> kable("html")
 Now split these new records into one year calendar period bands. # For each age time band from (a), we calculate the start and stop in calendar time. We calculate the time since diagnosis as difference between age at start/stop and age at diagnosis, and add that interval to year at diagnosis.
 
 
-```{r}
+```{webr-r}
 #| autorun: true
 mel.split2 <- mutate(mel.split, 
                      ystart = ydx + astart - adx, 
                      ystop  = ydx + astop - adx)
 ```
 
-```{r}
+```{webr-r}
 #| results: 'asis'
 subset(mel.split2, id<=2, select = c(id, adx, astart,astop,dead, ydx, ystart, ystop)) |>
     kable("html")
@@ -117,7 +124,7 @@ subset(mel.split2, id<=2, select = c(id, adx, astart,astop,dead, ydx, ystart, ys
 
 Now we can split along the calendar time. For each of the new age-calendar time bands, we now have to adjust the age at start and end in the same way as above 
 
-```{r}
+```{webr-r}
 #| autorun: true
 mel.split2 <- survSplit(mel.split2, cut = 1970:2000, event = "dead", 
                         start = "ystart", end = "ystop" ) |>
@@ -127,7 +134,7 @@ mel.split2 <- survSplit(mel.split2, cut = 1970:2000, event = "dead",
 
 Look at the first two IDs:
 
-```{r}
+```{webr-r}
 #| results: 'asis'
 subset(mel.split2, id<=2, select = c(id, ystart, ystop, astart, astop, dead)) |>
     kable("html")
@@ -140,7 +147,7 @@ corresponding to the agebands and calendar periods the subject passes
 through. We can make tables of deaths and person-years by age and
 calendar period with
 
-```{r}
+```{webr-r}
 #| autorun: true
 mel.split2 <-
     mutate(mel.split2, 
@@ -151,7 +158,7 @@ mel.split2 <-
 
 Look at the first two IDs:
 
-```{r}
+```{webr-r}
 #| results: 'asis'
 subset(mel.split2, id<=2,
        select = c(id, ystart, ystop, astart, astop, dead, age, year, pt)) |>
@@ -160,7 +167,7 @@ subset(mel.split2, id<=2,
 
 Now tabulate the sum of person time across all combinations of age & year (for some years and some ages):
 
-```{r}
+```{webr-r}
 #| results: 'asis'
 xtabs(pt ~ age + year, data=mel.split2, subset = age>=50 & age<60 & year>=1980 & year<1990) |>
     kable("html")
@@ -168,7 +175,7 @@ xtabs(pt ~ age + year, data=mel.split2, subset = age>=50 & age<60 & year>=1980 &
 
 Similarly for the number of deaths:
 
-```{r}
+```{webr-r}
 #| results: 'asis'
 xtabs(dead ~ age + year, data=mel.split2,
       subset = age>=50 & age<60 & year>=1980 & year<1990) |>
@@ -184,7 +191,7 @@ variables will provide a better overview.
 
 Descriptives: as the data have been split in 1-year intervals on both time scales in the table created above, this takes up a lot of space. Grouped variables will provide a better overview. To make a table of rates by age and calendar period, we can define group variables and use `survRate` as usually: 
 
-```{r}
+```{webr-r}
 #| autorun: true
 mel.split2 <- mutate(mel.split2, 
                      age10  = cut(age, seq(0, 110 ,by=10), right=FALSE), 
@@ -193,7 +200,7 @@ sr <- survRate(Surv(pt, dead) ~ sex + age10 + year10, data=mel.split2)
 rownames(sr) <-1:nrow(sr) ## Simple rownames for display 
 ```
 
-```{r}
+```{webr-r}
 #| results: 'asis'
 head(sr, n = 20) |> kable("html")
 ```
@@ -209,7 +216,7 @@ by the reference rate for that record. The SMR is the ratio of
 the total observed cases to the total number expected.
 		
 First, calculate the total person time at risk and the observed number of deaths for each combination: 
-```{r}
+```{webr-r}
 #| autorun: true
 pt <- mutate(mel.split2, sex = unclass(sex)) |>    # make sex integer to be in line with popmort 
     group_by(sex, age, year)               |>    # aggregate by sex, age, year 
@@ -218,18 +225,26 @@ pt <- mutate(mel.split2, sex = unclass(sex)) |>    # make sex integer to be in l
 ```
 
 This is the data set of reference rates: 
-```{r}
+```{webr-r}
 #| results: 'asis'
 head(rstpm2::popmort) |> kable("html")
 summary(rstpm2::popmort) |> kable("html")
 ```
 
 We now merge the observed person time and deaths (in the melanoma cohort) with the corresponding reference rates in the `popmort` data set:
-```{r 23.e3, results='hide'}
+```{webr-r}
+#| autorun: true
+joint <- left_join(pt, rstpm2::popmort) |>
+    mutate(expected = pt * rate) 
+```
+
+```{webr-r}
+#| results: 'asis'
+head(joint) 
 ```
 
 The expected number of events (assuming the reference mortality rates in the general population) are simply: 
-```{r 23.e4, results='hide'}
+```{webr-r}
 #| autorun: true
 joint <- left_join(pt, rstpm2::popmort) |>
     mutate(expected = pt * rate)
@@ -241,27 +256,36 @@ head(joint) |> kable("html")
 Calculate the crude overall SMR, as well as the SMR by sex. Plot the SMRs by calendar year and age. 
 
 We can calculate the SMR simply from the data, like so: 
-```{r 23.f1, results='hide', fig.show='hide'}
-kable(SMR_all <- summarise(joint,
-                           Observed = sum(observed),
-                           Expected = sum(expected),
-                           SMR = sum(observed) / sum(expected)), "html")
+```{webr-r}
+calculate_smr(joint) |> kable("html")
+SMR_all 
 ```
 
 By sex:
-```{r 23.f2, results='hide', fig.show='hide'}
+```{webr-r}
+group_by(joint, sex) |> calculate_smr() |> kable("html")
 ```
 
 We can do the same by e.g. calendar year, but there it is easier to plot than show: 
-```{r 23.f3, results='hide', fig.show='hide'}
+```{webr-r}
+(SMR_byYear <- group_by(joint, year) |> calculate_smr()) |> kable("html")
+library(tinyplot)
+with(SMR_byYear,
+     plt(SMR~year, type = "ribbon", ymin=`2.5 %`, ymax=`97.5 %`))
 ```
 
 For the ages, we have two many levels and too few events ot produce reliable estimates. We can either use splines or (simpler) define a grouping variable as above.
-```{r 23.f4, results='hide', fig.show='hide'}
+```{webr-r}
+SMR_byAge <-
+    mutate(joint, age_group = cut(age, seq(0, 110, by=10), right = FALSE)) |>
+    group_by(age_group) |> calculate_smr()
+plot(SMR~age_group, SMR_byAge, xlab="Age group (years)")
+abline( h = 1:2, lty = 2)  # two reference lines at 1 & 2
 ```
 
 Note that we can use `survRate` to get confidence intervals:
-```{r 23.f5, results='hide', fig.show='hide'}
+```{webr-r}
+survRate(Surv(surv_mm/12,dead)~sex, data=mel)
 ```
 
 ## (g) ##
@@ -274,9 +298,19 @@ Let's prettify the data for the fit.
 Here, a good choice of reference level for age & year makes a big difference
 in how easy we can interpret the model parameters;
 
-```{r 23.g1, results='hide', fig.show='hide'}
+```{webr-r}
+#| autorun: true
+joint2 <- mutate(joint,
+                    sex  = factor(sex, levels = 1:2, labels = c("m", "f")),
+                    year =  factor(year) %>% relevel(ref = "1985"),  # mid-study
+                    age_group = relevel(age_group, ref = "[70,80)"))  # Close to one already
+## Model & parameters
+summary(fit <- glm(observed ~ sex + year + age_group + offset(log(expected)),
+                   data=joint2, family=poisson)) 
+eform(fit)
 ```
 
 A simple analysis of deviance, which performs a likelihood ratio test for the hypothesis that removing a variable from the model does not improve model fit shows however that all predictors are statistically significantly associated with the SMR:
-```{r 23.g2, results='hide', fig.show='hide'}
+```{webr-r}
+drop1(fit, test = "Chisq")
 ```

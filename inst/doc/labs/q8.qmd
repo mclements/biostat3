@@ -4,7 +4,7 @@ author:
 - Code by Annika Tillander, Andreas Karlsson, Benedicte Delcoigne, Johan Zetterqvist and Mark Clements
 format:
   html:
-    theme: flatly
+    minimal: true
 filters:
   - webr
 execute:

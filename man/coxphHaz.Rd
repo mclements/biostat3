@@ -110,7 +110,7 @@ type \code{c("coxphHaz","density")}.
 %% }
 
 \seealso{
- \code{\link{coxph}}, \code{\link{survfit}}, \code{\link{density}}
+ \code{\link[survival]{coxph}}, \code{\link[survival]{survfit}}, \code{\link{density}}
 }
 \examples{
 fit <- coxph(Surv(surv_mm/12,status=="Dead: cancer")~agegrp, data=colon)

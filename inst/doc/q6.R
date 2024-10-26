@@ -77,9 +77,9 @@ diet <- biostat3::addIndicators(diet, ~eng3+0) %>%
 colSums(diet[c("X1","X2","X3")])
 
 ## @knitr 6g_irEng
-filter(diet, eng3=="low")    %>% select(c(energy,eng3,X1,X2,X3)) %>% head
-filter(diet, eng3=="medium") %>% select(c(energy,eng3,X1,X2,X3)) %>% head
-filter(diet, eng3=="high")   %>% select(c(energy,eng3,X1,X2,X3)) %>% head
+filter(diet, eng3=="low")    %>% select(c(energy,eng3,X1,X2,X3)) %>% head()
+filter(diet, eng3=="medium") %>% select(c(energy,eng3,X1,X2,X3)) %>% head()
+filter(diet, eng3=="high")   %>% select(c(energy,eng3,X1,X2,X3)) %>% head()
 
 ## @knitr 6h
 poisson6h <- glm( chd ~ X2 + X3 + offset( log( y1k ) ), family=poisson, data=diet )

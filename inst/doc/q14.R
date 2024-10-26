@@ -49,16 +49,15 @@ rbind(Poisson=coef(summary(fit1))["x",c("Estimate","Std. Error")],
       Stpm2=coef(summary(fit3))["x",c("Estimate","Std. Error")])
 
 ## @knitr 14.tvc.xu
-fit <- stpm2(Surv(y,delta)~x+u,data=d,df=4, tvc=list(x=2))
+fit <- stpm2(Surv(y,delta)~x+u,data=d,df=4, tvc=list(x=2)) # slow
 plot(fit, type="hr", newdata=data.frame(x=0,u=0), var="x", ylim=c(1,4))
-s <- predict(fit, type="surv", newdata=data.frame(x=0:1,u=3), grid=TRUE, full=TRUE,
-             se.fit=TRUE)
-
-ggplot(s, aes(x=y,y=Estimate,fill=factor(x),ymin=lower,ymax=upper)) +
+predict(fit, type="surv", newdata=data.frame(x=0:1,u=3), grid=TRUE, full=TRUE,
+        se.fit=TRUE) |>
+    ggplot(aes(x=y,y=Estimate,fill=factor(x),ymin=lower,ymax=upper)) +
     ylab("Survival") +
     geom_ribbon(alpha=0.6) +
-    geom_line()
-
+    geom_line(aes(colour=factor(x)))
+## standardisation: slow
 plot(fit, type="meanhr", newdata=transform(d,x=0), var="x", seqLength=31, ylim=c(1,4))
 plot(fit, type="meansurvdiff", newdata=transform(d,x=0), var="x", seqLength=31)
 plot(fit, type="meansurv", newdata=transform(d,x=0), seqLength=101)

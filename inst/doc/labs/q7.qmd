@@ -4,7 +4,7 @@ author:
 - Code by Johan Zetterqvist and Mark Clements
 format:
   html:
-    theme: flatly
+    minimal: true
 filters:
   - webr
 execute:

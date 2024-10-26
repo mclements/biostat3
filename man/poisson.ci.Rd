@@ -7,7 +7,7 @@ Exact Poisson confidence intervals.
 A wrapper for the \code{\link{poisson.test}} that allows for vector values.
 }
 \usage{
-poisson.ci(x, T = 1, conf.level = 0.95)
+poisson.ci(x, T = 1, alternative = c("two.sided", "less", "greater"), conf.level = 0.95)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -16,15 +16,21 @@ number of events.}
   \item{T}{
 time base for event count. 
 }
-  \item{conf.level}{
+\item{alternative}{indicates the type of confidence interval and must be one of
+          "two.sided", "greater" or "less".  You can specify just
+          the initial letter.
+}
+\item{conf.level}{
 confidence level for the returned confidence interval.
 }
 }
 \details{
-This uses \code{stats::poisson.test} for the calculations.
+This uses a vectorised algorithm based on \code{stats::poisson.test}.
 }
 \value{
-A matrix (or vector) with columns giving lower and upper confidence limits for each parameter. These will be labelled as (1-level)/2 and 1 - (1-level)/2 in \% (by default 2.5\% and 97.5\%).}
+A matrix (or vector) with columns giving lower and upper confidence
+limits for each parameter. These will be labelled as (1-level)/2 and 1 -
+(1-level)/2 in \% (by default 2.5\% and 97.5\%). for the two-sided alternative.}
 % \references{
 % %% ~put references to the literature/web site here ~
 % }

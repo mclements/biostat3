@@ -8,7 +8,7 @@ Functions to work with bshazard objects.
 Convert a bshazard object to a data-frame.
 }
 \usage{
-as.data.frame.bshazard(x, ...)
+\method{as.data.frame}{bshazard}(x, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -19,9 +19,9 @@ bshazard object
 other arguments
 }
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+%% \details{
+%% %%  ~~ If necessary, more details than the description above ~~
+%% }
 \value{
 Returns a data-frame with names time, hazard, conf.low and conf.high
 (cf. lower.ci and upper.ci provided in the object).
@@ -43,9 +43,9 @@ Returns a data-frame with names time, hazard, conf.low and conf.high
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
+%% \seealso{
+%% %% ~~objects to See Also as \code{\link{help}}, ~~~
+%% }
 \examples{
 ##---- Should be DIRECTLY executable !! ----
 ##-- ==>  Define data, use random,

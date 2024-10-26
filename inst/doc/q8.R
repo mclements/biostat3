@@ -21,23 +21,44 @@ summary(diet)
 
 ## @knitr 8a1_Haz_att_age
 scale <- 365.24
-plot(bshazard(Surv((doe - dob)/scale, (dox - dob)/scale, chd) ~ 1, data=subset(diet,hieng=="low")),
-                         ylim=c(0,0.03), conf.int=FALSE, xlab="Attained age (years)")
-lines(bshazard(Surv((doe - dob)/scale, (dox - dob)/scale, chd) ~ 1, data=subset(diet,hieng=="high")),
+plot(bshazard(Surv((doe - dob)/scale, (dox - dob)/scale, chd) ~ 1,
+              data=subset(diet,hieng=="low")),
+     ylim=c(0,0.03), conf.int=FALSE, xlab="Attained age (years)")
+lines(bshazard(Surv((doe - dob)/scale, (dox - dob)/scale, chd) ~ 1,
+               data=subset(diet,hieng=="high")),
       col="red", conf.int=FALSE)
 legend("topleft", legend=c('hieng=="low"','hieng=="high"'), col=1:2, lty=1, bty="n")
 
+par(mfrow=1:2)
+for (level in levels(diet$hieng))
+    plot(bshazard(Surv((doe - dob)/scale, (dox - dob)/scale, chd) ~ 1,
+                  data=subset(diet,hieng==level)),
+         ylim=c(0,0.03), xlab="Attained age (years)",
+         main=sprintf('hieng == "%s"', level))
+
+
 ## @knitr 8a2_Haz_time_entry
+if (require(muhaz)) {
+    scale <- 365.24
+    plot(muhaz2(Surv((dox - doe)/scale, chd) ~ hieng, data=diet), lty=2,
+         xlab="Time since study entry (years)", ylim=c(0,0.025),
+         legend=FALSE)
+    lines(bshazard(Surv((dox - doe)/scale, chd) ~ 1, data=subset(diet,hieng=="low")),
+          conf.int=FALSE)
+    lines(bshazard(Surv((dox - doe)/scale, chd) ~ 1, data=subset(diet,hieng=="high")),
+          col="red", conf.int=FALSE)
+    legend("topleft", legend=c('hieng=="low" (bshazard)','hieng=="high" (bshazard)',
+                               'hieng=="low" (muhaz)','hieng=="high" (muhaz)'),
+           col=1:2, lty=c(1,1,2,2), bty="n")
+}
+
 scale <- 365.24
-plot(muhaz2(Surv((dox - doe)/scale, chd) ~ hieng, data=diet), lty=2,
-     xlab="Time since study entry (years)", ylim=c(0,0.025),
-     legend=FALSE)
-lines(bshazard(Surv((dox - doe)/scale, chd) ~ 1, data=subset(diet,hieng=="low")),
-      conf.int=FALSE)
-lines(bshazard(Surv((dox - doe)/scale, chd) ~ 1, data=subset(diet,hieng=="high")),
-      col="red", conf.int=FALSE)
-legend("topleft", legend=c('hieng=="low" (bshazard)','hieng=="high" (bshazard)',
-                           'hieng=="low" (muhaz)','hieng=="high" (muhaz)'), col=1:2, lty=c(1,1,2,2), bty="n")
+par(mfrow=1:2)
+for (level in levels(diet$hieng))
+    plot(bshazard(Surv((dox - doe)/scale, chd) ~ 1,
+                  data=subset(diet,hieng==level)),
+         ylim=c(0,0.03), xlab="Time since study entry (years)",
+         main=sprintf('hieng == "%s"', level))
 
 
 ## @knitr 8b_ir

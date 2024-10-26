@@ -4,7 +4,7 @@
 Describe rates
 }
 \description{
-Describe rates using the \code{\link{Surv}} function.
+Describe rates using the \code{\link[survival]{Surv}} function.
 }
 \usage{
 survRate(formula, data, subset, addvars = TRUE, ci=TRUE, ...)
@@ -12,7 +12,7 @@ survRate(formula, data, subset, addvars = TRUE, ci=TRUE, ...)
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{formula}{
-formula with the left-hand-side being a \code{\link{Surv}} function and
+formula with the left-hand-side being a \code{\link[survival]{Surv}} function and
 the right-hand-side being any stratification variables.
 }
   \item{data}{

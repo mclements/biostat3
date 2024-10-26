@@ -4,7 +4,7 @@ author:
 - Code by Annika Tillander, Andreas Karlsson and Mark Clements
 format:
   html:
-    theme: flatly
+    minimal: true
 filters:
   - webr
 execute:
@@ -57,7 +57,7 @@ with(hazDiaDate, plt(hazard~time|year8594, ymin=lower.ci, ymax=upper.ci,
                      ylab="Hazard"))
 ```
 
-```{r}
+```{webr-r}
 library(ggplot2)
 # or using ggplot2
 ggplot(hazDiaDate, aes(x=time, y=hazard, fill=year8594,

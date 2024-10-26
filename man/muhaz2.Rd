@@ -4,16 +4,17 @@
 \alias{plot.muhazList}
 \alias{lines.muhazList}
 \alias{lines.muhaz2}
+\alias{ggplot.muhazList}
 \alias{summary.muhazList}
 \alias{as.data.frame.muhaz}
 \alias{as.data.frame.muhazList}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Formula wrapper for the \code{\link{muhaz}} function from the
+Formula wrapper for the \code{\link[muhaz]{muhaz}} function from the
 \code{muhaz} package.
 }
 \description{
-Formula wrapper for the \code{\link{muhaz}} function from the
+Formula wrapper for the \code{\link[muhaz]{muhaz}} function from the
 \code{muhaz} package.
 }
 \usage{
@@ -23,6 +24,9 @@ muhaz2(formula, data, subset, max.time, ...)
 \method{lines}{muhaz2}(x, ..., haz.scale = 1)
 \method{lines}{muhazList}(x, lty=1, col=1:length(x), ...)
 \method{summary}{muhazList}(object, ...)
+\method{ggplot}{muhazList}(data, mapping=NULL, 
+                            xlab="Time", ylab="Hazard", ...,
+                            environment = parent.frame())
 \method{as.data.frame}{muhazList}(x, row.names, optional, ...)
 \method{as.data.frame}{muhaz}(x, row.names, optional, ...)
 }
@@ -40,6 +44,9 @@ muhaz2(formula, data, subset, max.time, ...)
 }
   \item{max.time}{
     maximum follow-up time for the hazards
+}
+  \item{xlab}{
+    graphics argument for xlab (x-axis label)
 }
   \item{ylab}{
     graphics argument for ylab (y-axis label)
@@ -71,9 +78,15 @@ muhaz2(formula, data, subset, max.time, ...)
   \item{x}{
     muhazList or muhaz object
 }
+\item{environment}{*[Deprecated]* Used prior to tidy evaluation.}
   \item{optional}{
     not currently used
-}
+  }
+
+  \item{mapping}{
+  Default list of aesthetic mappings to use for plot. If not
+          specified, must be supplied in each layer added to the plot.
+  }
   \item{...}{
     other arguments
 }
@@ -82,7 +95,7 @@ muhaz2(formula, data, subset, max.time, ...)
 %% %%  ~~ If necessary, more details than the description above ~~
 %% }
 \value{
-For a single strata, this is a \code{\link{muhaz}} object. For multiple strata, this is a \code{muhazList} object, which includes methods for 
+For a single strata, this is a \code{\link[muhaz]{muhaz}} object. For multiple strata, this is a \code{muhazList} object, which includes methods for 
 }
 % \references{
 % %% ~put references to the literature/web site here ~

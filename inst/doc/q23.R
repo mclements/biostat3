@@ -14,13 +14,18 @@
 ## @knitr loadDependencies
 library(biostat3) # for Surv and survfit
 library(dplyr)    # for data manipulation
-
+library(tinyplot) # for some nice plots
 
 ## @knitr loadPreprocess
+calculate_smr = function(data)
+    summarise(data,
+              Observed = sum(observed),
+              Expected = sum(expected)) |>
+        mutate(SMR=Observed/Expected,
+               poisson.ci(Observed,Expected))
 
 ## @knitr 23.a1
-data(melanoma) 
-mel <- filter(melanoma, stage == "Localised") %>% 
+mel <- filter(biostat3::melanoma, stage == "Localised") %>% 
         mutate( dead = (status %in% c("Dead: cancer","Dead: other") & surv_mm <= 120)+0, 
                 surv_mm = pmin(120, surv_mm)
               ) 
@@ -88,10 +93,10 @@ rownames(sr) <-1:nrow(sr) ## Simple rownames for display
 head(sr, n = 20) 
 
 ## @knitr 23.e1
-pt <- mutate(mel.split2, sex = unclass(sex)) %>%    # make sex integer to be in line with popmort 
-      group_by(sex, age, year)               %>%    # aggregate by sex, age, year 
-      summarise(pt = sum(pt), observed = sum(dead)) # sum the person time, deaths 
-pt <- ungroup(pt)  # For convenience
+pt <- mutate(mel.split2, sex = unclass(sex)) |>    # make sex integer to be in line with popmort 
+    group_by(sex, age, year)                 |>    # aggregate by sex, age, year 
+    summarise(pt = sum(pt), observed = sum(dead), .groups="keep") |> # sum the person time, deaths 
+    ungroup()  # For convenience
 head(pt) 
 
 ## @knitr 23.e2
@@ -108,23 +113,25 @@ head(joint)
 
 
 ## @knitr 23.f1
-SMR_all <- summarise(joint, SMR = sum(observed) / sum(expected) ) 
+SMR_all <- calculate_smr(joint)
 SMR_all 
 
 ## @knitr 23.f2
-SMR_bySex <- group_by(joint, sex) %>% summarise( SMR = sum(observed) / sum(expected) ) 
+SMR_bySex <- group_by(joint, sex) |> calculate_smr()
 SMR_bySex 
 
 ## @knitr 23.f3
-SMR_byYear <- group_by(joint, year) %>% summarise( SMR = sum(observed) / sum(expected) ) 
+SMR_byYear <- group_by(joint, year) |> calculate_smr()
 SMR_byYear 
-plot( SMR_byYear, type = "o")  # quick & dirty plot 
+plot(SMR~year, data=SMR_byYear, type = "o")  # quick & dirty plot 
+with(SMR_byYear,
+     plt(SMR~year, type = "ribbon", ymin=`2.5 %`, ymax=`97.5 %`))
 
 ## @knitr 23.f4
 joint <- mutate(joint, age_group = cut(age, seq(0, 110, by=10), right = FALSE))
-SMR_byAge <- group_by(joint, age_group) %>% summarise( SMR = sum(observed) / sum(expected) ) 
+SMR_byAge <- group_by(joint, age_group) |> calculate_smr()
 SMR_byAge 
-plot( SMR_byAge)           # quick & dirty plot 
+plot(SMR~age_group, SMR_byAge, xlab="Age group (years)")
 abline( h = 1:2, lty = 2)  # two reference lines at 1 & 2
 
 ## @knitr 23.f5
