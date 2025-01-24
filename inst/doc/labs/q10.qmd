@@ -112,13 +112,23 @@ summary(cox2)
 
 cox2.phtest <- cox.zph(cox2, terms=FALSE) # for separate plots
 print(cox2.phtest)
-plot(cox2.phtest,var=5,resid=TRUE, se=TRUE, main="Schoenfeld residuals", ylim=c(-4,4))
+plot(cox2.phtest,var=2,resid=TRUE, se=TRUE, main="Schoenfeld residuals", ylim=c(-4,4))
 ```
 
 What do you conclude?
 
 ## (f) ## 
-Do part (a)–(e) but now for the variable agegrp. What are your conclusions regarding the assumption of proportional hazards? No written solutions for this part.
+Do plot the Schoenfeld residual plots for the variable agegrp. What are your
+conclusions regarding the assumption of proportional hazards by age group?
+
+```{webr-r}
+cox2.phtest <- coxph(Surv(trunc_yy, death_cancer==1) ~ sex + year8594 + agegrp, 
+                     data=localised) |>
+    cox.zph(terms=FALSE)
+par(mfrow=c(2,2))
+for (var in 3:5)
+    plot(cox2.phtest,var=var,resid=TRUE, se=TRUE, main="Schoenfeld residuals", ylim=c(-4,4))
+```
 
 ## (g) ## 
 Now formally test the assumption of proportional hazards.
@@ -231,12 +241,25 @@ predictnl(poisson2p8tvc,
               predict(fit, transform(newdata, agegrp='0-44', age75=0)),
           newdata=newdata) |>
     cbind(newdata) |>
-    transform(pred=exp(fit),
-              lower=exp(fit-1.96*se.fit),
-              upper=exp(fit+1.96*se.fit)) |>
-    with(plt(mid, pred, type="ribbon", xlab="Time since diagnosis (months)",
-             ymin=lower, ymax=upper,
+    transform(RateRatio=exp(fit),
+              lower.ci=exp(fit-1.96*se.fit),
+              upper.ci=exp(fit+1.96*se.fit)) |>
+    with(plt(mid, RateRatio, type="ribbon", xlab="Time since diagnosis (months)",
+             ymin=lower.ci, ymax=upper.ci,
              ylab="Rate ratio", main="Ages 75+ compared with ages 0-44 years"))
-         
+
+newdata <- expand.grid(mid=c(0.5,2), year8594="Diagnosed 85-94",
+                       sex="Male", agegrp=levels(localised$agegrp), pt=1) |>
+    transform(age75=(agegrp=="75+")+0)
+predictnl(poisson2p8tvc,
+          fun=function(fit,newdata)
+              predict(fit, newdata) -
+              predict(fit, transform(newdata, agegrp='0-44', age75=0)),
+          newdata=newdata) |>
+    cbind(newdata) |>
+    transform(RateRatio=exp(fit),
+              lower.ci=exp(fit-1.96*se.fit),
+              upper.ci=exp(fit+1.96*se.fit)) |>
+    subset(select=c(agegrp, mid, RateRatio, lower.ci, upper.ci))
 ```
 

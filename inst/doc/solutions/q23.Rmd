@@ -4,6 +4,7 @@ author:
 - Code by Mark Clements
 output:
   prettydoc::html_pretty:
+    mathjax: https://biostat3.net/js/mathjax/tex-chtml.js
     theme: cayman
     highlight: github
 ---
@@ -77,16 +78,16 @@ opts_chunk$set(cache=FALSE)
 ## (f) ##
 
 
-```{r 23.f1}
+```{r 23.f1, results='asis'}
 ```
 
-```{r 23.f2}
+```{r 23.f2, results='asis'}
 ```
 
-```{r 23.f3}
+```{r 23.f3, results='asis'}
 ```
 
-```{r 23.f4}
+```{r 23.f4, results='asis'}
 ```
 
 ```{r 23.f5}

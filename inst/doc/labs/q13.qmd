@@ -38,7 +38,7 @@ Fit the following Poisson regression model to the diet data (we fitted this same
 
 
 ```{webr-r}
-poisson13a <- glm( chd ~ hieng + offset( log( y ) ), family=poisson, data=diet)
+poisson13a <- glm(chd ~ hieng + offset(log(y)), family=poisson, data=diet)
 summary(poisson13a)
 eform(poisson13a)
 

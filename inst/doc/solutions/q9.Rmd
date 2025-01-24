@@ -4,6 +4,7 @@ author:
 - Code by Annika Tillander, Johan Zetterqvist and Mark Clements
 output:
   prettydoc::html_pretty:
+    mathjax: https://biostat3.net/js/mathjax/tex-chtml.js
     theme: cayman
     highlight: github
 ---
@@ -144,13 +145,13 @@ they are).
             they are.
 			
   iii. Yes, both models assume ‘proportional hazards’. The
-            proportional hazards assumption implies that the risk
+            proportional hazards assumption implies that the rate
             ratios for sex, period, and age are constant across all
             levels of follow-up time. In other words, the assumption
             is that there is no effect modification by follow-up
             time. This assumption is implicit in Poisson regression
             (as it is in logistic regression) where it is assumed that
-            estimated risk ratios are constant across all combination
+            estimated rate ratios are constant across all combination
             of the other covariates. We can, of course, relax this
             assumption by fitting interaction terms.
 
@@ -160,6 +161,8 @@ they are).
 ```
 
 ## (g) ##
+
+This R code demonstates how to predict rates and survival for those diagnosed 1985--94 who are male aged 45--59 years:
 
 ```{r 9.g}
 ```

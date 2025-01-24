@@ -11,21 +11,21 @@
 ## @knitr loadDependencies
 library(biostat3)  
 library(rstpm2)  # for the flexible parametric model
-library(dplyr)   # for data manipulation
 library(ggplot2)
+library(tinyplot)
 
 ## @knitr loadPreprocess
-data(melanoma)
 
 ## Extract subset and create 0/1 outcome variables
-melanoma0 <- biostat3::melanoma %>% filter(stage=="Localised") %>%
-             mutate(event = ifelse(status=="Dead: cancer" & surv_mm<120, 1, 0),
-                    time = pmin(120, surv_mm)/12,
-                    agegrp1 = (agegrp=="0-44")+0,  # used by time-dependent effect
-                    agegrp2 = (agegrp=="45-59")+0, # used by time-dependent effect
-                    agegrp3 = (agegrp=="60-74")+0, # used by time-dependent effect
-                    agegrp4 = (agegrp=="75+")+0)   # used by time-dependent effect
-
+melanoma0 <- biostat3::melanoma |> subset(stage=="Localised") |>
+             transform(event = ifelse(status=="Dead: cancer" & surv_mm<120, 1, 0),
+                       time = pmin(120, surv_mm)/12,
+                       agegrp1 = (agegrp=="0-44")+0,  # used by time-dependent effect
+                       agegrp2 = (agegrp=="45-59")+0, # used by time-dependent effect
+                       agegrp3 = (agegrp=="60-74")+0, # used by time-dependent effect
+                       agegrp4 = (agegrp=="75+")+0)   # used by time-dependent effect
+agegrps <- levels(melanoma0$agegrp)
+    
 ## @knitr a_flex
 ## (a) Flexible parametric model with df=4
 fpma <- stpm2(Surv(time,event) ~ year8594, data=melanoma0, df=4)
@@ -51,25 +51,26 @@ ggplot(s, aes(x=time,y=Estimate,fill=year8594,ymin=lower,ymax=upper)) +
     geom_line()
 
 ## @knitr b_haz
-plot(fpma,newdata=data.frame(year8594=years[1]), type="haz",
-     xlab="Time since diagnosis (years)", ylab="Hazard")
-lines(fpma,newdata=data.frame(year8594=years[2]), type="haz", col=2)
-legend("topright", legend=years, col=1:2, lty=1, bty="n")
-
+predict(fpma,newdata=data.frame(year8594=years),grid=TRUE,full=TRUE,se.fit=TRUE,
+        type="hazard") |>
+    with(plt(Estimate~time|year8594, ymin=lower,ymax=upper,
+             xlab="Time since diagnosis (years)",
+             ylab="Survival",
+             type="ribbon"))
 
 ## @knitr c_haz_log
 ## (c) hazards on log scale, adding log="y"
-plot(fpma,newdata=data.frame(year8594=years[1]), type="haz",
-     xlab="Time since diagnosis (years)",
-     ci=FALSE,
-     ylab="Hazard (log scale)",main=years[1], log="y", ylim=c(0.01,0.07))
-lines(fpma,newdata=data.frame(year8594=years[2]), type="haz", col=2)
-legend("topright", legend=years, col=1:2, lty=1, bty="n")
+predict(fpma,newdata=data.frame(year8594=years),grid=TRUE,full=TRUE,se.fit=TRUE,
+        type="hazard") |>
+    with(plt(Estimate~time|year8594, ymin=lower,ymax=upper,
+             xlab="Time since diagnosis (years)",
+             log="y",
+             ylab="Survival",
+             type="ribbon"))
 
 ## @knitr d_AIC_BIC
 ## utility function to row bind from a list
-Rbind <- function(object) do.call(rbind,object)
-out <- lapply(1:6, function(i) {
+lapply(1:6, function(i) {
     fitaic <- stpm2(Surv(time, event) ~ year8594, data=melanoma0, df=i)
     data.frame(
         i,
@@ -77,8 +78,7 @@ out <- lapply(1:6, function(i) {
         BIC=BIC(fitaic),
         beta=as.numeric(coef(fitaic)[2]),
         se=coef(summary(fitaic))[2,2])
-})
-out %>% Rbind
+}) |> do.call(what=rbind)
 
 ## @knitr e_base_surv
 ## Baseline survival
@@ -143,10 +143,8 @@ anova(pfit1, pfit0)## the results also suggest there is strong evidence
 
 ## @knitr i_plot_base_haz
 ## Plot of baseline hazard with fpmh
-sexes <- levels(melanoma$sex)
-years <- levels(melanoma$year8594)
-agegrps <- levels(melanoma$agegrp)
-newdata1 <- data.frame(sex=sexes[1],year8594=years[1],agegrp2=0, agegrp3=0, agegrp4=0)
+newdata1 <- data.frame(sex="Male",year8594="Diagnosed 75-84",
+                       agegrp2=0, agegrp3=0, agegrp4=0)
 plot(fpmh, newdata=newdata1, xlab="Time since diagnosis (years)", 
      type="haz")
 
@@ -164,12 +162,12 @@ plot(fpmh, newdata=newdata1,
      xlab="Time since diagnosis (years)")
 
 ## @knitr j_age_HR_ggplot
-pred <- lapply(2:4, function(i)
+lapply(2:4, function(i)
     predict(fpmh, newdata=newdata1, type="hr",var=paste0("agegrp",i),
-            grid=TRUE, se.fit=TRUE, full=TRUE) %>%
-    mutate(ageGroup=paste0(agegrps[i]," vs 0-44")))
-pred <- Rbind(pred)
-ggplot(pred, aes(x=time,y=Estimate,fill=ageGroup,ymin=lower,ymax=upper)) +
+            grid=TRUE, se.fit=TRUE, full=TRUE) |>
+    transform(ageGroup=paste0(agegrps[i]," vs 0-44"))) |>
+    do.call(what=rbind) |>
+    ggplot(aes(x=time,y=Estimate,fill=ageGroup,ymin=lower,ymax=upper)) +
     geom_ribbon(alpha=0.3) +
     geom_line() +
     ylim(0,8) +
@@ -188,18 +186,18 @@ plot(fpmh,newdata=newdata1,
      xlab="Time since diagnosis (years)")
 
 ## @knitr m_time_dep_eff
-out <- lapply(1:3, function(i) {
+lapply(1:3, function(i) {
     fitdf <- stpm2(Surv(time,event) ~ sex + year8594 + agegrp2 + agegrp3 + agegrp4,
                    data=melanoma0, tvc=list(agegrp2 = i, agegrp3 = i, agegrp4 = i),
                    df=4)
     data.frame(i,
                aic=AIC(fitdf),
                bic=BIC(fitdf))
-}) 
-out %>% Rbind
+}) |> do.call(what=rbind)
 
 ## Plots with different df
-fitdf1 <- stpm2(Surv(time,event) ~ sex + year8594 + agegrp2 + agegrp3 + agegrp4, data=melanoma0,
+fitdf1 <- stpm2(Surv(time,event) ~ sex + year8594 + agegrp2 + agegrp3 + agegrp4,
+                data=melanoma0,
                 tvc = list(agegrp2 = 1, agegrp3 = 1, agegrp4 = 1), df=4)
 
 plot(fitdf1, newdata = newdata1,

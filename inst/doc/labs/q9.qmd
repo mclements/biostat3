@@ -5,6 +5,7 @@ author:
 format:
   html:
     minimal: true
+    mathjax: local
 filters:
   - webr
 execute:
@@ -48,8 +49,8 @@ Interpret the estimated hazard ratio, including a comment on statistical signifi
 
 
 ```{webr-r}
-summary( coxfit9a <- coxph(Surv(surv_mm, death_cancer) ~ year8594,
-                           data = melanoma.l2) )
+summary(coxfit9a <- coxph(Surv(surv_mm, death_cancer) ~ year8594,
+                          data = melanoma.l2))
 ```
 
 ## (b) ##  
@@ -65,8 +66,8 @@ Compare these two test statistics with each other and with the log rank test sta
 
 ```{webr-r}
 survdiff(Surv(surv_mm, death_cancer) ~ year8594, data = melanoma.l)
-summary(coxfit9b <- coxph(Surv(surv_mm, death_cancer) ~ year8594,
-                           data = melanoma.l))
+summary(coxph(Surv(surv_mm, death_cancer) ~ year8594,
+              data = melanoma.l))
 ```
 
 ## (c) ##  
@@ -130,8 +131,8 @@ summary(poisson9e <- glm(death_cancer ~ fu + year8594 + sex + agegrp + offset( l
                          family = poisson,
                          data = melanoma.spl))
 
-eform(poisson9e)
 summary(coxfit9e)
+eform(poisson9e)
 ```
 
 ## (f) ##  
@@ -176,8 +177,9 @@ coxph(Surv(surv_mm, death_cancer) ~ year8594 + sex + agegrp,
 
 ## (g) ##  
 
-ADVANCED: Split the data finely (e.g., 3-month intervals) and
-        model the effect of time using a restricted cubic spline with Poisson regression. Also plot the rate and survival.
+**ADVANCED**: Split the data finely (e.g., 3-month intervals) and model
+the effect of time using a restricted cubic spline with Poisson
+regression. Also plot the rate and survival.
 
 ```{webr-r}
 library(dplyr)
@@ -190,8 +192,8 @@ mid.splines <- cuts.splines + 1.5
 melanoma.spl4 <-
     survSplit(Surv(surv_mm,death_cancer)~., data=melanoma.l2, cut=cuts.splines,
               start="tstart", end="tstop") |>
-    transform(cut=cut(tstop,cuts.splines),
-              mid=mid.splines[unclass(cut)]) |>
+    mutate(cut=cut(tstop,cuts.splines),
+           mid=mid.splines[unclass(cut)]) |>
     group_by(mid,year8594,sex,agegrp) |>
     summarise(pt=sum(tstop-tstart), death_cancer=sum(death_cancer), .groups="keep")
 
@@ -204,6 +206,7 @@ eform(poisson9g)
 
 ## define exposures
 times <- seq(0,max(cuts.splines),length=1000)
+delta <- times[2]-times[1]
 newdata <- data.frame(mid=times, year8594="Diagnosed 85-94",
                       sex="Male", agegrp="45-59",
                       pt=1)
@@ -218,5 +221,35 @@ cbind(newdata,
              xlab="Time since diagnosis (months)",
              ylab="Rate", main="Males aged 45-59 years diagnosed 1985-94"))
 
+## predict survival and 95% CI
+library(rstpm2)
+logcumhaz <-
+    rstpm2::predictnl(poisson9g,
+                      fun=function(fit,newdata)
+                          log(cumsum(delta*predict(fit, newdata, type="response"))),
+                      newdata=newdata) |>
+    transform(surv = exp(-exp(Estimate)),
+              lower.ci=exp(-exp(cbind(Estimate-1.96*SE))),
+              upper.ci=exp(-exp(cbind(Estimate+1.96*SE)))) |>
+    cbind(newdata)
+with(logcumhaz, plt(surv~mid, ymin=lower.ci, ymax=upper.ci, type="ribbon",
+                    xlab="Time since diagnosis (months)",
+                    ylab="Survival", main="Males aged 45-59 years diagnosed 1985-94"))
+
 ```
 
+### (h) ###
+
+Predict survival from the Cox model for males diagnosed 1985--1994 aged 45--59 years:
+
+```{webr-r}
+newdata <- data.frame(year8594="Diagnosed 85-94",
+                      sex="Male", agegrp="45-59")
+coxfit9e <- coxph(Surv(surv_mm/12, death_cancer) ~ year8594 + sex + agegrp,
+                  data = melanoma.l2)
+## predict survival at years 1,2,..,10
+summary(survfit(coxfit9e, newdata=newdata[1,]), times=1:10)
+## plot the full curve
+plot(survfit(coxfit9e, newdata=newdata[1,]),
+     xlab="Time from diagnosis (years)", ylab="Survival")
+```

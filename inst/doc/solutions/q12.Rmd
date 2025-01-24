@@ -4,6 +4,7 @@ author:
 - Code by Andreas Karlsson and Mark Clements
 output:
   prettydoc::html_pretty:
+    mathjax: https://biostat3.net/js/mathjax/tex-chtml.js
     theme: cayman
     highlight: github
 ---
@@ -60,7 +61,7 @@ We see that there is some evidence that the survival advantage
         males/females in the youngest age group is 0.46, while in the
         highest age group the hazard ratio is 0.68. There is evidence
         that the hazard ratios for gender differ across the age
-        groups (p=0.0037). However, after adjusting for stage, subsite,
+        groups (p=0.0035). However, after adjusting for stage, subsite,
         and period there is no longer evidence of an interaction.
 		
 There is not strong evidence in support of the

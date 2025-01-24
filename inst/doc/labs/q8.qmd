@@ -133,7 +133,6 @@ age.cuts <- c(30,50,60,72)
 diet.spl.dob <- survSplit(Surv((doe - dob)/scale, (dox - dob)/scale, chd) ~ .,
                           data=diet, cut=age.cuts,start="tstart",end="tstop")
 
-
 ## Tabulate ageband
 diet.spl.dob |> subset(id<3, c(id, tstart, tstop, y))
 

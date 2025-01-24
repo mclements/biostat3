@@ -104,7 +104,7 @@ predict(fit, type="surv", newdata=data.frame(x=0:1,u=3), grid=TRUE, full=TRUE,
     ylab("Survival") +
     geom_ribbon(alpha=0.6) +
     geom_line(aes(colour=factor(x)))
-## standardisation: slow
+## standardisation: slow:(
 plot(fit, type="meanhr", newdata=transform(d,x=0), var="x", seqLength=31, ylim=c(1,4))
 plot(fit, type="meansurvdiff", newdata=transform(d,x=0), var="x", seqLength=31)
 plot(fit, type="meansurv", newdata=transform(d,x=0), seqLength=101)

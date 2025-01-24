@@ -4,6 +4,7 @@ author:
 - Code by Annika Tillander, Andreas Karlsson, Benedicte Delcoigne, Johan Zetterqvist and Mark Clements
 output:
   prettydoc::html_pretty:
+    mathjax: https://biostat3.net/js/mathjax/tex-chtml.js
     theme: cayman
     highlight: github
 ---
@@ -31,7 +32,7 @@ You may have to install the required packages the first time you use them. You c
 ```
 Load diet data and explore it.
 
-```{r loadPreprocess, results='hide'}
+```{r loadPreprocess, results='asis'}
 ```
 
 The rates plotted on timescale attained age show a clear
@@ -100,4 +101,7 @@ Fitting the model for CHD, with adjustment for job and bmi.
 ```
 
 There seems to be no confounding by time-since-entry, but there
-        is confounding by bmi and job.
+        is confounding by BMI and job.
+
+```{r 8.e.ii,  message=FALSE}
+```

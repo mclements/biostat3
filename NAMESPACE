@@ -9,7 +9,7 @@ importFrom(graphics, lines, plot, matlines, matplot, plot.default,
            points)
 importFrom(stats, model.extract, terms, qnorm, approx,
            profile, fitted, qt, spline, coef, confint,
-           predict)
+           predict, qgamma)
 importFrom("utils", "modifyList")
 
 ## importFrom(KMsurv,lifetab)
@@ -35,5 +35,6 @@ S3method(print,coxphHaz)
 S3method(summary,muhazList)
 S3method(plot,lifetab2)
 S3method(lines,lifetab2)
+S3method(points,lifetab2)
 
 ## S3method(ggplot,muhazList)

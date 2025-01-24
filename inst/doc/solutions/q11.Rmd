@@ -4,6 +4,7 @@ author:
 - Code by Johan Zetterqvist and Mark Clements
 output:
   prettydoc::html_pretty:
+    mathjax: https://biostat3.net/js/mathjax/tex-chtml.js
     theme: cayman
     highlight: github
 ---

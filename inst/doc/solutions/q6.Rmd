@@ -4,6 +4,7 @@ author:
 - Code by Johan Zetterqvist, Andreas Karlsson and Mark Clements
 output:
   prettydoc::html_pretty:
+    mathjax: https://biostat3.net/js/mathjax/tex-chtml.js
     theme: cayman
     highlight: github
 ---
@@ -22,12 +23,15 @@ You may have to install the required packages the first time you use them. You c
 ```
 Load the diet data using time-on-study as the timescale. We look at the first six rows of the data using `head` and look at a summary for the variables using `summary`:
 
-```{r loadPreprocess}
+```{r loadPreprocess, results='asis'}
 ```
 
 ## (a) ##
 
-```{r 6a_ir,  message=FALSE}
+```{r 6a_ir,  message=FALSE, results='asis'}
+```
+
+```{r 6a_ir_b,  message=FALSE}
 ```
 
 We see that individuals with a high energy intake have a lower
@@ -67,14 +71,16 @@ is, the model is a perfect fit.
 ```{r 6c_energyDist,  message=FALSE}
 ```
 
-The histogram  gives us an idea of
-the distribution of energy intake. We can also tabulate moments
-and percentiles of the distribution.
+The histogram and density curve gives us an idea of the distribution of energy intake. The normal curve suggests that a normal approximation may be
+acceptable. We can also tabulate moments and percentiles of the
+distribution.
 
 ## (d) ##
 
 ```{r 6d_engCat}
 ```
+
+This could also be done using `dplyr::mutate`.
 
 ## (e) ##
 
@@ -82,13 +88,15 @@ and percentiles of the distribution.
 ```{r 6e_irEng}
 ```
 
-We see that the CHD incidence rate decreases as the level of
-total energy intake increases.
+We see that the CHD incidence rate decreases as the level of total
+energy intake increases. These calculations are usually better done
+using a regression model as they are less fiddly and can be adjusted
+for other covariates.
 
 ## (f) ##
 
 
-```{r 6f_irEng}
+```{r 6f_irEng, results='asis'}
 ```
 
 ## (g) ##
@@ -137,7 +145,7 @@ The estimates are identical (as we would hope) when we have
 Somehow (there are many different alternatives) you’ll need to
         calculate the total number of events and the total person-time
         at risk and then calculate the incidence rate
-        as events/person-time. For example,
+        as events/person-time. As examples,
 
 ```{r 6k}
 ```

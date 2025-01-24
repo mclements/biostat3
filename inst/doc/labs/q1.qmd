@@ -46,7 +46,7 @@ library(biostat3) # colon_sample, lifetab2
 
 ```{webr-r}
 #| results: 'asis'
-kable(colon_sample, "html")
+kable(biostat3::colon_sample, "html")
 ```
 
 

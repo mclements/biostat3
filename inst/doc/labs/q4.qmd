@@ -27,7 +27,7 @@ In order to reproduce the results in the printed solutions you’ll need to rest
 #| autorun: true
 library(biostat3) # melanoma, lifetab2
 library(knitr)    # kable
-localised = subset(biostat3::melanoma, stage=="Localised") |>
+localised <- subset(biostat3::melanoma, stage=="Localised") |>
     transform(death_cancer = ifelse(status == "Dead: cancer", 1, 0))
 ```
 
@@ -67,8 +67,8 @@ survfit(Surv(surv_yy, death_cancer) ~ 1, data = localised) |>
 Kaplan-Meier estimates, using survival time in completed months. Only showing 20 months around the 10th year.
 
 ```{webr-r}
-survfit(Surv(surv_mm, death_cancer) ~ 1, data = localised) |>
-    summary(times=110:130)
+survfit(Surv(surv_mm/12, death_cancer) ~ 1, data = localised) |>
+    summary(times=(110:130)/12)
 ```
 
 ## (c) ##
@@ -76,17 +76,17 @@ survfit(Surv(surv_mm, death_cancer) ~ 1, data = localised) |>
 Plot the four sets of curves for a graphical comparison. Describe the direction of the bias for the Kaplan-Meier curves using completed years.
 
 ```{webr-r}
-mfit_months <- survfit(Surv(surv_mm, death_cancer) ~ 1, data = localised)
-mfit_years <- survfit(Surv(surv_yy*12, death_cancer) ~ 1, data = localised)
-lty <- lifetab2(Surv(floor(surv_yy)*12,death_cancer)~1, data = localised)
-ltm <- lifetab2(Surv(floor(surv_mm),death_cancer)~1, data = localised)
-plot(mfit_months, conf.int=FALSE,
-     ylim=c(0.7,1), cex=5,
-     xlab="Time from cancer diagnosis (months)",
-     ylab="Survival")
-lines(lty, col="green")
-lines(ltm, col="orange")
-lines(mfit_years, col="red", conf.int=FALSE)
+survfit(Surv(surv_mm/12, death_cancer) ~ 1, data = localised) |>
+    plot(conf.int=FALSE,
+         ylim=c(0.7,1), cex=5,
+         xlab="Time from cancer diagnosis (years)",
+         ylab="Survival")
+survfit(Surv(surv_yy, death_cancer) ~ 1, data = localised) |>
+    lines(col="red", conf.int=FALSE)
+lifetab2(Surv(floor(surv_mm)/12,death_cancer)~1, data = localised) |>
+    lines(col="orange")
+lifetab2(Surv(floor(surv_yy),death_cancer)~1, data = localised) |>
+    lines(col="green")
 legend("topright",
        legend=c("KM (months)", "KM (years)", "Actuarial (months)", "Actuarial (years)"),
        lty=1,

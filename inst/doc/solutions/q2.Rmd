@@ -4,6 +4,7 @@ author:
 - Code by Annika Tillander, Andreas Karlsson and Mark Clements
 output:
   prettydoc::html_pretty:
+    mathjax: https://biostat3.net/js/mathjax/tex-chtml.js
     theme: cayman
     highlight: github
 ---
@@ -21,21 +22,15 @@ Load dependencies
 ```{r loadDependencies, message=FALSE}
 ```
 
-We start by listing the first few observations to get an idea about the data. We then define two 1/0 variables for the events that we are interested in. 
+We define two 1/0 variables for the events. We then list the first few observations to get an idea about the data. 
 
-```{r loadPreprocess}
-```
-
-We convert the logical variables to 0/1 because some of the `R` functions use logical variables (with values `TRUE` and `FALSE`) as factors. A short-hand approach for converting `TRUE` to 1 and `FALSE` to 0 is to add 0:
-
-```{r}
-c(TRUE,FALSE)+0
+```{r loadPreprocess, resuls='asis'}
 ```
 
 ## (a) Plot estimates of the survivor function and hazard function by stage ##
 We now tabulate the distribution of the melanoma patients by cancer stage at diagnosis.
 
-```{r a_tabulate}
+```{r a_tabulate, results='asis'}
 ```
 
 We then plot the survival and survival by stage. 
@@ -47,36 +42,38 @@ Survival depends heavily on stage. It is interesting to note
 that patients with stage 0 (unknown) appear to have a similar
 survival to patients with stage 1 (localized).
 
-As an extension, we can use the`bshazard` to calculate the hazards with confidence intervals (see below). Note, however, that the bshazard function will _adjust_ for covariates rather than stratify by covariates. This means that we need to divide the dataset into strata and calculate the smoothed hazards separately. I have shown one approach using `dplyr` for dividing the data, with he plots use `ggplot`, which allows for over-lapping confidence intervals (using the `alpha` transparency argument).
-
-```{r a_plotHaz}
+```{r a_plotHazard}
 ```
+
+As an extension, we can use the`bshazard` to calculate the hazards with confidence intervals (see below). Note, however, that the bshazard function will _adjust_ for covariates rather than stratify by covariates. This means that we need to divide the dataset into strata and calculate the smoothed hazards separately. I have shown one approach using `dplyr` for dividing the data, with the plots use `tinyplot` and `ggplot`, which allows for over-lapping confidence intervals (using the `alpha` transparency argument).
+
 
 
 ## (b) Estimate the mortality rates for each stage using, for example, the  `survRate` command ##
 
-```{r b_crudeRates}
+```{r b_crudeRates, results='asis'}
 ```
 
-The time unit is months (since we specified `surv_mm` as the analysis
+The time unit is years (since we specified `surv_mm/12` as the analysis
 time). Therefore, the units of the rates shown above are
-events/person-month. 
+events/person-years. 
+
+We can also do this using more general tools:
+
+```{r b2_crudeRates, results='asis'}
+```
 
 
 ## (c) ##
-Here we tabulate crude rates per person-year and per 1000 person-years. We could divide the times by 12 to obtain estimates with units of the number of events per person-year. For example,
+Here we tabulate crude rates per 1000 person-years. For example,
 
-```{r b2_crudeRates}
-```
-To obtain mortality rates per 1000 person-years:
-
-```{r c_crudeRates1000}
+```{r c_crudeRates1000, results='asis'}
 ```
 
 ## (d) ##
 Below we see that the crude mortality rate is higher for males than for females.
 
-```{r d_crudeRates1000_sex}
+```{r d_crudeRates1000_sex, results='asis'}
 ```
 
 We see that the crude mortality rate is higher for males than

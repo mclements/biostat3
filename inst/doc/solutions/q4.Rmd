@@ -4,6 +4,7 @@ author:
 - Code by Annika Tillander, Andreas Karlsson and Mark Clements
 output:
   prettydoc::html_pretty:
+    mathjax: https://biostat3.net/js/mathjax/tex-chtml.js
     theme: cayman
     highlight: github
 ---
@@ -27,11 +28,11 @@ Then load the data and define an indicator:
 ```
 
 Then we show the results using the actuarial estimator with years:
-```{r actuarialYears}
+```{r actuarialYears, results='asis'}
 ```
 
 Similarly, we use the actuarial estimator using months:
-```{r actuarialMonths}
+```{r actuarialMonths, results='asis'}
 ```
 
 Then the code using the Kaplan-Meier estimator with years:

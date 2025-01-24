@@ -258,7 +258,6 @@ Calculate the crude overall SMR, as well as the SMR by sex. Plot the SMRs by cal
 We can calculate the SMR simply from the data, like so: 
 ```{webr-r}
 calculate_smr(joint) |> kable("html")
-SMR_all 
 ```
 
 By sex:
@@ -301,9 +300,9 @@ in how easy we can interpret the model parameters;
 ```{webr-r}
 #| autorun: true
 joint2 <- mutate(joint,
-                    sex  = factor(sex, levels = 1:2, labels = c("m", "f")),
-                    year =  factor(year) %>% relevel(ref = "1985"),  # mid-study
-                    age_group = relevel(age_group, ref = "[70,80)"))  # Close to one already
+                 sex  = factor(sex, levels = 1:2, labels = c("m", "f")),
+                 year =  factor(year) |> relevel(ref = "1985"),  # mid-study
+                 age_group = relevel(age_group, ref = "[70,80)"))  # Close to one already
 ## Model & parameters
 summary(fit <- glm(observed ~ sex + year + age_group + offset(log(expected)),
                    data=joint2, family=poisson)) 

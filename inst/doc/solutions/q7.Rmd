@@ -4,6 +4,7 @@ author:
 - Code by Johan Zetterqvist and Mark Clements
 output:
   prettydoc::html_pretty:
+    mathjax: https://biostat3.net/js/mathjax/tex-chtml.js
     theme: cayman
     highlight: github
 ---
@@ -59,13 +60,13 @@ Mortality is lower during the latter period.
 ```{r 7.a.iii,  message=FALSE}
 ```
 
-The two graphs both show that prognosis is better during the
-            latter period. Patients diagnosed during the latter period
-            have lower mortality and higher survival.
+The three graphs both show that prognosis is better during the
+latter period. Patients diagnosed during the latter period
+have lower mortality and higher survival.
 			
 ## (b) ##
 
-```{r 7.b,  message=FALSE}
+```{r 7.b,  message=FALSE, resuls='asis'}
 ```
 
 The estimated mortality rate is lower for patients diagnosed during
@@ -149,7 +150,11 @@ in the hazard plot. By estimating the rates for each year
 of follow-up we are essentially approximating the hazard using a step function. It would probably
 be more informative to use narrower intervals (e.g.,
 6-month intervals) for the first 6 months of follow-up.
-		
+
+Note that I have used the `tinyplot` package for the ribbon plot, which is more lightweight than the `ggplot2` package.
+
+
+
 ## (g) ##  
 
 ```{r 7.g,  message=FALSE}
@@ -277,3 +282,26 @@ If we fit stratified models we get slightly different estimates
 ```{r 7.l,  message=FALSE}
 ```
 
+## (m) ##
+
+This is more advanced code. After splitting finely, we fit a Poisson regression with natural splines for the mid-points and then plot the predicted rates.
+
+```{r 7.m,  message=FALSE}
+```
+
+
+## (n) ##
+
+This is more advanced code. We use the `rstpm2::predictnl` function to calculate the variance for some estimator using the delta method. We show examples using both a rate ratio and a rate difference:
+
+```{r 7.n,  message=FALSE}
+```
+
+## (o) ##
+
+This is more advanced code. First, we use the `rstpm2::markov_msm` function for Markov multi-state models to estimate survival for the Poisson regression model.
+
+Then we use the `rstpm2::predictnl` function to calculate the variance for some estimator using the delta method. The estimator for survival uses ordinary differential equations -- which is outside the scope of Biostatistics III:).
+
+```{r 7.o,  message=FALSE}
+```

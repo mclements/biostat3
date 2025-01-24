@@ -84,11 +84,14 @@ lifetab2 <-
     structure(temp, call=Call, class=c("lifetab2", "data.frame"))
   }
 
-plot.lifetab2 <- function(x, y=NULL, ...) {
-    plot(x$tstart, x$surv, ...)
+plot.lifetab2 <- function(x, y=NULL, type="s", ...) {
+    plot(x$tstart, x$surv, type=type, ...)
 }
 lines.lifetab2 <- function(x, y=NULL, ...) {
     lines(x$tstart, x$surv, ...)
+}
+points.lifetab2 <- function(x, y=NULL, ...) {
+    points(x$tstart, x$surv, ...)
 }
 
 

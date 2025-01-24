@@ -5,19 +5,20 @@
 Sample from the \code{\link{colon}} dataset used for teaching. 
 }
 \description{
-Sample from the \code{\link{colon}} dataset used for teaching. 
+Sample from the \code{\link{colon}} dataset, which describes survival
+after a diagnosis of colon cancer. 
 }
 \usage{data("colon_sample")}
 \format{
   A data frame with 35 observations on the following 9 variables.
   \describe{
     \item{\code{sex}}{a factor with levels \code{Male} \code{Female}}
-    \item{\code{age}}{a numeric vector}
+    \item{\code{age}}{a numeric vector age at diagnosis in years}
     \item{\code{stage}}{a factor with levels \code{Unknown} \code{Localised} \code{Regional} \code{Distant}}
-    \item{\code{mmdx}}{a numeric vector}
-    \item{\code{yydx}}{a numeric vector}
-    \item{\code{surv_mm}}{a numeric vector}
-    \item{\code{surv_yy}}{a numeric vector}
+    \item{\code{mmdx}}{a numeric vector month of diagnosis (1-12)}
+    \item{\code{yydx}}{a numeric vector year of diagnosis}
+    \item{\code{surv_mm}}{a numeric vector time from diagnosis to exit (months)}
+    \item{\code{surv_yy}}{a numeric vector time from diagnosis to exit (years)}
     \item{\code{status}}{a factor with levels \code{Alive} \code{Dead: cancer} \code{Dead: other} \code{Lost to follow-up}}
     \item{\code{subsite}}{a factor with levels \code{Coecum and ascending} \code{Transverse} \code{Descending and sigmoid} \code{Other and NOS}}
   }

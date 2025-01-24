@@ -4,6 +4,7 @@ author:
 - Code by Annika Tillander, Andreas Karlsson and Mark Clements
 output:
   prettydoc::html_pretty:
+    mathjax: https://biostat3.net/js/mathjax/tex-chtml.js
     theme: cayman
     highlight: github
 ---
@@ -33,15 +34,14 @@ Load melanoma data and explore it.
 ## (a) ## 
 
 If we look at the hazard curves, at their peak the ratio is
-approximately $0.038/0.048\approx0.79$. The ratio is similar at
-other follow-up times.
+approximately $0.04/0.065\approx0.62$. The ratio seems to vary with respect to time.
 
 ```{r 10.a, message=FALSE}
 ```
 
 ## (b) ## 
-There is no strong evidence against an assumption of
-proportional hazards since we see (close to) parallel curves
+There is some evidence against the assumption of
+proportional hazards since we see non-parallel curves
 when plotting the instantaneous cause-specific hazard on the
 log scale.
 
@@ -73,18 +73,23 @@ hazard function plot.
 ```
 
 ## (e) ## 
-The plot of the scaled
-Schoenfeld residuals for the effect of period. Under
-proportional hazards, the smoother will be a horizontal line.
-The line is not, however, perfectly horizontal; it appears that
-the effect of period is greater earlier in the follow-up.
+The plot of the scaled Schoenfeld residuals for the effect of
+period. Under proportional hazards, the smoother will be a horizontal
+line.  The line does vary (with possibly an increasing log hazard
+ratio at around 4 years), but not in a linear pattern, which is
+consistent with the p-value of 0.10 for linear trend.
 
 ```{r 10.e}
 ```
 
 
 ## (f) ## 
-No solution written for this part.
+
+Based on the tests for linear trends, we expect a trend for the log hazard ratio comparing ages less than 45 years with those aged 75 years and over. All three log hazard ratios tend to decrease by time of diagnosis, while the trend is more marked for the oldest age group (75+). There is evidence for non-proportionality, particularly for those patients aged 75 years and over.
+
+```{r 10.f}
+```
+
 
 ## (g) ## 
 It seems that there is evidence of non-proportional hazards by
@@ -173,3 +178,11 @@ We have shown several ways to use the `tt` functionality for a factor variable, 
 ```{r 10.j}
 ```
 
+We use the `predictnl` function from `rstpm2` to calculate the hazard
+ratios and confidence intervals based on the delta method. We see
+clear evidence for a rate ratio for those aged 75 years and over
+compared with those aged less than 45 years declining by time since
+diagnosis. Fitting for an interaction between age 75+ and time from
+diagnosis, we get a rate ratio for those aged 75 years at 0.5 years
+from diagnosis of 5.19 (95% confidence interval (CI): 3.56, 7.29),
+while at 2 years the rate ratio is 3.82 (95% CI: 3.00, 4.86).

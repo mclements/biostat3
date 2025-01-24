@@ -437,10 +437,10 @@ melanoma.spl3 <- survSplit(Surv(surv_mm/12,status=="Dead: cancer")~.,
     transform(mid=(tstop+tstart)/2, risk_time=tstop-tstart) |>
     group_by(sex, agegrp, stage, year8594, timeband) |>
     summarise(risk_times=sum(risk_time), # sequential - do not replace risk_time
-              events=sum(event),
+              event=sum(event),
               mid=sum(risk_time*mid)/sum(risk_time),
               .groups="keep")
-poisson7n <- glm(events ~ ns(mid,df=4) + agegrp + year8594 +
+poisson7n <- glm(event ~ ns(mid,df=4) + agegrp + year8594 +
                      ifelse(year8594=="Diagnosed 85-94",1,0):ns(mid,df=3) +
                      offset(log(risk_times)),
                  family=poisson,
@@ -448,19 +448,18 @@ poisson7n <- glm(events ~ ns(mid,df=4) + agegrp + year8594 +
 ```
 
 ```{webr-r}
-library(rstpm2) # version >= 1.6.6 for predictnl(..., conf.int=TRUE)
+library(rstpm2)
 library(tinyplot)
-df2 <- data.frame(agegrp="0-44", year8594="Diagnosed 75-84",
-                  mid=time.cut[-1], risk_times=1)
+df <- data.frame(agegrp="0-44", year8594="Diagnosed 75-84",
+                 mid=time.cut[-1], risk_times=1)
 ## get log(RR) confidence interval using predictnl (delta method)
 predictnl(poisson7n, function(object)
-    predict(object, newdata=transform(df2, year8594="Diagnosed 85-94"), type="link") -
-    predict(object, newdata=df2, type="link"),
-    conf.int=TRUE) |>
-    cbind(df2) |>
+    predict(object, newdata=transform(df, year8594="Diagnosed 85-94"), type="link") -
+    predict(object, newdata=df, type="link")) |>
+    cbind(df) |>
     transform(fit = exp(fit),
-              conf.low=exp(conf.low),
-              conf.high=exp(conf.high)) |>
+              conf.low=exp(fit-1.96*se.fit),
+              conf.high=exp(fit+1.96*se.fit)) |>
     with(plt(fit~mid, ymin=conf.low, ymax=conf.high, type="ribbon",
              xlab="Time since diagnosis (years)",
              ylab="Rate ratio"))
@@ -468,11 +467,12 @@ predictnl(poisson7n, function(object)
 ## Calculate the rate difference
 predictnl(poisson7n,
           function(object)
-              predict(object, newdata=transform(df2, year8594="Diagnosed 85-94"),
+              predict(object, newdata=transform(df, year8594="Diagnosed 85-94"),
                       type="response") -
-              predict(object, newdata=df2, type="response"),
-          conf.int=TRUE) |>
-    cbind(df2) |>
+              predict(object, newdata=df, type="response")) |>
+    cbind(df) |>
+    transform(conf.low=fit-1.96*se.fit,
+              conf.high=fit+1.96*se.fit) |>
     with(plt(fit~mid, ymin=conf.low, ymax=conf.high, type="ribbon",
              xlab="Time since diagnosis (years)",
              ylab="Rate difference"))
@@ -482,10 +482,12 @@ predictnl(poisson7n,
 
 We can estimate survival from a Poisson regression model by integration. This can be done elegantly using ordinary differential equations: if survival $S$ at time 0 is 1, such that $S(0)=1$, then $dS(t)/dt=-S(t)h(t)$, where $h(t)$ is the hazard.
 
-If the `deSolve` package is available (which is not true with WebR:(), then we can use the `rstpm2::markov_msm` function for a two-state Markov multi-state model:
+If the `deSolve` package is available (which is not true with WebR:(),
+then we can use the `rstpm2::markov_msm` function for a two-state
+Markov multi-state model:
 
 ```{webr-r}
-if (require("deSolve")) {
+if (requireNamespace("deSolve")) {
     twoState <- function(object, ...) {
         markov_msm(list(object),matrix(c(NA,1,NA,NA),2,byrow=TRUE), ...) |>
             as.data.frame() |>
@@ -493,7 +495,7 @@ if (require("deSolve")) {
     }
     df2 <- expand.grid(agegrp=levels(biostat3::melanoma$agegrp),
                        year8594=levels(biostat3::melanoma$year8594)) |>
-        transform(risk_times=1)
+        transform(risk_time=1)
     library(tinyplot)
     twoState(poisson7n, t=c(0,time.cut), newdata = df2, tmvar = "mid") |>
         with(plt(P~time|year8594, ymin=P.lower,ymax=P.upper,
@@ -505,17 +507,19 @@ if (require("deSolve")) {
 
 What pattern do you observe? 
 
-This approach will general quite readily to competing risks and other multi-state models. Alternatively, we can use the `pracma` package (which is available on WebR), which requires more work:
+This approach will general quite readily to competing risks and other
+multi-state models. Alternatively, we can use the `pracma` package
+(which **is** available on WebR), which requires more work:
 
 ```{webr-r}
-if (require("pracma")) {
+if (requireNamespace("pracma")) {
 library(tinyplot)
 library(rstpm2)
 library(pracma)
 df2 <- with(biostat3::melanoma,
             expand.grid(agegrp=levels(agegrp),
                         year8594=levels(year8594))) |>
-    transform(risk_times=1)
+    transform(risk_time=1)
 oneState <- function(object,newdata=df2) {
     f <- function(t,y)
         -y*predict(object, newdata=transform(newdata,mid=t), type="response")
@@ -525,10 +529,10 @@ out0 = oneState(poisson7n, newdata=df2)
 out = predictnl(poisson7n,
                 function(object, newdata)
                     log(-log(as.vector(oneState(object, newdata)$y))),
-                newdata=df2, conf.int=TRUE) |> # slow!
+                newdata=df2) |> # slow!
     transform(fit=exp(-exp(fit)),
-              conf.low=exp(-exp(conf.low)),
-              conf.high=exp(-exp(conf.high))) |>
+              conf.low=exp(-exp(fit-1.96*se.fit)),
+              conf.high=exp(-exp(fit+1.96*se.fit))) |>
     cbind(with(biostat3::melanoma,
                expand.grid(mid=out0$t,
                            agegrp=levels(agegrp),

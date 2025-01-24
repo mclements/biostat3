@@ -21,27 +21,27 @@ library(dplyr)    # for data manipulation
 
 ## Read melanoma data
 ## and select subcohorts
-melanoma.l <- biostat3::melanoma %>%
-  filter(stage=="Localised") %>%
-  mutate(
-    ## Create a death indicator
-    death_cancer = as.numeric(status=="Dead: cancer"),
-    death_any = as.numeric(status=="Dead: cancer" | status=="Dead: other") )
+melanoma.l <- biostat3::melanoma |>
+    subset(stage=="Localised") |>
+    transform(
+        ## Create a death indicator
+        death_cancer = as.numeric(status=="Dead: cancer"),
+        death_any = as.numeric(status=="Dead: cancer" | status=="Dead: other") )
 
 ## Truncate follow-up time
 
 melanoma.l2 <-
-  mutate(melanoma.l,
-         ## Create new death indicators (only count deaths within 120 months)
-         death_cancer = death_cancer * as.numeric( surv_mm <= 120),
-         death_any = death_any * as.numeric( surv_mm <= 120),
-         ## Create a new time variable
-         surv_mm = pmin(surv_mm, 120))
+  transform(melanoma.l,
+            ## Create new death indicators (only count deaths within 120 months)
+            death_cancer = death_cancer * as.numeric( surv_mm <= 120),
+            death_any = death_any * as.numeric( surv_mm <= 120),
+            ## Create a new time variable
+            surv_mm = pmin(surv_mm, 120))
 
 ## @knitr 11.a
 
-summary( coxfit11a <- coxph(Surv(surv_mm, death_any) ~ sex + year8594 + agegrp,
-                           data = melanoma.l2) )
+summary(coxfit11a <- coxph(Surv(surv_mm, death_any) ~ sex + year8594 + agegrp,
+                           data = melanoma.l2))
 
 ## @knitr 11.b
 

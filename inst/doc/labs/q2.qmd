@@ -55,59 +55,49 @@ We now tabulate the distribution of the melanoma patients by cancer stage at dia
 ```{webr-r}
 #| results: 'asis'
 Freq <- xtabs(~stage, data=melanoma)
-cbind(Freq, Prop=prop.table(Freq)) |> kable("html")
+cbind(Freq, Prop=proportions(Freq)) |> kable("html")
 ```
 
 We then plot the survival and hazards by stage. Does it appear that stage is associated with patient survival?
 
 ```{webr-r}
-par(mfrow=c(1, 2))
-survfit(Surv(surv_mm, death_cancer) ~ stage, data = melanoma) |>
-    plot(col=1:4,
-         xlab = "Follow-up Time",
-         ylab = "Survival")
-
-bshazard(Surv(surv_mm, death_cancer)~stage, melanoma) |>
-    plot(overall=FALSE, col=1:4, lty=1, xlim=c(0,250), ylim=c(0,0.06))
-legend("topright", levels(melanoma$stage), col=1:4, lty = 1)
-```
-
-We can also look at the confidence intervals for each hazard curve:
-
-```{webr-r}
-par(mfrow=c(2,2))
-for(level in levels(melanoma$stage))
-  plot(bshazard(Surv(surv_mm,death_cancer)~1, subset(melanoma,stage==level), verbose=FALSE), main=level)
-```
-
-```{webr-r}
-library(ggplot2) # slow:(
-library(dplyr) # slow:(
+library(dplyr)
 hazards <- group_by(melanoma, stage) |> 
-    do(as.data.frame(bshazard(Surv(surv_mm, death_cancer)~1, data=., verbose=FALSE))) |>
+    do(as.data.frame(bshazard(Surv(surv_mm/12, death_cancer)~1, data=., verbose=FALSE))) |>
     ungroup()
-ggplot(hazards,aes(x=time,y=hazard,group=stage)) + geom_line(aes(col=stage)) +
-    geom_ribbon(aes(ymin=lower.ci, ymax=upper.ci, fill=stage), alpha=0.3) + ylim(0,0.1) +
-    xlab('Follow-up Time') + ylab('Hazard')
+with(hazards, plt(hazard~time|stage, ymin=lower.ci, ymax=upper.ci,
+                  type="ribbon",
+                  xlab="Time since diagnosis (years)",
+                  ylab="Hazard",
+                  col=1:4, lty=1, xlim=c(0,20), ylim=0:1))
 ```
+
 
 ## (b) Estimate the mortality rates for each stage using, for example, the `survRate` command ##
 
 ```{webr-r}
 #| results: "asis"
-survRate(Surv(surv_mm, death_cancer) ~ stage, data=melanoma) |> kable("html")
+survRate(Surv(surv_mm/12, death_cancer) ~ stage, data=melanoma) |> kable("html")
 ```
 
 What are the units of the estimated rates? The `survRate` function, as the name suggests, is used to estimates rates. Look at the help pages if you are not familiar with the function (e.g. `?survRate` or `help(survRate)`).
 
 
-## (c) ##
-If you haven’t already done so, estimate the mortality rates for each stage per person-year and per 1000 person-years of follow-up.
+We can also do this using more general tools:
 
 ```{webr-r}
 #| results: "asis"
-survRate(Surv(surv_mm/12, death_cancer) ~ stage, data=melanoma) |> kable("html")
+library(dplyr)
+melanoma |>
+    group_by(stage) |>
+    summarise(D = sum(death_cancer), M = sum(surv_mm/12), Rate = D/M,
+              lower.ci = stats::poisson.test(D,M)$conf.int[1],
+              upper.ci = stats::poisson.test(D,M)$conf.int[2]) |>
+    kable("html")
 ```
+
+## (c) ##
+If you haven’t already done so, estimate the mortality rates for each stage per 1000 person-years of follow-up.
 
 ```{webr-r}
 #| results: "asis"
@@ -123,7 +113,7 @@ library(dplyr) # slow:(
 library(tinyplot) # fast:)
 library(ggplot2) # slow:(
 hazards <- group_by(melanoma, sex) |>
-    do(as.data.frame(bshazard(Surv(surv_mm, death_cancer)~1, data=., verbose=FALSE))) |>
+    do(as.data.frame(bshazard(Surv(surv_mm/12, death_cancer)~1, data=., verbose=FALSE))) |>
     ungroup()
 with(hazards,
      plt(hazard~time|sex,ymin=lower.ci, ymax=upper.ci,type="ribbon",
@@ -147,8 +137,11 @@ cause of death depend on age?
 
 
 ```{webr-r}
-#| results: "asis"
-xtabs(~status+agegrp, melanoma) |> kable("html")
+Freq <- xtabs(~status+agegrp, melanoma)
+Freq
+# proportions for status by agegrp
+round(proportions(Freq,"agegrp")*100,1)
+chisq.test(Freq[-4,])
 ```
 
 ## (f) ##
@@ -157,15 +150,14 @@ To get all-cause survival, specify all deaths (both cancer
 and other) as events.
 
 Now plot the survivor proportion for all-cause survival
-by stage. We name the graph to be able to separate them in the
-graph window. Is the survivor proportion different compared to
+by stage. Is the survivor proportion different compared to
 the cause-specific survival you estimated above? Why?
 
 ```{webr-r}
 par(mfrow=c(1, 1))
-afit <- survfit(Surv(surv_mm, death_all) ~ stage, data = melanoma)
+afit <- survfit(Surv(surv_mm/12, death_all) ~ stage, data = melanoma)
 plot(afit, col=1:4,
-     xlab = "Follow-up Time",
+     xlab = "Time since diagnosis (years)",
      ylab = "Survival",
      main = "Kaplan-Meier survival estimates\nAll-cause")
 legend("topright", levels(melanoma$stage), col=1:4, lty = 1)
@@ -182,16 +174,16 @@ all-cause survival.
 
 ```{webr-r}
 par(mfrow=c(1, 2))
-mfit75 <- survfit(Surv(surv_mm, death_cancer) ~ stage, data = subset(melanoma,agegrp=="75+"))
+mfit75 <- survfit(Surv(surv_mm/12, death_cancer) ~ stage, data = subset(melanoma,agegrp=="75+"))
 plot(mfit75, col=1:4,
-     xlab = "Follow-up Time",
+     xlab = "Since since diagnosis (years)",
      ylab = "Survival",
      main = "Kaplan-Meier survival estimates\nCancer | Age 75+")
 legend("topright", levels(melanoma$stage), col=1:4, lty = 1)
 
-afit75 <- survfit(Surv(surv_mm, death_all) ~ stage, data = subset(melanoma,agegrp=="75+"))
+afit75 <- survfit(Surv(surv_mm/12, death_all) ~ stage, data = subset(melanoma,agegrp=="75+"))
 plot(afit75, col=1:4,
-     xlab = "Follow-up Time",
+     xlab = "Time since diagnosis (years)",
      ylab = "Survival",
      main = "Kaplan-Meier survival estimates\nAll-cause | Age 75+")
 legend("topright", levels(melanoma$stage), col=1:4, lty = 1)
@@ -203,19 +195,19 @@ Now estimate both cancer-specific and all-cause survival for
         each age group.
 
 
-```{webr-r}
+```{r}
 par(mfrow=c(1, 2))
-mfitage <- survfit(Surv(surv_mm, death_cancer) ~ agegrp, data = melanoma)
-plot(mfitage, col=1:4,
-     xlab = "Follow-up Time",
-     ylab = "Survival",
-     main = "Kaplan-Meier estimates of\ncancer survival by age group")
+survfit(Surv(surv_mm/12, death_cancer) ~ agegrp, data = melanoma) |>
+	plot(col=1:4,
+         xlab = "Time since diagnosis (years)",
+         ylab = "Survival",
+         main = "Kaplan-Meier estimates of\ncancer survival by age group")
 legend("topright", levels(melanoma$agegrp), col=1:4, lty = 1)
 
-afitage <- survfit(Surv(surv_mm, death_all) ~ agegrp, data = melanoma)
-plot(afitage, col=1:4,
-     xlab = "Follow-up Time",
-     ylab = "Survival",
-     main = "Kaplan-Meier estimates of\nall-cause survival by age group")
+survfit(Surv(surv_mm/12, death_all) ~ agegrp, data = melanoma) |>
+    plot(col=1:4,
+         xlab = "Time since diagnosis (years)",
+         ylab = "Survival",
+         main = "Kaplan-Meier estimates of\nall-cause survival by age group")
 legend("topright", levels(melanoma$agegrp), col=1:4, lty = 1)
 ```

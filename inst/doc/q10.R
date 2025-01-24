@@ -8,37 +8,51 @@
 ###############################################################################
 ## @knitr loadDependencies
 library(biostat3)
-library(dplyr)    # for data manipulation
-library(ggplot2)
+library(bshazard)
 library(car)      # car::linearHypothesis -> biostat3::lincom
+library(tinyplot) # plt()
 
 ## @knitr loadPreprocess
-localised <- dplyr::filter(biostat3::melanoma, stage == "Localised") %>%
-    dplyr::mutate(death_cancer = ifelse( status == "Dead: cancer" & surv_mm <= 120, 1, 0), #censoring for > 120 months
+localised <-
+    subset(biostat3::melanoma, stage == "Localised") |>
+    transform(death_cancer = ifelse( status == "Dead: cancer" & surv_mm <= 120, 1, 0), #censoring for > 120 months
            trunc_yy = pmin(surv_mm/12,10))  #scale to years and truncate to 10 years
 
 ## @knitr 10.a
-# Using muhaz2 to smooth the Kaplan-Meier hazards by strata
-hazDiaDate <- muhaz2(Surv(trunc_yy,death_cancer)~year8594, data=localised)
-hazDiaDateDf <- as.data.frame(hazDiaDate)
+# Using bshazard to smooth the Kaplan-Meier hazards by strata
+hazDiaDate <- lapply(levels(localised$year8594),
+                     function(level) bshazard(Surv(trunc_yy,death_cancer)~1, v=F,
+                                              data=subset(localised, year8594==level)) |>
+                                     with(data.frame(time,hazard,lower.ci,upper.ci,
+                                                     year8594=level))) |>
+    do.call(what=rbind)
 
 ## Comparing hazards
-plot(hazDiaDate, haz.scale=1000,
-     xlab="Time since diagnosis (years)", 
-     ylab="Hazard per 1000 person-years")
+with(hazDiaDate, plt(hazard~time|year8594, ymin=lower.ci, ymax=upper.ci,
+                     group=year8594,
+                     type="ribbon",
+                     xlab="Time since diagnosis (years)", 
+                     ylab="Hazard"))
 # or using ggplot2
-ggplot(hazDiaDateDf, aes(x=x, y=y*1000, colour= strata)) + geom_line() +
+library(ggplot2)
+ggplot(hazDiaDate, aes(x=time, y=hazard, fill=year8594,
+                       ymin=lower.ci, ymax=upper.ci)) +
+    geom_line(aes(color=year8594)) +
+    geom_ribbon(alpha=0.3) +
     xlab("Time since diagnosis (years)") +
-    ylab("Hazard per 1000 person-years")
+    ylab("Hazard")
 
 
 ## @knitr 10.b
 ## Comparing hazards on a log scales
-plot(hazDiaDate, log="y")
-
+with(hazDiaDate, plt(hazard~time|year8594, ymin=lower.ci, ymax=upper.ci,
+                     group=year8594,
+                     log="y",
+                     type="ribbon",
+                     xlab="Time since diagnosis (years)", 
+                     ylab="Hazard"))
 
 ## @knitr 10.c
-## Calculating -log cumulative hazards per strata
 survfit1 <- survfit(Surv(trunc_yy,death_cancer)~year8594, data=localised)
 plot(survfit1, col=1:2, fun=function(S) -log(-log(S)), log="x",
      xlab="log(time)", ylab="-log(H)")
@@ -64,7 +78,12 @@ summary(cox2)
 ## The smooth line shows the estimated log hazard ratio as a function of time.
 cox2.phtest <- cox.zph(cox2, terms=FALSE) # for separate plots
 print(cox2.phtest)
-plot(cox2.phtest,var=5,resid=TRUE, se=TRUE, main="Schoenfeld residuals", ylim=c(-4,4))
+plot(cox2.phtest,var=2,resid=TRUE, se=TRUE, main="Schoenfeld residuals", ylim=c(-4,4))
+
+## @knitr 10.f
+par(mfrow=c(2,2))
+for (var in 3:5)
+    plot(cox2.phtest,var=var,resid=TRUE, se=TRUE, main="Schoenfeld residuals", ylim=c(-4,4))
 
 ## @knitr 10.g
 ## The results from the previous proportional hazards assumption test
@@ -72,11 +91,11 @@ print(cox.zph(cox2))
 
 ## @knitr 10.h
 melanoma2p8Split <- survSplit(localised, cut=c(2), end="trunc_yy", start="start",
-                              event="death_cancer", episode="fu") %>%
-    mutate(fu = as.factor(fu))
+                              event="death_cancer", episode="fu") |>
+    transform(fu = as.factor(fu))
 
 ##Tabulate ageband including risk_time
-melanoma2p8Split %>% select(id, start, trunc_yy) %>% filter(id<=3) %>% arrange(id, trunc_yy)
+melanoma2p8Split |> subset(id<=3, select=c(id, start, trunc_yy))
 
 head(melanoma2p8Split)
 
@@ -91,7 +110,8 @@ summary(cox2p8Split1b)
 
 
 ## @knitr 10.i
-cox2p8Split2 <- coxph(Surv(start, trunc_yy, death_cancer) ~ sex + year8594 + fu + fu:agegrp, data=melanoma2p8Split)
+cox2p8Split2 <- coxph(Surv(start, trunc_yy, death_cancer) ~ sex + year8594 + fu +
+                          fu:agegrp, data=melanoma2p8Split)
 summary(cox2p8Split2)
 
 ## @knitr 10.ib
@@ -129,39 +149,50 @@ lincom(cox2p8tvclogt, "agegrp75+ + 0.6931472*tt(agegrp)75+",eform=TRUE) # t=2 =>
 
 
 ## @knitr 10.j
-library(splines)
+library(splines) # ns
+library(dplyr)   # mutate, group_by, summarise
+library(rstpm2)  # predictnl
 time.cuts <- seq(0,10,length=100)
 delta <- diff(time.cuts)[1]
 ## split and collapse
 melanoma2p8Split2 <- survSplit(Surv(trunc_yy,death_cancer)~., data=localised,
                                cut=time.cuts, end="tstop", start="tstart",
-                               event="death_cancer") %>%
+                               event="death_cancer") |>
     mutate(fu=cut(tstop,time.cuts),
-           mid=time.cuts[unclass(fu)]+delta/2) %>%
-    group_by(mid,sex,year8594,agegrp) %>%
-    summarise(pt=sum(tstop-tstart), death_cancer=sum(death_cancer)) %>%
+           mid=time.cuts[unclass(fu)]+delta/2) |>
+    group_by(mid,sex,year8594,agegrp) |>
+    summarise(pt=sum(tstop-tstart), death_cancer=sum(death_cancer),
+              .groups="keep") |>
     mutate(age75 = (agegrp=="75+")+0)
-
 poisson2p8tvc <- glm(death_cancer ~ sex + year8594 + agegrp + ns(mid,df=3) +
                          age75:ns(mid,df=3) + offset(log(pt)),
-    data=melanoma2p8Split2, family=poisson)
-
-## utility function to draw a confidence interval
-polygon.ci <- function(time, interval, col="lightgrey") 
-    polygon(c(time,rev(time)), c(interval[,1],rev(interval[,2])), col=col, border=col)
-## define exposures
+                     data=melanoma2p8Split2, family=poisson)
 newdata <- data.frame(mid=seq(0,max(time.cuts),length=100), year8594="Diagnosed 85-94",
                       sex="Male", agegrp="75+", age75=1, pt=1)
+predictnl(poisson2p8tvc,
+          fun=function(fit,newdata)
+              predict(fit, newdata) -
+              predict(fit, transform(newdata, agegrp='0-44', age75=0)),
+          newdata=newdata) |>
+    cbind(newdata) |>
+    transform(RateRatio=exp(fit),
+              lower.ci=exp(fit-1.96*se.fit),
+              upper.ci=exp(fit+1.96*se.fit)) |>
+    with(plt(mid, RateRatio, type="ribbon", xlab="Time since diagnosis (months)",
+             ymin=lower.ci, ymax=upper.ci,
+             ylab="Rate ratio", main="Ages 75+ compared with ages 0-44 years"))
 
-library(rstpm2)
-logirr <- rstpm2::predictnl(poisson2p8tvc,
-          fun=function(fit,newdata) predict(fit, newdata) -
-                        predict(fit, transform(newdata, agegrp='0-44', age75=0)),
-          newdata=newdata)
-pred <- exp(logirr$fit)
-ci <- exp(confint(logirr))
-## plot
-matplot(newdata$mid, ci, type="n", xlab="Time since diagnosis (months)",
-        ylab="Rate ratio", main="Ages 75+ compared with ages 0-44 years")
-polygon.ci(newdata$mid, ci) 
-lines(newdata$mid, pred)
+summary(poisson2p8tvc)
+newdata <- expand.grid(mid=c(0.5,2), year8594="Diagnosed 85-94",
+                       sex="Male", agegrp=levels(localised$agegrp), pt=1) |>
+    transform(age75=(agegrp=="75+")+0)
+predictnl(poisson2p8tvc,
+          fun=function(fit,newdata)
+              predict(fit, newdata) -
+              predict(fit, transform(newdata, agegrp='0-44', age75=0)),
+          newdata=newdata) |>
+    cbind(newdata) |>
+    transform(RateRatio=exp(fit),
+              lower.ci=exp(fit-1.96*se.fit),
+              upper.ci=exp(fit+1.96*se.fit)) |>
+    subset(select=c(agegrp, mid, RateRatio, lower.ci, upper.ci))

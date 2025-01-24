@@ -12,19 +12,21 @@ Melanoma cancer dataset
   A data frame with 7775 observations on the following 18 variables.
   \describe{
     \item{\code{sex}}{a factor with levels \code{Male} \code{Female}}
-    \item{\code{age}}{a numeric vector}
+    \item{\code{age}}{a numeric vector for age at diagnosis in years (0-99)}
     \item{\code{stage}}{a factor with levels \code{Unknown} \code{Localised} \code{Regional} \code{Distant}}
-    \item{\code{mmdx}}{a numeric vector}
-    \item{\code{yydx}}{a numeric vector}
-    \item{\code{surv_mm}}{a numeric vector}
-    \item{\code{surv_yy}}{a numeric vector}
+    \item{\code{mmdx}}{a numeric vector for the month of diagnosis (1-12)}
+    \item{\code{yydx}}{a numeric vector for the year of diagnosis (1975-1994)}
+    \item{\code{surv_mm}}{a numeric vector  observed time from diagnosis
+      to end of follow-up in months (0.5-251.5)}
+    \item{\code{surv_yy}}{a numeric vector observed time from diagnosis
+      to end of follow-up in years (0.5-20.5)}
     \item{\code{status}}{a factor with levels \code{Alive} \code{Dead: cancer} \code{Dead: other} \code{Lost to follow-up}}
     \item{\code{subsite}}{a factor with levels \code{Head and Neck} \code{Trunk} \code{Limbs} \code{Multiple and NOS}}
     \item{\code{year8594}}{a factor with levels \code{Diagnosed 75-84} \code{Diagnosed 85-94}}
-    \item{\code{dx}}{a Date}
-    \item{\code{exit}}{a Date}
+    \item{\code{dx}}{a Date date of diagnosis}
+    \item{\code{exit}}{a Date date of exit}
     \item{\code{agegrp}}{a factor with levels \code{0-44} \code{45-59} \code{60-74} \code{75+}}
-    \item{\code{id}}{a numeric vector}
+    \item{\code{id}}{a numeric vector individual identifier}
     \item{\code{ydx}}{a numeric vector for continuous year of diagnosis}
     \item{\code{yexit}}{a numeric vector for continuous year of exit}
   }

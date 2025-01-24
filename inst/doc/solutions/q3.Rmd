@@ -4,6 +4,7 @@ author:
 - Code by Annika Tillander, Andreas Karlsson and Mark Clements
 output:
   prettydoc::html_pretty:
+    mathjax: https://biostat3.net/js/mathjax/tex-chtml.js
     theme: cayman
     highlight: github
 ---
@@ -40,7 +41,7 @@ There seems to be a clear difference in survival between the
 
 The plot shows the instantaneous cancer-specific mortality rate
         (the hazard) as a function of time. It appears that mortality is
-        highest approximately 40 months following diagnosis. Remember
+        highest approximately 3.5 years following diagnosis. Remember
         that all patients were classified as having localised cancer at
         the time of diagnosis so we would not expect mortality to be
         high directly following diagnosis.
@@ -75,8 +76,8 @@ We see that mortality increases with age at diagnosis (and
 ```{r d_crudeRates1000_agegrp}
 ```
 
-The rates are (cause-specific) deaths per 1000 person-months.
-        When we use `Surv` we defined time as time in months and then asked
+The rates are (cause-specific) deaths per 1000 person-years.
+        When we use `Surv` we defined time as time in months divided by 12 and then asked
         for rates per 1000 units of time.
 
 ```{r d_plotSurv_sex}

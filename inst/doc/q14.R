@@ -28,13 +28,15 @@ head(d)
 
 
 ## @knitr 14.dag
-library(dagitty)
-g1 <- dagitty( "dag {
+if (requireNamespace("dagitty")) {
+    library(dagitty)
+    g1 <- dagitty( "dag {
     X -> T -> \"(Y,Delta)\"
     U -> T
     C -> \"(Y,Delta)\"
 }")
-plot(graphLayout(g1))
+    plot(graphLayout(g1))
+}
 
 ## @knitr 14.a
 summary(fit1 <- glm(delta~x+u+offset(log(y)),data=d,family=poisson))
@@ -57,7 +59,7 @@ predict(fit, type="surv", newdata=data.frame(x=0:1,u=3), grid=TRUE, full=TRUE,
     ylab("Survival") +
     geom_ribbon(alpha=0.6) +
     geom_line(aes(colour=factor(x)))
-## standardisation: slow
+## standardisation: slow:(
 plot(fit, type="meanhr", newdata=transform(d,x=0), var="x", seqLength=31, ylim=c(1,4))
 plot(fit, type="meansurvdiff", newdata=transform(d,x=0), var="x", seqLength=31)
 plot(fit, type="meansurv", newdata=transform(d,x=0), seqLength=101)

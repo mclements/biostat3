@@ -49,8 +49,8 @@ library(dplyr)
 diet |>
     group_by(hieng) |>
     summarise(Event = sum(chd), Time = sum(y/1000), Rate = Event/Time,
-              CI_low = poisson.test(Event,Time)$conf.int[1],
-              CI_high = poisson.test(Event,Time)$conf.int[2]) |>
+              lower.ci = poisson.test(Event,Time)$conf.int[1],
+              upper.ci = poisson.test(Event,Time)$conf.int[2]) |>
     kable("html")
 ```
 
@@ -59,7 +59,7 @@ Code for the rate ratios:
 ```{webr-r}
 diet.ir6a <- survRate(Surv(y/1000,chd) ~ hieng, data=diet)
 with(diet.ir6a, poisson.test(event,tstop))
-with(diet.ir6a, poisson.test(rev(event),rev(tstop)))
+with(diet.ir6a, poisson.test(rev(event),rev(tstop))) # reverse the comparison
 ```
 
 
@@ -110,8 +110,9 @@ diet = transform(diet,
 ```
 
 ```{webr-r}
+#| results: 'asis'
 with(diet, cbind(Freq=table(eng3),
-                 Prop=table(eng3)/nrow(diet)))
+                 Prop=proportions(table(eng3)))) |> kable("html")
 ```
 
 
@@ -142,12 +143,14 @@ with(diet.ir6e[c(3,1),], { # compare third row with first row
 
 ```{webr-r}
 #| autorun: true
+#| results: 'asis'
 diet = transform(diet, 
                  X1 = as.numeric(eng3 == "low"),
                  X2 = as.numeric(eng3 == "medium"),
                  X3 = as.numeric(eng3 == "high"))
 ## or (names eng3low, eng3medium and eng3high)
 diet = cbind(diet, model.matrix(~eng3+0, diet))
+colSums(diet[c("X1","X2","X3","eng3low","eng3medium","eng3high")]) |> kable("html")
 ```
 
 ## (g) ##
@@ -205,5 +208,7 @@ tidy(poisson6j, conf.int=TRUE, exponentiate=TRUE)
  Calculate the total number of events during follow-up, person-time at risk, and the crude incidence rate (per 1000 person-years)
 
 ```{webr-r}
-with(diet, sum(chd) / sum(y))
+with(diet, sum(chd) / sum(y/1000))
+## or
+survRate(Surv(y/1000,chd)~1, data=diet)
 ```

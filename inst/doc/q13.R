@@ -19,7 +19,7 @@ library(biostat3) # for Surv and survfit
 ## @knitr 13.a
 ## y is the observed time
 ## so it already measures time since entry
-poisson13a <- glm( chd ~ hieng + offset( log( y ) ), family=poisson, data=diet)
+poisson13a <- glm(chd ~ hieng + offset(log(y)), family=poisson, data=diet)
 summary(poisson13a)
 eform(poisson13a)
 

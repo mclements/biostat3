@@ -4,6 +4,7 @@ author:
 - Code by Xing-Rong Liu and Mark Clements
 output:
   prettydoc::html_pretty:
+    mathjax: https://biostat3.net/js/mathjax/tex-chtml.js
     theme: cayman
     highlight: github
 ---
@@ -26,7 +27,7 @@ opts_chunk$set(cache=FALSE, fig.width=10, fig.height=6)
 ```{r loadPreprocess}
 ```
 
-##(a)## 
+## (a) ## 
 
 The `stpm2` output can be seen below.
 
@@ -39,7 +40,7 @@ The hazard ratio, 95% confidence interval and statistical
 ```{r a_cox}
 ```
 
-##(b)## 
+## (b) ## 
 
 The predicted survival and hazard functions are shown below.
 
@@ -49,7 +50,7 @@ The predicted survival and hazard functions are shown below.
 ```{r b_haz}
 ```
 
-##(c)## 
+## (c) ## 
 
 There is a constant difference as the predictions are from a
         proportional hazards model and a multiplicative effect becomes
@@ -58,7 +59,7 @@ There is a constant difference as the predictions are from a
 ```{r c_haz_log}
 ```
 
-##(d)## 
+## (d) ## 
 
 The log hazard ratios (and hence the hazard ratios) from 2 df
 and up are similar and for 3 df they are very similar. The main
@@ -78,7 +79,7 @@ for the baseline hazard.
 ```{r d_AIC_BIC}
 ```
 
-##(e)## 
+## (e) ## 
 
 ```{r e_base_surv}
 ```
@@ -93,7 +94,7 @@ hazard functions show similar shapes, so as long we have enough
 knots our conclusions would be very similar.
 
 
-##(f)## 
+## (f) ## 
 
 ```{r f_sex_age}
 ```
@@ -102,7 +103,7 @@ After modelling for sex, calendar period age group and time with five degrees of
 
 Undertaking a likelihood ratio test, there was strong evidence (p<1e-16) that age group contributed significantly to the model fit.
 
-##(g)## 
+## (g) ## 
 
 ```{r g_sex_age}
 ```
@@ -116,14 +117,20 @@ baseline hazard is modelled using splines. The 5 df spline
 allows sufficient flexibility to make the model estimates
 virtually identical.
 
-##(h)## 
+## (h) ## 
 
 ```{r h_time_varying}
 ```
 
 There is strong evidence of a non-proportional effect of age.
 
-##(i)## 
+We could also investigate the non-proportional effect of age with penalized models, where sp is the optimal smoothing parameters estimated from models without sp argument:
+
+```{r h_time_varying_penalised}
+```
+
+
+## (i) ## 
 
 The baseline hazard is shown below. This baseline
         is for the youngest age group who are male and diagnosed in
@@ -132,7 +139,7 @@ The baseline hazard is shown below. This baseline
 ```{r i_plot_base_haz}
 ```
 
-##(j)## 
+## (j) ## 
 
 ```{r j_age_HR}
 ```
@@ -145,7 +152,7 @@ The baseline hazard is shown below. This baseline
         because the hazard in the reference group is close to
         zero. The hazard ratio for the oldest age
         group with 95% confidence intervals is also shown.
-##(k)## 
+## (k) ## 
 
 
 ```{r k_haz_diff}
@@ -154,13 +161,13 @@ The baseline hazard is shown below. This baseline
 The hazard difference is small early on, despite the hazard
         ratio being large, because the underlying hazard is so low.
 		
-##(l)## 
+## (l) ## 
 
 
 ```{r l_surv_diff}
 ```
 
-##(m)## 
+## (m) ## 
 
 
 ```{r m_time_dep_eff}
